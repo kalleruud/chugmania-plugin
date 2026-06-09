@@ -102,6 +102,12 @@ Scripted settings tabs use `[SettingsTab]` on a global render function. Optional
 - Explicit casts are required for child APIs, e.g. `CTrackMania@ app = cast<CTrackMania>(GetApp());`.
 - Failed casts return `null`; check before use.
 
+## Game API Search
+
+- Trackmania Next (2020): `https://next.openplanet.dev/search?q=%s`
+- Trackmania Turbo: `https://turbo.openplanet.dev/search?q=%s`
+- Replace `%s` with the class, method, enum, or property name to search. Use the matching game API before inventing or guessing object model members.
+
 ## Preprocessor
 
 Use `#if`, `#elif`, `#else`, `#endif`. `&&` and `||` exist but are basic: they evaluate left-to-right, no precedence, no parentheses.

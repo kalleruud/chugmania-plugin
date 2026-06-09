@@ -36,6 +36,7 @@ During development, remind the user that unsigned plugins require Openplanet Dev
 6. Prefer metadata settings (`[Setting ...]` globals and `[SettingsTab]`) over custom persistence unless behavior requires `OnSettingsSave` or `OnSettingsLoad`.
 7. Add `[script] dependencies` before using dependency APIs such as `NadeoServices` or `VehicleState`.
 8. Gate game-specific code with preprocessor defines such as `TMNEXT`, `MP4`, or `TURBO`; remember `&&` and `||` are evaluated left-to-right without grouping.
+9. Search game API classes and members with `https://next.openplanet.dev/search?q=%s` for Trackmania Next (2020), or `https://turbo.openplanet.dev/search?q=%s` for Trackmania Turbo.
 
 ## Common Patterns
 
@@ -92,4 +93,4 @@ void Update(float dt)
 
 ## Reference
 
-For metadata keys, callbacks, settings attributes, auth flow, preprocessor defines, and dependency API notes, see [REFERENCE.md](REFERENCE.md).
+For game API search URLs, metadata keys, callbacks, settings attributes, auth flow, preprocessor defines, and dependency API notes, see [REFERENCE.md](REFERENCE.md).
