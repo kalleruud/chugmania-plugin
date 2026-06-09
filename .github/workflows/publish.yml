@@ -1,0 +1,120 @@
+name: Publish release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Tag, package, and publish release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Read plugin metadata
+        id: plugin
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION="$(
+            awk -F '=' '
+              /^\[meta\]/ { in_meta = 1; next }
+              /^\[/ { in_meta = 0 }
+              in_meta && $1 ~ /^[[:space:]]*version[[:space:]]*$/ {
+                gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2)
+                gsub(/^"|"$/, "", $2)
+                print $2
+                exit
+              }
+            ' info.toml
+          )"
+
+          NAME="$(
+            awk -F '=' '
+              /^\[meta\]/ { in_meta = 1; next }
+              /^\[/ { in_meta = 0 }
+              in_meta && $1 ~ /^[[:space:]]*name[[:space:]]*$/ {
+                gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2)
+                gsub(/^"|"$/, "", $2)
+                print $2
+                exit
+              }
+            ' info.toml
+          )"
+
+          if [[ -z "$VERSION" ]]; then
+            echo "::error::Could not read [meta].version from info.toml"
+            exit 1
+          fi
+
+          if [[ -z "$NAME" ]]; then
+            echo "::error::Could not read [meta].name from info.toml"
+            exit 1
+          fi
+
+          SLUG="$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')"
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
+
+      - name: Create tag on current commit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TAG="${{ steps.plugin.outputs.tag }}"
+          HEAD_SHA="$(git rev-parse HEAD)"
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            TAG_SHA="$(git rev-list -n 1 "$TAG")"
+            if [[ "$TAG_SHA" != "$HEAD_SHA" ]]; then
+              echo "::error::Tag $TAG already exists on $TAG_SHA, not current commit $HEAD_SHA"
+              exit 1
+            fi
+            echo "Tag $TAG already exists on current commit."
+          else
+            git tag "$TAG" "$HEAD_SHA"
+            git push origin "refs/tags/$TAG"
+          fi
+
+      - name: Package plugin zip
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p dist
+
+          ARTIFACT="${{ steps.plugin.outputs.slug }}-${{ steps.plugin.outputs.tag }}.zip"
+          zip -r "dist/$ARTIFACT" info.toml src
+
+          echo "artifact=dist/$ARTIFACT" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TAG="${{ steps.plugin.outputs.tag }}"
+          TITLE="${{ steps.plugin.outputs.name }} $TAG"
+          ARTIFACT="${{ steps.package.outputs.artifact }}"
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ARTIFACT" --clobber
+          else
+            gh release create "$TAG" "$ARTIFACT" --title "$TITLE" --generate-notes
+          fi
