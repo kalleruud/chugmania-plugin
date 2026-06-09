@@ -1,0 +1,136 @@
+class Window{
+    bool isOpened = false;
+
+    array<Tab@> tabs;
+    Tab@ activeTab;
+    Tab@ selectedTab;
+    Tab@ c_lastActiveTab;
+    Tab@ m_homePageTab;
+    Tab@ m_YourProfileTab;
+
+    Window() {
+        @m_homePageTab = HomePageTab();
+        AddTab(m_homePageTab);
+        if (Setting_Tab_YourProfile_UserID != 0) {
+            @m_YourProfileTab = UserTab(Setting_Tab_YourProfile_UserID, true);
+            AddTab(m_YourProfileTab);
+        }
+        AddTab(MostAwardedTab());
+        AddTab(FeaturedMapsTab());
+        AddTab(TOTDTab());
+        AddTab(PersonalListsTab());
+        AddTab(UserListTab());
+        AddTab(MapPackListTab());
+        AddTab(MapListTab());
+    }
+
+    void AddTab(Tab@ tab, bool select = false, int index = -1) {
+        if (index == -1) tabs.InsertLast(tab);
+        else tabs.InsertAt(index, tab);
+        if (select) {
+            @activeTab = tab;
+        }
+    }
+
+    void RemoveTab(Tab@ tab) {
+        tabs.RemoveAt(tabs.FindByRef(tab));
+    }
+
+    void Render() {
+        isOpened = Setting_ShowMenu;
+        if (!isOpened) return;
+
+        if (Setting_Tab_YourProfile_UserID != 0 && Setting_Tab_YourProfile_UserID != Tab_YourProfile_UserID_Old) {
+            if (m_YourProfileTab !is null) {
+               RemoveTab(m_YourProfileTab);
+            }
+            @m_YourProfileTab = UserTab(Setting_Tab_YourProfile_UserID, true);
+            AddTab(m_YourProfileTab, false, 1);
+            Tab_YourProfile_UserID_Old = Setting_Tab_YourProfile_UserID;
+        }
+
+        if (Setting_Tab_YourProfile_UserID == 0 && m_YourProfileTab !is null) {
+            RemoveTab(m_YourProfileTab);
+            @m_YourProfileTab = null;
+        }
+
+        UI::PushStyleColor(UI::Col::WindowBg,vec4(.1,.1,.1,1));
+        UI::PushStyleVar(UI::StyleVar::WindowPadding, vec2(10, 10));
+        UI::PushStyleVar(UI::StyleVar::WindowRounding, 10.0);
+        UI::PushStyleVar(UI::StyleVar::FramePadding, vec2(10, 6));
+        UI::PushStyleVar(UI::StyleVar::WindowTitleAlign, vec2(.5, .5));
+        UI::PushStyleVar(UI::StyleVar::CellPadding, UI::GetStyleVarVec2(UI::StyleVar::CellPadding) + vec2(7, 1));
+        UI::SetNextWindowSize(820, 500, UI::Cond::FirstUseEver);
+        if (UI::Begin(nameMenu + " \\$666v"+Meta::ExecutingPlugin().Version+"###ManiaExchange Menu", Setting_ShowMenu)) {
+            // Push the last active tab style so that the separator line is colored (this is drawn in BeginTabBar)
+            auto lastActiveTab = c_lastActiveTab;
+            if (lastActiveTab !is null) {
+                lastActiveTab.PushTabStyle();
+            }
+            UI::BeginTabBar("Tabs", UI::TabBarFlags::TabListPopupButton);
+
+            for (uint i = 0; i < tabs.Length; i++) {
+                auto tab = tabs[i];
+                if (!tab.IsVisible() || (MX::APIDown && tab !is m_homePageTab)) continue;
+
+                UI::PushID(tab);
+
+                int flags = 0;
+                if (tab is activeTab) {
+                    flags |= UI::TabItemFlags::SetSelected;
+                    if (!tab.GetLabel().Contains("Loading")) @activeTab = null;
+                }
+
+                tab.PushTabStyle();
+
+                if (tab.CanClose()) {
+                    bool open = true;
+                    bool beginTabClosable = UI::BeginTabItem(tab.GetLabel()+(tab.GetTooltip().Length > 0 ? "###"+tab.GetTooltip() : ""), open, flags);
+                    if (tab.GetTooltip().Length > 0) UI::SetItemTooltip(tab.GetTooltip());
+                    if (beginTabClosable) {
+                        @c_lastActiveTab = tab;
+
+                        UI::BeginChild("Tab");
+                        @selectedTab = tab;
+                        tab.Render();
+                        UI::EndChild();
+
+                        UI::EndTabItem();
+                    }
+                    if (!open) {
+                        tabs.RemoveAt(i--);
+                    }
+                } else {
+                    bool beginTab = UI::BeginTabItem(tab.GetLabel()+(tab.GetTooltip().Length > 0 ? "###"+tab.GetTooltip() : ""), flags);
+                    if (tab.GetTooltip().Length > 0) UI::SetItemTooltip(tab.GetTooltip());
+                    if (beginTab) {
+                        @c_lastActiveTab = tab;
+
+                        UI::BeginChild("Tab");
+                        @selectedTab = tab;
+                        tab.Render();
+                        UI::EndChild();
+
+                        UI::EndTabItem();
+                    }
+                }
+
+                tab.PopTabStyle();
+
+                UI::PopID();
+
+            }
+
+            UI::EndTabBar();
+
+            // Pop the tab style (for the separator line) only after EndTabBar, to satisfy the stack unroller
+            if (lastActiveTab !is null) {
+                lastActiveTab.PopTabStyle();
+            }
+        }
+        UI::End();
+        UI::PopStyleVar(5);
+        UI::PopStyleColor(1);
+    }
+
+}

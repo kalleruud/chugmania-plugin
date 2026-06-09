@@ -1,0 +1,17 @@
+[meta]
+name = "ManiaExchange"
+author = "Greep"
+category = "TMX"
+siteid = 154
+
+version = "1.4.0"
+
+[script]
+dependencies = [ "Controls" ]
+optional_dependencies = [ "BetterChat", "NadeoServices" ]
+
+exports = [ "src/Exports/Exports.as" ]
+timeout = 0
+
+#defines = [ "FORCE_API_DOWN" ]
+# FORCE_API_DOWN : Forces the API to be "down" after loading for tags and seasons.

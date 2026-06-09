@@ -1,0 +1,183 @@
+string CleanMapType(const string &in mapType) {
+    const int slashIndex = mapType.IndexOf("\\");
+
+    if (slashIndex == -1) return mapType;
+
+    return mapType.SubStr(slashIndex+1);
+}
+
+string GetFileNameFromHeader(dictionary headers) {
+    if (!headers.Exists("Content-Disposition")) {
+        return "";
+    }
+
+    array<string> matches = Regex::Search(string(headers["Content-Disposition"]), "filename=\"?(.*?)\"?(?:; ?|;?$)");
+
+    if (matches.IsEmpty()) {
+        return "";
+    }
+
+    return matches[1];
+}
+
+string GetComboText(array<bool> values) {
+    uint count = 0;
+
+    for (uint i = 0; i < values.Length; i++) {
+        if (values[i]) {
+            count++;
+        }
+    }
+
+    if (count == 0) {
+        return "Select...";
+    }
+
+    return tostring(count) + " selected";
+}
+
+array<int> JsonToIntArray(Json::Value@ json) {
+    if (json.GetType() != Json::Type::Array) {
+        Logging::Error("Received wrong JSON type when converting to array!");
+        return {};
+    }
+
+    array<int> arr;
+
+    for (uint i = 0; i < json.Length; i++) {
+        arr.InsertLast(int(json[i]));
+    }
+
+    return arr;
+}
+
+array<MX::MapInfo@> LoadPlayLater() {
+    array<MX::MapInfo@> m_maps;
+    Json::Value FileData = Json::FromFile(PlayLaterJSON);
+
+    if (FileData.GetType() == Json::Type::Null) {
+        // Check if we have a old PlayLater File (migration to PluginStorage directory for version 1.2)
+        Json::Value FileData_Old = Json::FromFile(IO::FromDataFolder("ManiaExchange_PlayLater.json"));
+
+        if (FileData_Old.GetType() == Json::Type::Null) {
+            UI::ShowNotification("\\$afa" + Icons::InfoCircle + " Thanks for installing "+pluginName+"!","No data file was detected, that means it's your first install. Welcome!", 15000);
+            SavePlayLater(m_maps);
+
+            return {};
+        }
+
+        for (uint i = 0; i < FileData_Old.Length; i++) {
+            string mapName = FileData_Old[i]["Name"];
+            Logging::Trace("Loading map #" + i + " from Old Play later file: " + mapName);
+
+            MX::MapInfo@ map = MX::MapInfo(FileData_Old[i]);
+            m_maps.InsertAt(0, map);
+        }
+
+        SavePlayLater(m_maps);
+        IO::Delete(IO::FromDataFolder("ManiaExchange_PlayLater.json"));
+
+        Logging::Info(tostring(m_maps.Length) + " maps loaded from Play Later list and migrated to PluginStorage.");
+        return {};
+    }
+    
+    if (FileData.GetType() != Json::Type::Array) {
+        Logging::Error("Invalid data in JSON file! If it persists, consider deleting the file in " + PlayLaterJSON, true);
+        return {};
+    }
+
+
+    if (FileData.Length > 0 && !FileData[0].HasKey("MapId")) {
+        UI::ShowNotification("PlayLater.json v1 detected!", "Migrating file to v2...");
+
+        uint currentIndex = 0;
+
+        while (currentIndex < FileData.Length) {
+            array<string> idBatch;
+
+            for (uint i = currentIndex; i < currentIndex + MX::maxMapsRequest && i < FileData.Length; i++) {
+                if (FileData[i].HasKey("TrackID")) {
+                    idBatch.InsertLast(tostring(int(FileData[i]["TrackID"])));
+                }
+            }
+
+            string reqUrl = MXURL + "/api/maps?fields=" + MX::mapFields + "&count=" + (MX::maxMapsRequest + 10) + "&id=" + string::Join(idBatch, ",");
+            Json::Value res = API::GetAsync(reqUrl);
+
+            if (res.GetType() == Json::Type::Null || !res.HasKey("Results") || res["Results"].Length == 0) {
+                Logging::Error("Something went wrong when getting PlayLater maps from MX. Stopping migration...", true);
+                return {};
+            }
+
+            Json::Value maps = res["Results"];
+
+            for (uint m = 0; m < maps.Length; m++) {
+                MX::MapInfo@ map = MX::MapInfo(maps[m]);
+                m_maps.InsertLast(map);
+            }
+
+            currentIndex += MX::maxMapsRequest;
+            sleep(1500);
+        }
+
+        Logging::Info("Finished to fetch PlayLater.json maps. Found " + m_maps.Length + " maps out of " + FileData.Length);
+
+        if (m_maps.Length < FileData.Length) {
+            Logging::Warn("Failed to convert all maps in PlayLater.json, missing " + (FileData.Length - m_maps.Length) + " map(s)!", true);
+        }
+
+        IO::Copy(PlayLaterJSON, IO::FromStorageFolder("PlayLaterOld.json"));
+        SavePlayLater(m_maps);
+
+        UI::ShowNotification("Migration completed", "Succesfully migrated PlayLater.json to v2!", UI::HSV(0.33, 0.7, 0.65), 10000);
+        return m_maps;
+    }
+
+    for (uint i = 0; i < FileData.Length; i++) {
+        if (FileData[i].GetType() != Json::Type::Object) {
+            Logging::Error("Invalid data type for map in JSON file! If it persists, consider deleting the file " + PlayLaterJSON, true);
+            return m_maps;
+        }
+
+        string mapName = FileData[i]["Name"];
+        Logging::Trace("Loading map #" + i + " from Play later: " + mapName);
+
+        MX::MapInfo@ map = MX::MapInfo(FileData[i]);
+        m_maps.InsertAt(0, map);
+    }
+
+    Logging::Info(tostring(m_maps.Length) + " maps loaded from Play Later list.");
+    return m_maps;
+}
+
+void SavePlayLater(array<MX::MapInfo@> maps) {
+    Json::Value FileData = Json::Array();
+    for (uint i = 0; i < maps.Length; i++) {
+        FileData.Add(maps[i].ToJson());
+    }
+    Json::ToFile(PlayLaterJSON, FileData);
+}
+
+array<array<string>> Chunks(array<string> arr, uint maxLength) {
+    if (maxLength == 0) {
+        return {};
+    }
+
+    if (arr.Length <= maxLength) {
+        return { arr };
+    }
+
+    array<array<string>> arrayChunks;
+
+    for (uint i = 0; i < arr.Length; i += maxLength) {
+        array<string> chunk;
+
+        for (uint j = i; j < i + maxLength && j < arr.Length; j++) {
+            chunk.InsertLast(arr[j]);
+        }
+
+        arrayChunks.InsertLast(chunk);
+    }
+
+    return arrayChunks;
+}
