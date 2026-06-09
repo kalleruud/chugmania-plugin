@@ -78,12 +78,8 @@ jobs:
           HEAD_SHA="$(git rev-parse HEAD)"
 
           if git rev-parse "$TAG" >/dev/null 2>&1; then
-            TAG_SHA="$(git rev-list -n 1 "$TAG")"
-            if [[ "$TAG_SHA" != "$HEAD_SHA" ]]; then
-              echo "::error::Tag $TAG already exists on $TAG_SHA, not current commit $HEAD_SHA"
-              exit 1
-            fi
-            echo "Tag $TAG already exists on current commit."
+            git tag -f "$TAG" "$HEAD_SHA"
+            git push origin "refs/tags/$TAG" --force
           else
             git tag "$TAG" "$HEAD_SHA"
             git push origin "refs/tags/$TAG"
