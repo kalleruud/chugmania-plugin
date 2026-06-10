@@ -85,7 +85,7 @@ jobs:
             git push origin "refs/tags/$TAG"
           fi
 
-      - name: Package plugin zip
+      - name: Package plugin .op
         id: package
         shell: bash
         run: |
@@ -93,7 +93,7 @@ jobs:
 
           mkdir -p dist
 
-          ARTIFACT="${{ steps.plugin.outputs.slug }}-${{ steps.plugin.outputs.tag }}.zip"
+          ARTIFACT="${{ steps.plugin.outputs.slug }}-${{ steps.plugin.outputs.tag }}.op"
           zip -r "dist/$ARTIFACT" info.toml src
 
           echo "artifact=dist/$ARTIFACT" >> "$GITHUB_OUTPUT"
