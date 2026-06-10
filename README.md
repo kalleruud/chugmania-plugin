@@ -1,15 +1,49 @@
-# New Openplanet Plugin
+# Chugmania Capture Spike
 
-Skeleton for a new Openplanet plugin.
+An Openplanet test plugin for discovering which local Trackmania race data can
+be captured before building the Chugmania webhook integration.
 
-## Structure
+The plugin watches every player in `CurrentPlayground.Players`, including local
+split-screen players, and prints event records for:
 
-- `info.toml`: plugin metadata, dependencies, exports, and defines.
-- `src/Main.as`: Openplanet lifecycle callbacks and coroutine entry points.
-- `src/Settings.as`: user-facing settings and settings tabs.
-- `src/Interface/Window.as`: placeholder UI rendering.
-- `src/Utils/Helpers.as`: shared helper placeholders.
-- `src/Exports/Exports.as`: optional public API placeholder.
+- player discovery and the controlled split-screen terminal index;
+- race and lap starts;
+- first accelerator input after each lap start;
+- lap and race waypoint/checkpoint times;
+- lap finishes and race finishes;
+- detailed player state at every event, including timing arrays, respawns,
+  controls, position, speed, engine state, wheel contact, and skid/air duration;
+- map metadata and medal times.
 
-During development, unsigned plugins require Openplanet Developer signature mode.
-To distribute the plugin, zip the contents of this folder and rename the archive to `.op`.
+`FIRST_ACCELERATOR.delayMs` uses that player's `CurrentLapTime` at the first
+frame where `InputGasPedal` is greater than `0.01`. This is frame-polled, so its
+precision is limited by the game's render frame rate.
+
+## Run the test
+
+1. Install Openplanet for Trackmania 2020 and enable **Developer** signature
+   mode in Openplanet's settings. Unsigned local plugins only load in this mode.
+2. Copy this repository folder into the Openplanet `Plugins` directory. Keep
+   `info.toml` at the copied folder's root, for example:
+   `OpenplanetNext/Plugins/ChugmaniaCaptureSpike/info.toml`. Alternatively,
+   copy `dist/ChugmaniaCaptureSpike.op` directly into the `Plugins` directory.
+3. Start Trackmania, then reload plugins from Openplanet's plugin manager. The
+   log should contain `Capture test loaded`.
+4. Start **Local > Arcade** or a local **Split Screen** race. Complete
+   checkpoints and at least one lap with every controller/player.
+5. Inspect the Openplanet log/console and filter for
+   `[Chugmania Capture Spike]`. Compare `playerIndex`, `login`, `name`, and
+   `terminal` to identify each split-screen player.
+
+Useful event names are `FIRST_ACCELERATOR`, `LAP_WAYPOINT`, `LAP_FINISH`, and
+`RACE_FINISH`. Each event is followed by a `SNAPSHOT` and four `TIMES` records.
+
+## Development notes
+
+- This spike targets Trackmania 2020 (`TMNEXT`) APIs.
+- Checkpoints are primarily detected from each player's crossed map landmark.
+  The game also exposes waypoint time arrays, but those can be empty in some
+  modes, so the plugin logs both sources for comparison.
+- The plugin only prints data. It does not make network requests yet.
+- For distribution outside Developer mode, package the files inside this folder
+  as a zip, rename it to `.op`, and submit it for Openplanet signing.

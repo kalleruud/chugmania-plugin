@@ -1,20 +1,11 @@
 [meta]
-name = "New Openplanet Plugin"
-author = "Your Name"
+name = "Chugmania Capture Spike"
+author = "DJ Balle"
 category = "Utilities"
-version = "0.1.0"
+version = "0.0.1"
+
+[game]
+supported_games = [ "Trackmania" ]
 
 [script]
-# Add required dependencies here, for example:
-# dependencies = [ "NadeoServices", "VehicleState" ]
-
-# Add optional dependencies here, for example:
-# optional_dependencies = [ "BetterChat" ]
-
-# Uncomment when this plugin exposes an API to other plugins.
-# exports = [ "src/Exports/Exports.as" ]
-
-# Add compile-time defines here, for example:
-# defines = [ "MY_PLUGIN_DEBUG" ]
-
 timeout = 0
