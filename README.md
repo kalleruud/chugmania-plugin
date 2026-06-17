@@ -7,17 +7,15 @@ The plugin watches every player in `CurrentPlayground.Players`, including local
 split-screen players, and prints event records for:
 
 - player discovery and the controlled split-screen terminal index;
-- race and lap starts;
-- first accelerator input after each lap start;
-- lap and race waypoint/checkpoint times;
+- first accelerator input after each positive start-time transition;
+- crossed checkpoint landmarks;
 - lap finishes and race finishes;
-- detailed player state at every event, including timing arrays, respawns,
-  controls, position, speed, engine state, wheel contact, and skid/air duration;
+- detailed player state at every event, including controls, position, speed,
+  engine state, wheel contact, and skid/air duration;
 - map metadata and medal times.
 
-`FIRST_ACCELERATOR.delayMs` uses that player's `CurrentLapTime` at the first
-frame where `InputGasPedal` is greater than `0.01`. This is frame-polled, so its
-precision is limited by the game's render frame rate.
+`FIRST_ACCELERATOR` is emitted on the first frame after a positive start-time
+transition where that player's `InputGasPedal` is greater than `0.01`.
 
 ## Run the test
 
@@ -35,8 +33,37 @@ precision is limited by the game's render frame rate.
    `[Chugmania Capture Spike]`. Compare `playerIndex`, `login`, `name`, and
    `terminal` to identify each split-screen player.
 
-Useful event names are `FIRST_ACCELERATOR`, `LAP_WAYPOINT`, `LAP_FINISH`, and
-`RACE_FINISH`. Each event is followed by a `SNAPSHOT` and four `TIMES` records.
+Useful event names are `FIRST_ACCELERATOR`, `CHECKPOINT`, `LAP_FINISH`, and
+`RACE_FINISH`. Each event is followed by a `SNAPSHOT` record.
+
+## Capture status
+
+Validated in Local Arcade and local Split Screen:
+
+- map metadata and medal targets;
+- separate players with synthetic split-screen logins and terminal indices;
+- per-player accelerator input after an attempt is armed;
+- per-player checkpoint, lap-finish, and race-finish landmarks;
+- controls, position, velocity, speed, engine, wheel, skid, and air state.
+
+Still missing for a complete race capture:
+
+- authoritative race, lap, checkpoint, and sector times;
+- authoritative race-start and restart events;
+- current lap number and reliable lap-start transitions;
+- a canonical checkpoint sequence, because landmark `Order` is not reliable;
+- respawn events and counts;
+- a stable participant identity beyond the synthetic split-screen login and
+  editable display name;
+- proof that all supported local modes and multi-lap maps expose the same
+  landmark behavior;
+- webhook configuration, payload schema, retries, deduplication, and delivery.
+
+The tested `CSmScriptPlayer` timing, waypoint-array, lap, end-time, and respawn
+fields stayed at zero, `-1`, or empty in both Local Arcade and Split Screen.
+`StartTime` changes during setup and can temporarily become `-1`, so it is used
+only to re-arm accelerator detection and is not published as a race-start
+event. A different API source is required for timing and race-progress data.
 
 ## Development notes
 
@@ -55,9 +82,7 @@ bash ./scripts/build-op.sh
 Pass an output directory as the first argument to place the artifact elsewhere.
 
 - This spike targets Trackmania 2020 (`TMNEXT`) APIs.
-- Checkpoints are primarily detected from each player's crossed map landmark.
-  The game also exposes waypoint time arrays, but those can be empty in some
-  modes, so the plugin logs both sources for comparison.
+- Checkpoints are detected from each player's crossed map landmark.
 - The plugin only prints data. It does not make network requests yet.
 - For distribution outside Developer mode, package the files inside this folder
   as a zip, rename it to `.op`, and submit it for Openplanet signing.

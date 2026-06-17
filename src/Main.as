@@ -5,14 +5,7 @@ class PlayerCaptureState
 {
     CSmPlayer@ Player;
     int StartTime = -1;
-    int EndTime = -1;
-    int LapStartTime = -1;
-    uint CurrentLapNumber = 0;
-    uint LapWaypointCount = 0;
-    uint RaceWaypointCount = 0;
     uint LastLandmarkIndex = uint(-1);
-    int LastLapCheckpointTime = 0;
-    int LastRaceCheckpointTime = 0;
     bool AcceleratorRecorded = false;
 }
 
@@ -80,11 +73,6 @@ PlayerCaptureState@ CreatePlayerState(CSmPlayer@ player, CSmScriptPlayer@ data)
     PlayerCaptureState@ state = PlayerCaptureState();
     @state.Player = player;
     state.StartTime = data.StartTime;
-    state.EndTime = data.EndTime;
-    state.LapStartTime = data.LapStartTime;
-    state.CurrentLapNumber = data.CurrentLapNumber;
-    state.LapWaypointCount = data.CurrentLapWaypointTimes.Length;
-    state.RaceWaypointCount = data.RaceWaypointTimes.Length;
     state.LastLandmarkIndex = player.CurrentLaunchedRespawnLandmarkIndex;
     return state;
 }
@@ -98,119 +86,21 @@ void CapturePlayerEvents(
 {
     if (data.StartTime != state.StartTime) {
         state.StartTime = data.StartTime;
-        state.EndTime = data.EndTime;
-        state.LapStartTime = data.LapStartTime;
-        state.CurrentLapNumber = data.CurrentLapNumber;
-        state.LapWaypointCount = 0;
-        state.RaceWaypointCount = 0;
         state.LastLandmarkIndex = player.CurrentLaunchedRespawnLandmarkIndex;
-        state.LastLapCheckpointTime = 0;
-        state.LastRaceCheckpointTime = 0;
         state.AcceleratorRecorded = false;
-        PrintEvent("RACE_START", playerIndex, player, data, "startTime=" + data.StartTime);
     }
 
     CaptureLandmarkEvent(playerIndex, player, data, state);
 
-    if (data.CurrentLapNumber != state.CurrentLapNumber) {
-        int lapTime = LastValue(data.PreviousLapWaypointTimes);
-        PrintEvent(
-            "LAP_NUMBER_CHANGED",
-            playerIndex,
-            player,
-            data,
-            "previousLap=" + state.CurrentLapNumber +
-            " currentLap=" + data.CurrentLapNumber +
-            " previousLapFinalWaypointMs=" + lapTime
-        );
-        state.CurrentLapNumber = data.CurrentLapNumber;
-        state.LapWaypointCount = 0;
-        state.LastLapCheckpointTime = 0;
-        state.AcceleratorRecorded = false;
-    }
-
-    if (data.LapStartTime != state.LapStartTime) {
-        state.LapStartTime = data.LapStartTime;
-        state.LapWaypointCount = 0;
-        state.LastLapCheckpointTime = 0;
-        state.AcceleratorRecorded = false;
-        PrintEvent(
-            "LAP_START",
-            playerIndex,
-            player,
-            data,
-            "lap=" + data.CurrentLapNumber + " lapStartTime=" + data.LapStartTime
-        );
-    }
-
-    if (!state.AcceleratorRecorded && data.CurrentLapTime >= 0 && data.InputGasPedal > AcceleratorThreshold) {
+    if (data.StartTime >= 0 && !state.AcceleratorRecorded && data.InputGasPedal > AcceleratorThreshold) {
         state.AcceleratorRecorded = true;
         PrintEvent(
             "FIRST_ACCELERATOR",
             playerIndex,
             player,
             data,
-            "lap=" + data.CurrentLapNumber +
-            " delayMs=" + data.CurrentLapTime +
-            " delay=" + FormatTime(data.CurrentLapTime) +
-            " gas=" + Text::Format("%.3f", data.InputGasPedal)
+            "gas=" + Text::Format("%.3f", data.InputGasPedal)
         );
-    }
-
-    if (data.CurrentLapWaypointTimes.Length < state.LapWaypointCount) {
-        state.LapWaypointCount = data.CurrentLapWaypointTimes.Length;
-    }
-    while (state.LapWaypointCount < data.CurrentLapWaypointTimes.Length) {
-        uint waypointIndex = state.LapWaypointCount;
-        int waypointTime = int(data.CurrentLapWaypointTimes[waypointIndex]);
-        int previousTime = waypointIndex == 0
-            ? 0
-            : int(data.CurrentLapWaypointTimes[waypointIndex - 1]);
-        PrintEvent(
-            "LAP_WAYPOINT",
-            playerIndex,
-            player,
-            data,
-            "lap=" + data.CurrentLapNumber +
-            " waypoint=" + waypointIndex +
-            " timeMs=" + waypointTime +
-            " time=" + FormatTime(waypointTime) +
-            " sectorMs=" + (waypointTime - previousTime)
-        );
-        state.LapWaypointCount++;
-    }
-
-    if (data.RaceWaypointTimes.Length < state.RaceWaypointCount) {
-        state.RaceWaypointCount = data.RaceWaypointTimes.Length;
-    }
-    while (state.RaceWaypointCount < data.RaceWaypointTimes.Length) {
-        uint waypointIndex = state.RaceWaypointCount;
-        int waypointTime = int(data.RaceWaypointTimes[waypointIndex]);
-        PrintEvent(
-            "RACE_WAYPOINT",
-            playerIndex,
-            player,
-            data,
-            "waypoint=" + waypointIndex +
-            " timeMs=" + waypointTime +
-            " time=" + FormatTime(waypointTime)
-        );
-        state.RaceWaypointCount++;
-    }
-
-    if (data.EndTime != state.EndTime) {
-        state.EndTime = data.EndTime;
-        if (data.EndTime >= 0) {
-            int raceTime = LastValue(data.RaceWaypointTimes);
-            if (raceTime < 0) raceTime = data.CurrentRaceTime;
-            PrintEvent(
-                "RACE_END_TIME_CHANGED",
-                playerIndex,
-                player,
-                data,
-                "raceTimeMs=" + raceTime + " raceTime=" + FormatTime(raceTime)
-            );
-        }
     }
 }
 
@@ -234,11 +124,6 @@ void CaptureLandmarkEvent(
     auto@ landmark = playground.Arena.MapLandmarks[landmarkIndex];
     if (landmark is null || landmark.Waypoint is null) return;
 
-    int lapTime = data.CurrentLapTime;
-    int raceTime = data.CurrentRaceTime;
-    int lapSectorTime = lapTime - state.LastLapCheckpointTime;
-    int raceSectorTime = raceTime - state.LastRaceCheckpointTime;
-
     string eventName = "CHECKPOINT";
     if (landmark.Waypoint.IsMultiLap) eventName = "LAP_FINISH";
     if (landmark.Waypoint.IsFinish) eventName = "RACE_FINISH";
@@ -252,15 +137,8 @@ void CaptureLandmarkEvent(
         " order=" + landmark.Order +
         " tag=\"" + landmark.Tag + "\"" +
         " isMultiLap=" + landmark.Waypoint.IsMultiLap +
-        " isFinish=" + landmark.Waypoint.IsFinish +
-        " lapTimeMs=" + lapTime +
-        " raceTimeMs=" + raceTime +
-        " lapSectorMs=" + lapSectorTime +
-        " raceSectorMs=" + raceSectorTime
+        " isFinish=" + landmark.Waypoint.IsFinish
     );
-
-    state.LastLapCheckpointTime = landmark.Waypoint.IsMultiLap ? 0 : lapTime;
-    state.LastRaceCheckpointTime = raceTime;
 }
 
 void PrintMapInfo(CSmArenaClient@ playground)
@@ -314,16 +192,6 @@ void PrintPlayerSnapshot(uint playerIndex, CSmPlayer@ player, CSmScriptPlayer@ d
     print(
         "[" + PluginName + "] SNAPSHOT" +
         " playerIndex=" + playerIndex +
-        " startTime=" + data.StartTime +
-        " endTime=" + data.EndTime +
-        " lapStartTime=" + data.LapStartTime +
-        " currentLap=" + data.CurrentLapNumber +
-        " currentLapTimeMs=" + data.CurrentLapTime +
-        " currentRaceTimeMs=" + data.CurrentRaceTime +
-        " lapRespawns=" + data.CurrentLapRespawns +
-        " raceRespawns=" + data.CurrentRaceRespawns +
-        " lapWaypoints=" + data.CurrentLapWaypointTimes.Length +
-        " raceWaypoints=" + data.RaceWaypointTimes.Length +
         " gas=" + Text::Format("%.3f", data.InputGasPedal) +
         " brake=" + data.InputIsBraking +
         " steer=" + Text::Format("%.3f", data.InputSteer) +
@@ -342,28 +210,6 @@ void PrintPlayerSnapshot(uint playerIndex, CSmPlayer@ player, CSmScriptPlayer@ d
         " isFake=" + data.IsFakePlayer +
         " isBot=" + data.IsBot
     );
-
-    PrintTimes("currentLapWaypointTimes", playerIndex, data.CurrentLapWaypointTimes);
-    PrintTimes("previousLapWaypointTimes", playerIndex, data.PreviousLapWaypointTimes);
-    PrintTimes("lapWaypointTimes", playerIndex, data.LapWaypointTimes);
-    PrintTimes("raceWaypointTimes", playerIndex, data.RaceWaypointTimes);
-}
-
-void PrintTimes(const string &in label, uint playerIndex, const MwFastBuffer<uint> &in times)
-{
-    string value = "[";
-    for (uint i = 0; i < times.Length; i++) {
-        if (i > 0) value += ",";
-        value += Text::Format("%u", times[i]);
-    }
-    value += "]";
-    print("[" + PluginName + "] TIMES playerIndex=" + playerIndex + " " + label + "=" + value);
-}
-
-int LastValue(const MwFastBuffer<uint> &in values)
-{
-    if (values.Length == 0) return -1;
-    return int(values[values.Length - 1]);
 }
 
 int FindTerminalIndex(CSmArenaClient@ playground, CSmPlayer@ player)
@@ -372,18 +218,6 @@ int FindTerminalIndex(CSmArenaClient@ playground, CSmPlayer@ player)
         if (playground.GameTerminals[i].ControlledPlayer is player) return int(i);
     }
     return -1;
-}
-
-string FormatTime(int milliseconds)
-{
-    if (milliseconds < 0) return "n/a";
-
-    int minutes = milliseconds / 60000;
-    int seconds = (milliseconds / 1000) % 60;
-    int millis = milliseconds % 1000;
-    return Text::Format("%d", minutes) + ":" +
-        Text::Format("%02d", seconds) + "." +
-        Text::Format("%03d", millis);
 }
 
 string FormatVec3(const vec3 &in value)
