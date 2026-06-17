@@ -231,7 +231,7 @@ void CaptureLandmarkEvent(
     if (playground is null || playground.Arena is null) return;
     if (landmarkIndex >= playground.Arena.MapLandmarks.Length) return;
 
-    CSmScriptMapLandmark@ landmark = playground.Arena.MapLandmarks[landmarkIndex];
+    auto@ landmark = playground.Arena.MapLandmarks[landmarkIndex];
     if (landmark is null || landmark.Waypoint is null) return;
 
     int lapTime = data.CurrentLapTime;
@@ -329,8 +329,8 @@ void PrintPlayerSnapshot(uint playerIndex, CSmPlayer@ player, CSmScriptPlayer@ d
         " steer=" + Text::Format("%.3f", data.InputSteer) +
         " speed=" + Text::Format("%.3f", data.Speed) +
         " displaySpeed=" + data.DisplaySpeed +
-        " position=" + data.Position +
-        " velocity=" + data.Velocity +
+        " position=" + FormatVec3(data.Position) +
+        " velocity=" + FormatVec3(data.Velocity) +
         " rpm=" + Text::Format("%.3f", data.EngineRpm) +
         " gear=" + data.EngineCurGear +
         " turbo=" + Text::Format("%.3f", data.EngineTurboRatio) +
@@ -354,7 +354,7 @@ void PrintTimes(const string &in label, uint playerIndex, const MwFastBuffer<uin
     string value = "[";
     for (uint i = 0; i < times.Length; i++) {
         if (i > 0) value += ",";
-        value += times[i];
+        value += Text::Format("%u", times[i]);
     }
     value += "]";
     print("[" + PluginName + "] TIMES playerIndex=" + playerIndex + " " + label + "=" + value);
@@ -381,7 +381,17 @@ string FormatTime(int milliseconds)
     int minutes = milliseconds / 60000;
     int seconds = (milliseconds / 1000) % 60;
     int millis = milliseconds % 1000;
-    return Text::Format("%d:%02d.%03d", minutes, seconds, millis);
+    return Text::Format("%d", minutes) + ":" +
+        Text::Format("%02d", seconds) + "." +
+        Text::Format("%03d", millis);
+}
+
+string FormatVec3(const vec3 &in value)
+{
+    return "(" +
+        Text::Format("%.3f", value.x) + ", " +
+        Text::Format("%.3f", value.y) + ", " +
+        Text::Format("%.3f", value.z) + ")";
 }
 
 void OnDestroyed()
