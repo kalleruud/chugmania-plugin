@@ -91,10 +91,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          mkdir -p dist
-
           ARTIFACT="${{ steps.plugin.outputs.slug }}-${{ steps.plugin.outputs.tag }}.op"
-          zip -r "dist/$ARTIFACT" info.toml src
+          bash scripts/build-op.sh dist
 
           echo "artifact=dist/$ARTIFACT" >> "$GITHUB_OUTPUT"
 

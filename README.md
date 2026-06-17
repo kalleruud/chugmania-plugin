@@ -40,6 +40,20 @@ Useful event names are `FIRST_ACCELERATOR`, `LAP_WAYPOINT`, `LAP_FINISH`, and
 
 ## Development notes
 
+Package the plugin locally with the script for your platform. Both scripts read
+the name and version from `info.toml` and create
+`dist/chugmania-capture-spike-v0.0.1.op` by default.
+
+```powershell
+.\scripts\build-op.ps1
+```
+
+```bash
+bash ./scripts/build-op.sh
+```
+
+Pass an output directory as the first argument to place the artifact elsewhere.
+
 - This spike targets Trackmania 2020 (`TMNEXT`) APIs.
 - Checkpoints are primarily detected from each player's crossed map landmark.
   The game also exposes waypoint time arrays, but those can be empty in some
