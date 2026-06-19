@@ -1,21 +1,100 @@
 # Chugmania Capture Spike
 
-An Openplanet test plugin for discovering which local Trackmania race data can
-be captured before building the Chugmania webhook integration.
+An Openplanet plugin that captures local Trackmania race attempts and sends one
+JSON webhook when an attempt ends.
 
 The plugin watches every player in `CurrentPlayground.Players`, including local
-split-screen players, and prints event records for:
+split-screen players, and captures:
 
 - player discovery and the controlled split-screen terminal index;
 - first accelerator input after each positive start-time transition;
 - crossed checkpoint landmarks;
 - lap finishes and race finishes;
-- detailed player state at every event, including controls, position, speed,
-  engine state, wheel contact, and skid/air duration;
 - map metadata and medal times.
 
-`FIRST_ACCELERATOR` is emitted on the first frame after a positive start-time
-transition where that player's `InputGasPedal` is greater than `0.01`.
+One `race.attempt.ended` request represents the complete attempt and always uses
+the same `players[]` format for solo and split screen.
+
+## Webhook settings
+
+Configure the plugin in **Openplanet > Settings > Chugmania Capture Spike**:
+
+- enable **Webhook > Enabled**;
+- set **Webhook > Endpoint** to an HTTPS URL;
+- set **Webhook > API key**;
+- optionally change the retry count.
+
+Requests use `POST`, `Content-Type: application/json`, and the API key is sent
+in the `X-API-Key` header. Failed requests are retried after 1, 3, and 10 seconds
+by default.
+
+## Payload contract
+
+```json
+{
+  "schemaVersion": "1.0",
+  "eventType": "race.attempt.ended",
+  "eventId": "map-uid-1750000000-1",
+  "occurredAtUtc": "2026-06-19T20:15:30Z",
+  "source": {
+    "pluginName": "Chugmania Capture Spike",
+    "pluginVersion": "0.1.0",
+    "game": "Trackmania"
+  },
+  "attempt": {
+    "attemptId": "map-uid-1750000000-1",
+    "format": "split_screen",
+    "playerCount": 2,
+    "startedAtUtc": "2026-06-19T20:14:42Z",
+    "endedAtUtc": "2026-06-19T20:15:30Z",
+    "durationMs": 48123,
+    "endReason": "all_finished",
+    "timingSource": "inferred",
+    "map": {
+      "uid": "map-uid",
+      "name": "Map Name",
+      "authorLogin": "author-login",
+      "authorName": "Author",
+      "mapType": "TrackMania\\TM_Race",
+      "mapStyle": "",
+      "laps": 1,
+      "isLapRace": false,
+      "medalTimesMs": { "author": 40000, "gold": 43000, "silver": 47000, "bronze": 55000 }
+    },
+    "players": [
+      {
+        "participantKey": "*splitscreen_0*",
+        "playerIndex": 0,
+        "terminalIndex": 0,
+        "login": "*splitscreen_0*",
+        "accountId": null,
+        "name": "Player 1",
+        "isFake": false,
+        "isBot": false,
+        "spawnIndex": 0,
+        "finishPosition": 1,
+        "outcome": "finished",
+        "firstAccelerator": { "atUtc": "2026-06-19T20:14:44Z", "elapsedMs": 1830 },
+        "checkpoints": [
+          {
+            "sequence": 0,
+            "landmarkIndex": 4,
+            "landmarkOrder": 0,
+            "landmarkTag": "",
+            "kind": "checkpoint",
+            "atUtc": "2026-06-19T20:14:55Z",
+            "elapsedMs": 13210
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+`endReason` is one of `all_finished`, `restart`, `playground_closed`, or
+`map_changed`. Per-player `outcome` is `finished`, `restart`, `quit`, or `dnf`.
+The finish landmark is included as the final checkpoint with `kind: "finish"`.
 
 ## Run the test
 
@@ -46,7 +125,7 @@ Validated in Local Arcade and local Split Screen:
 - per-player checkpoint, lap-finish, and race-finish landmarks;
 - controls, position, velocity, speed, engine, wheel, skid, and air state.
 
-Still missing for a complete race capture:
+Still missing for fully authoritative race capture:
 
 - authoritative race, lap, checkpoint, and sector times;
 - authoritative race-start and restart events;
@@ -57,13 +136,18 @@ Still missing for a complete race capture:
   editable display name;
 - proof that all supported local modes and multi-lap maps expose the same
   landmark behavior;
-- webhook configuration, payload schema, retries, deduplication, and delivery.
+- direct detection of every menu-level quit path where the playground remains
+  alive;
+- persistent delivery across game or plugin shutdown (the retry queue is
+  currently in memory);
+- an account ID for synthetic split-screen users (`accountId` is `null`).
 
 The tested `CSmScriptPlayer` timing, waypoint-array, lap, end-time, and respawn
 fields stayed at zero, `-1`, or empty in both Local Arcade and Split Screen.
-`StartTime` changes during setup and can temporarily become `-1`, so it is used
-only to re-arm accelerator detection and is not published as a race-start
-event. A different API source is required for timing and race-progress data.
+`StartTime` changes during setup and can temporarily become `-1`. It is used as
+an attempt boundary hint, while elapsed times come from Openplanet's monotonic
+clock. The payload therefore reports `timingSource: "inferred"`; a different API
+source is required before these times can be called authoritative.
 
 ## Development notes
 
@@ -83,6 +167,6 @@ Pass an output directory as the first argument to place the artifact elsewhere.
 
 - This spike targets Trackmania 2020 (`TMNEXT`) APIs.
 - Checkpoints are detected from each player's crossed map landmark.
-- The plugin only prints data. It does not make network requests yet.
+- Webhook requests are sent asynchronously from the plugin's main coroutine.
 - For distribution outside Developer mode, package the files inside this folder
   as a zip, rename it to `.op`, and submit it for Openplanet signing.

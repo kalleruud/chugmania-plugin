@@ -1,11 +1,12 @@
 [meta]
-name = "Chugmania Capture Spike"
+name = "Chugmania Webhooks"
 author = "DJ Balle"
 category = "Utilities"
-version = "0.0.1"
+version = "0.1.0"
 
 [game]
 supported_games = [ "Trackmania" ]
 
 [script]
 timeout = 0
+ 
