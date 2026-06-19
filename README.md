@@ -7,6 +7,7 @@ The plugin watches every player in `CurrentPlayground.Players`, including local
 split-screen players, and captures:
 
 - player discovery and the controlled split-screen terminal index;
+- per-player vehicle summary, including car switches when observed mid-run;
 - first throttle input as an ordered race event;
 - authoritative start, checkpoint, respawn, finish, restart, quit, and DNF events;
 - map metadata and medal times;
