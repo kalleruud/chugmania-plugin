@@ -7,7 +7,7 @@ The plugin watches every player in `CurrentPlayground.Players`, including local
 split-screen players, and captures:
 
 - player discovery and the controlled split-screen terminal index;
-- first accelerator input after each positive start-time transition;
+- first throttle input as an ordered race event;
 - authoritative start, checkpoint, respawn, finish, restart, quit, and DNF events;
 - map metadata and medal times;
 - local format, game mode, and generic mode settings exposed by the rules API.
@@ -96,55 +96,36 @@ by default.
         "isLocalPlayer": true,
         "spawnIndex": 0,
         "finishPosition": 1,
-        "outcome": "finished",
-        "currentLap": 1,
-        "checkpointsPassed": 4,
-        "finalRaceTimeMs": 48123,
         "theoreticalRaceTimeMs": 47123,
-        "sessionBestTimeMs": 48123,
         "ranks": { "race": 1, "raceWithRespawns": 1, "timeAttack": 1 },
-        "respawns": {
-          "count": 1,
-          "timeLostMs": 1000,
-          "lastCheckpointIndex": 1,
-          "lastAtDurationMs": 15000
-        },
         "timingDiagnostics": { "latencyEstimateMs": 16.5, "latencySampleCount": 8.0 },
         "sessionBest": {
           "raceCheckpointTimesMs": [13210, 25000, 37000, 48123],
-          "raceIsComplete": true,
-          "lapCheckpointTimesMs": [13210, 25000, 37000, 48123],
-          "lapIsComplete": true
+          "lapCheckpointTimesMs": [13210, 25000, 37000, 48123]
         },
-        "firstAccelerator": { "atUtc": "2026-06-19T20:14:44.830Z", "durationMs": 1830 },
         "events": [
           {
-            "sequence": 0,
             "type": "start",
             "atUtc": "2026-06-19T20:14:43.000Z",
             "durationMs": 0
           },
           {
-            "sequence": 1,
+            "type": "first_throttle",
+            "atUtc": "2026-06-19T20:14:44.830Z",
+            "durationMs": 1830
+          },
+          {
             "type": "checkpoint",
             "atUtc": "2026-06-19T20:14:56.210Z",
             "durationMs": 13210,
-            "checkpoint": { "index": 1, "lap": 1, "lapCheckpointIndex": 1 },
-            "splitDurationMs": 13210,
-            "theoreticalDurationMs": 13210,
-            "respawnCountAtCheckpoint": 0,
-            "timeLostToRespawnsMs": 0
+            "checkpoint": { "index": 1 },
+            "theoreticalDurationMs": 13210
           },
           {
-            "sequence": 2,
             "type": "respawn",
             "atUtc": "2026-06-19T20:14:58.000Z",
             "durationMs": 15000,
-            "respawn": {
-              "ordinal": 1,
-              "checkpointIndex": 1,
-              "timeLostToRespawnsMs": 1000
-            }
+            "respawn": { "checkpointIndex": 1 }
           }
         ]
       }
@@ -154,26 +135,22 @@ by default.
 ```
 
 `endReason` is one of `all_finished`, `round_ended`, `restart`,
-`playground_closed`, or `map_changed`. Per-player `outcome` is `finished`,
-`restart`, `quit`, or `dnf`.
-Every player's `events` array starts with `start`. Checkpoints and respawns are
-ordered by authoritative game duration, and the last event is `finish`, `quit`,
-`restart`, or `dnf`. A finish event also contains its checkpoint information.
-At equal durations the order is start, checkpoint, respawn, then terminal event.
+`playground_closed`, or `map_changed`. Every player's `events` array starts with
+`start`; `first_throttle`, checkpoints, and respawns follow in authoritative
+game-time order; and the last event is `finish`, `quit`, `restart`, or `dnf`.
+A finish event also contains its checkpoint information. At equal durations the
+order is start, first throttle, checkpoint, respawn, then terminal event.
 The attempt starts at the earliest player `start` event and ends at the latest
 player terminal event, so `attempt.durationMs` is exactly the difference between
-those two UTC timestamps. `map.laps` and completed-player `currentLap` are
-normalized using MLFeed's game-mode lap count.
+those two UTC timestamps. `map.laps` is normalized using MLFeed's game-mode lap
+count.
 
 MLFeed ranks and unavailable timing or checkpoint associations are serialized as
 `null`, not zero or inferred values. `sessionBest.raceCheckpointTimesMs` and
 `sessionBest.lapCheckpointTimesMs` are session snapshots from MLFeed and can be
-partial before a complete race or lap. The matching `raceIsComplete` and
-`lapIsComplete` flags indicate whether the expected number of waypoint times was
-available.
+partial before a complete race or lap.
 When multiple respawns arrive in one MLFeed update, every authoritative respawn
-time is retained; older respawns whose checkpoint or cumulative loss cannot be
-reconstructed are emitted with those fields set to `null`.
+time is retained; an unavailable checkpoint association is emitted as `null`.
 
 ## Run the test
 
@@ -191,7 +168,7 @@ reconstructed are emitted with those fields set to `null`.
    `[Chugmania Webhooks]`. Compare `playerIndex`, `login`, `name`, and
    `terminal` to identify each split-screen player.
 
-Useful log records are `ATTEMPT_STARTED`, `FIRST_ACCELERATOR`, `CHECKPOINT`,
+Useful log records are `ATTEMPT_STARTED`, `FIRST_THROTTLE`, `CHECKPOINT`,
 `RESPAWN`, `FINISH`, `ATTEMPT_ENDED`, and `WEBHOOK_DELIVERED`.
 
 ## Capture status
