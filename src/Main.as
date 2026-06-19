@@ -267,7 +267,7 @@ void SnapshotModeConfiguration(
     if (playground.Arena is null || playground.Arena.Rules is null ||
         playground.Arena.Rules.RulesMode is null) return;
 
-    const CSmArenaRulesMode@ mode = playground.Arena.Rules.RulesMode;
+    CSmArenaRulesMode@ mode = playground.Arena.Rules.RulesMode;
     Attempt.ModeName = string(mode.ServerModeName);
     Attempt.ModeStartTime = int(mode.StartTime);
     Attempt.ModeEndTime = int(mode.EndTime);
