@@ -9,7 +9,8 @@ split-screen players, and captures:
 - player discovery and the controlled split-screen terminal index;
 - first accelerator input after each positive start-time transition;
 - authoritative start, checkpoint, respawn, finish, restart, quit, and DNF events;
-- map metadata and medal times.
+- map metadata and medal times;
+- local format, game mode, and generic mode settings exposed by the rules API.
 
 One `race.attempt.ended` request represents the complete attempt and always uses
 the same `players[]` format for solo and split screen. Race durations and
@@ -50,6 +51,24 @@ by default.
     "durationMs": 48123,
     "endReason": "all_finished",
     "timingSource": "mlfeed_game_clock",
+    "mode": {
+      "name": "Time Attack",
+      "warmupActive": false,
+      "startTime": 1000,
+      "endTime": 301000,
+      "timeLimitMs": 300000,
+      "settings": {
+        "lapCountOverride": 0,
+        "pointsLimit": 0,
+        "spawnDelayDurationMs": 0,
+        "respawnBehavior": "always_respawn",
+        "checkpointBehavior": "default",
+        "giveUpBehavior": "give_up",
+        "giveUpRespawnAfter": false,
+        "giveUpSkipAfterFinish": false,
+        "usesTeams": false
+      }
+    },
     "map": {
       "uid": "map-uid",
       "name": "Map Name",
@@ -134,8 +153,9 @@ by default.
 }
 ```
 
-`endReason` is one of `all_finished`, `restart`, `playground_closed`, or
-`map_changed`. Per-player `outcome` is `finished`, `restart`, `quit`, or `dnf`.
+`endReason` is one of `all_finished`, `round_ended`, `restart`,
+`playground_closed`, or `map_changed`. Per-player `outcome` is `finished`,
+`restart`, `quit`, or `dnf`.
 Every player's `events` array starts with `start`. Checkpoints and respawns are
 ordered by authoritative game duration, and the last event is `finish`, `quit`,
 `restart`, or `dnf`. A finish event also contains its checkpoint information.

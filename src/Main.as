@@ -83,6 +83,20 @@ class RaceAttemptState
     int CheckpointsPerLap = -1;
     int WaypointsToFinish = -1;
     int MlFeedLapCount = -1;
+    string ModeName;
+    int ModeStartTime = -1;
+    int ModeEndTime = -1;
+    int ModeTimeLimitMs = -1;
+    int LapCountOverride = -1;
+    int PointsLimit = -1;
+    int SpawnDelayDurationMs = -1;
+    string RespawnBehavior;
+    string CheckpointBehavior;
+    string GiveUpBehavior;
+    bool GiveUpRespawnAfter = false;
+    bool GiveUpSkipAfterFinish = false;
+    bool UsesTeams = false;
+    bool WarmupActive = false;
 }
 
 class WebhookJob
@@ -150,6 +164,17 @@ void Update(float dt)
     const MLFeed::HookRaceStatsEventsBase_V4@ raceData = MLFeed::GetRaceData_V4();
     if (raceData is null || raceData.Map.Length == 0) return;
 
+    if (AwaitingAttemptReset) {
+        if (!AttemptResetIsReady(raceData)) return;
+        PlayerStates.RemoveRange(0, PlayerStates.Length);
+        ResetAttempt();
+        AwaitingAttemptReset = false;
+        print("[" + PluginName + "] ATTEMPT_RESET_READY");
+    }
+
+    SnapshotRaceConfiguration(raceData);
+    SnapshotModeConfiguration(playground, raceData);
+
     for (uint i = 0; i < playground.Players.Length; i++) {
         CSmPlayer@ player = cast<CSmPlayer>(playground.Players[i]);
         if (player is null || player.ScriptAPI is null) continue;
@@ -162,7 +187,11 @@ void Update(float dt)
 
         PlayerCaptureState@ state = FindPlayerState(player);
         if (state is null) {
-            if (AwaitingAttemptReset) continue;
+            bool hasRaceActivity = racePlayer.CpCount > 0 ||
+                racePlayer.NbRespawnsRequested > 0 ||
+                (racePlayer.CurrentRaceTimeRaw >= 0 &&
+                    scriptPlayer.InputGasPedal > AcceleratorThreshold);
+            if (!Attempt.Active && !hasRaceActivity) continue;
             @state = CreatePlayerState(playground, i, player, scriptPlayer, racePlayer);
             PlayerStates.InsertLast(state);
             EnsureAttemptStarted(raceData);
@@ -175,10 +204,8 @@ void Update(float dt)
                 int(MLFeed::GameTime) - int(state.MlStartTime)
             );
             state.FinalRaceTimeMs = state.LastRaceTimeMs;
-            EndAttempt("restart", "restart");
-            PlayerStates.RemoveRange(0, PlayerStates.Length);
-            ResetAttempt();
-            AwaitingAttemptReset = false;
+            if (IsAutomaticRoundTransition()) EndAttempt("round_ended", "dnf");
+            else EndAttempt("restart", "restart");
             return;
         }
 
@@ -188,6 +215,25 @@ void Update(float dt)
     if (Attempt.Active && AllPlayersFinished(playground)) {
         EndAttempt("all_finished", "finished");
     }
+}
+
+bool AttemptResetIsReady(const MLFeed::HookRaceStatsEventsBase_V4@ raceData)
+{
+    if (PlayerStates.Length == 0) return true;
+
+    for (uint i = 0; i < PlayerStates.Length; i++) {
+        PlayerCaptureState@ state = PlayerStates[i];
+        const MLFeed::PlayerCpInfo_V4@ racePlayer;
+        if (state.Login.Length > 0) {
+            @racePlayer = raceData.GetPlayer_V4_ByLogin(state.Login);
+        }
+        if (racePlayer is null && state.Name.Length > 0) {
+            @racePlayer = raceData.GetPlayer_V4(state.Name);
+        }
+        if (racePlayer is null || racePlayer.StartTime <= state.MlStartTime) return false;
+        if (racePlayer.CpCount != 0 || racePlayer.NbRespawnsRequested != 0) return false;
+    }
+    return true;
 }
 
 const MLFeed::PlayerCpInfo_V4@ FindRacePlayer(
@@ -229,6 +275,62 @@ void SnapshotRaceConfiguration(const MLFeed::HookRaceStatsEventsBase_V4@ raceDat
     Attempt.CheckpointsPerLap = int(raceData.CPCount);
     Attempt.WaypointsToFinish = int(raceData.CPsToFinish);
     Attempt.MlFeedLapCount = int(raceData.LapCount_Accurate);
+}
+
+void SnapshotModeConfiguration(
+    CSmArenaClient@ playground,
+    const MLFeed::HookRaceStatsEventsBase_V4@ raceData
+)
+{
+    Attempt.WarmupActive = raceData.WarmupActive;
+    if (playground.Arena is null || playground.Arena.Rules is null ||
+        playground.Arena.Rules.RulesMode is null) return;
+
+    const CSmArenaRulesMode@ mode = playground.Arena.Rules.RulesMode;
+    Attempt.ModeName = string(mode.ServerModeName);
+    Attempt.ModeStartTime = int(mode.StartTime);
+    Attempt.ModeEndTime = int(mode.EndTime);
+    Attempt.ModeTimeLimitMs = mode.EndTime > mode.StartTime
+        ? int(mode.EndTime - mode.StartTime) : -1;
+    Attempt.LapCountOverride = int(mode.LapCountOverride);
+    Attempt.PointsLimit = int(mode.UiScoresPointsLimit);
+    Attempt.SpawnDelayDurationMs = int(mode.SpawnDelayDuration);
+    Attempt.RespawnBehavior = RespawnBehaviorName(int(mode.RespawnBehaviour));
+    Attempt.CheckpointBehavior = CheckpointBehaviorName(int(mode.CheckpointBehaviour));
+    Attempt.GiveUpBehavior = GiveUpBehaviorName(int(mode.GiveUpBehaviour));
+    Attempt.GiveUpRespawnAfter = mode.GiveUpBehaviour_RespawnAfter;
+    Attempt.GiveUpSkipAfterFinish = mode.GiveUpBehaviour_SkipAfterFinishLine;
+    Attempt.UsesTeams = mode.UseClans || mode.UseMultiClans || mode.UseForcedClans;
+}
+
+bool IsAutomaticRoundTransition()
+{
+    string mode = Attempt.ModeName.ToLower();
+    return mode.Contains("round") || mode.Contains("cup") ||
+        mode.Contains("royal") || mode.Contains("platform");
+}
+
+string RespawnBehaviorName(int value)
+{
+    if (value == 1) return "do_nothing";
+    if (value == 2) return "give_up_before_first_checkpoint";
+    if (value == 3) return "always_give_up";
+    if (value == 4) return "always_respawn";
+    return "custom";
+}
+
+string CheckpointBehaviorName(int value)
+{
+    if (value == 1) return "default";
+    if (value == 2) return "infinite_laps";
+    return "custom";
+}
+
+string GiveUpBehaviorName(int value)
+{
+    if (value == 1) return "do_nothing";
+    if (value == 2) return "give_up";
+    return "custom";
 }
 
 void CapturePlayerEvents(
@@ -305,10 +407,6 @@ void SnapshotPlayerTelemetry(
     state.RaceRespawnRank = racePlayer.RaceRespawnRank > 0 ? int(racePlayer.RaceRespawnRank) : -1;
     state.TimeAttackRank = racePlayer.TaRank > 0 ? int(racePlayer.TaRank) : -1;
     state.RespawnTimeLostMs = int(racePlayer.TimeLostToRespawns);
-    state.LastRespawnCheckpoint = racePlayer.NbRespawnsRequested > 0
-        ? int(racePlayer.LastRespawnCheckpoint) : -1;
-    state.LastRespawnDurationMs = racePlayer.NbRespawnsRequested > 0
-        ? int(racePlayer.LastRespawnRaceTime) : -1;
     state.LatencyEstimateMs = racePlayer.latencyEstimate;
     state.LatencySampleCount = racePlayer.lagDataPoints;
 
@@ -434,6 +532,8 @@ void AddRespawnEvent(
     event.CheckpointIndex = checkpointIndex;
     event.TimeLostToRespawnsMs = cumulativeTimeLostMs;
     state.Events.InsertLast(event);
+    state.LastRespawnDurationMs = event.DurationMs;
+    if (checkpointIndex >= 0) state.LastRespawnCheckpoint = checkpointIndex;
 
     print("[" + PluginName + "] RESPAWN key=" + state.ParticipantKey +
         " ordinal=" + ordinal + " durationMs=" + durationMs);
@@ -616,6 +716,7 @@ Json::Value@ BuildPayload(
     attempt["durationMs"] = durationMs;
     attempt["endReason"] = endReason;
     attempt["timingSource"] = "mlfeed_game_clock";
+    attempt["mode"] = BuildModeJson();
     attempt["map"] = BuildMapJson(CurrentMap);
 
     Json::Value@ players = Json::Array();
@@ -623,6 +724,30 @@ Json::Value@ BuildPayload(
     attempt["players"] = players;
     root["attempt"] = attempt;
     return root;
+}
+
+Json::Value@ BuildModeJson()
+{
+    Json::Value@ json = Json::Object();
+    if (Attempt.ModeName.Length > 0) json["name"] = Attempt.ModeName;
+    else json["name"] = Json::Parse("null");
+    json["warmupActive"] = Attempt.WarmupActive;
+    SetNullableInt(json, "startTime", Attempt.ModeStartTime);
+    SetNullableInt(json, "endTime", Attempt.ModeEndTime);
+    SetNullableInt(json, "timeLimitMs", Attempt.ModeTimeLimitMs);
+
+    Json::Value@ settings = Json::Object();
+    SetNullableInt(settings, "lapCountOverride", Attempt.LapCountOverride);
+    SetNullableInt(settings, "pointsLimit", Attempt.PointsLimit);
+    SetNullableInt(settings, "spawnDelayDurationMs", Attempt.SpawnDelayDurationMs);
+    settings["respawnBehavior"] = Attempt.RespawnBehavior;
+    settings["checkpointBehavior"] = Attempt.CheckpointBehavior;
+    settings["giveUpBehavior"] = Attempt.GiveUpBehavior;
+    settings["giveUpRespawnAfter"] = Attempt.GiveUpRespawnAfter;
+    settings["giveUpSkipAfterFinish"] = Attempt.GiveUpSkipAfterFinish;
+    settings["usesTeams"] = Attempt.UsesTeams;
+    json["settings"] = settings;
+    return json;
 }
 
 Json::Value@ BuildMapJson(CGameCtnChallenge@ map)
