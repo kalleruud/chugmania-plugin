@@ -6,7 +6,6 @@ class RaceEventCapture
     int DurationMs;
     int CheckpointIndex = -1;
     int TheoreticalDurationMs = -1;
-    string VehicleType = "";
 }
 
 class PlayerCaptureState
@@ -26,10 +25,6 @@ class PlayerCaptureState
     int LastCapturedCp = 0;
     int LastRaceTimeMs = 0;
     bool IsLocalPlayer = false;
-    string StartVehicleType = "";
-    string EndVehicleType = "";
-    string LastObservedVehicleType = "";
-    array<string> VehiclesSeen;
     int TheoreticalRaceTimeMs = -1;
     int RaceRank = -1;
     int RaceRespawnRank = -1;

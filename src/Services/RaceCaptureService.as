@@ -1,7 +1,6 @@
 namespace RaceCaptureService
 {
     const float AcceleratorThreshold = 0.01f;
-    const string UnknownVehicleType = "unknown";
 
     array<PlayerCaptureState@> Players;
     CGameCtnChallenge@ CurrentMap;
@@ -136,7 +135,7 @@ namespace RaceCaptureService
             return true;
         }
 
-        CaptureEvents(playground, raceData, racePlayer, scriptPlayer, state);
+        CaptureEvents(raceData, racePlayer, scriptPlayer, state);
         return false;
     }
 
@@ -199,7 +198,6 @@ namespace RaceCaptureService
     }
 
     void CaptureEvents(
-        CSmArenaClient@ playground,
         const MLFeed::HookRaceStatsEventsBase_V4@ raceData,
         const MLFeed::PlayerCpInfo_V4@ racePlayer,
         CSmScriptPlayer@ scriptPlayer,
@@ -207,32 +205,9 @@ namespace RaceCaptureService
     )
     {
         SnapshotPlayerTelemetry(racePlayer, state);
-        CaptureVehicle(playground, state);
         CaptureRespawns(racePlayer, state);
         CaptureCheckpoints(raceData, racePlayer, state);
         CaptureFirstThrottle(racePlayer, scriptPlayer, state);
-    }
-
-    void CaptureVehicle(CSmArenaClient@ playground, PlayerCaptureState@ state)
-    {
-        string vehicleType = ResolveVehicleType(playground, state.Player);
-        if (vehicleType.Length == 0) {
-            if (state.LastObservedVehicleType.Length > 0) {
-                state.EndVehicleType = state.LastObservedVehicleType;
-            } else if (state.EndVehicleType.Length == 0) {
-                state.EndVehicleType = UnknownVehicleType;
-            }
-            return;
-        }
-
-        if (state.StartVehicleType.Length == 0) state.StartVehicleType = vehicleType;
-        state.EndVehicleType = vehicleType;
-
-        bool changed = state.LastObservedVehicleType.Length > 0 &&
-            state.LastObservedVehicleType != vehicleType;
-        state.LastObservedVehicleType = vehicleType;
-        AddVehicleSeen(state, vehicleType);
-        if (changed) AddVehicleChangedEvent(state, vehicleType);
     }
 
     void SnapshotPlayerTelemetry(
@@ -336,15 +311,6 @@ namespace RaceCaptureService
         state.Events.InsertLast(event);
     }
 
-    void AddVehicleChangedEvent(PlayerCaptureState@ state, const string &in vehicleType)
-    {
-        RaceEventCapture@ event = NewEvent(state, "vehicle_changed", state.LastRaceTimeMs);
-        event.VehicleType = vehicleType;
-        state.Events.InsertLast(event);
-        print("[" + PluginInfo::Name + "] VEHICLE_CHANGED key=" + state.ParticipantKey +
-            " type=" + vehicleType + " durationMs=" + state.LastRaceTimeMs);
-    }
-
     RaceEventCapture@ NewEvent(
         PlayerCaptureState@ state,
         const string &in type,
@@ -436,41 +402,10 @@ namespace RaceCaptureService
         state.MlStartTime = racePlayer.StartTime;
         state.LastRaceTimeMs = Math::Max(racePlayer.CurrentRaceTimeRaw, 0);
         state.StartedAtUtcMs = UtcClockService::CurrentMs() - state.LastRaceTimeMs;
-        state.EndVehicleType = UnknownVehicleType;
         if (Attempt.Active && state.StartedAtUtcMs < Attempt.StartedAtUtcMs) {
             Attempt.StartedAtUtcMs = state.StartedAtUtcMs;
         }
         return state;
-    }
-
-    void AddVehicleSeen(PlayerCaptureState@ state, const string &in vehicleType)
-    {
-        for (uint i = 0; i < state.VehiclesSeen.Length; i++) {
-            if (state.VehiclesSeen[i] == vehicleType) return;
-        }
-        state.VehiclesSeen.InsertLast(vehicleType);
-    }
-
-    string ResolveVehicleType(CSmArenaClient@ playground, CSmPlayer@ player)
-    {
-        if (playground is null || player is null) return "";
-
-        CTrackMania@ app = cast<CTrackMania>(GetApp());
-        if (app is null || app.GameScene is null) return "";
-
-        auto vis = VehicleState::GetVis(app.GameScene, player);
-        if (vis is null || vis.AsyncState is null) return "";
-
-        return NormalizeVehicleType(VehicleState::GetVehicleType(vis.AsyncState));
-    }
-
-    string NormalizeVehicleType(VehicleState::VehicleType vehicleType)
-    {
-        if (vehicleType == 0) return "stadium";
-        if (vehicleType == 1) return "snow";
-        if (vehicleType == 2) return "rally";
-        if (vehicleType == 3) return "desert";
-        return UnknownVehicleType;
     }
 
     void FillFallbackIdentity(

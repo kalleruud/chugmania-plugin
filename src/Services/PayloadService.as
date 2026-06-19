@@ -3,7 +3,7 @@ namespace PayloadService
     Json::Value@ Build(CompletedRaceAttempt@ completed)
     {
         Json::Value@ root = Json::Object();
-        root["schemaVersion"] = "1.2";
+        root["schemaVersion"] = "1.1";
         root["eventType"] = "race.attempt.ended";
         root["eventId"] = completed.Attempt.AttemptId;
         root["occurredAtUtc"] = completed.EndedAtUtc;
@@ -102,34 +102,7 @@ namespace PayloadService
     {
         Json::Value@ json = Json::Object();
         AddIdentity(json, state);
-        json["vehicle"] = BuildVehicleSummary(state);
         json["events"] = BuildEvents(state.Events);
-        return json;
-    }
-
-    Json::Value@ BuildVehicleSummary(PlayerCaptureState@ state)
-    {
-        Json::Value@ json = Json::Object();
-        json["startType"] = VehicleTypeOrUnknown(state.StartVehicleType);
-        json["endType"] = VehicleTypeOrUnknown(state.EndVehicleType);
-        json["vehiclesSeen"] = BuildVehiclesSeen(state.VehiclesSeen);
-        json["changed"] = state.VehiclesSeen.Length > 1 ||
-            VehicleTypeOrUnknown(state.StartVehicleType) !=
-            VehicleTypeOrUnknown(state.EndVehicleType);
-        return json;
-    }
-
-    Json::Value@ BuildVehiclesSeen(const array<string>@ vehiclesSeen)
-    {
-        Json::Value@ json = Json::Array();
-        if (vehiclesSeen is null || vehiclesSeen.Length == 0) {
-            json.Add("unknown");
-            return json;
-        }
-
-        for (uint i = 0; i < vehiclesSeen.Length; i++) {
-            json.Add(VehicleTypeOrUnknown(vehiclesSeen[i]));
-        }
         return json;
     }
 
@@ -168,10 +141,6 @@ namespace PayloadService
             Json::Value@ respawn = Json::Object();
             SetNullableInt(respawn, "checkpointIndex", event.CheckpointIndex);
             json["respawn"] = respawn;
-        } else if (event.Type == "vehicle_changed") {
-            Json::Value@ vehicle = Json::Object();
-            vehicle["type"] = VehicleTypeOrUnknown(event.VehicleType);
-            json["vehicle"] = vehicle;
         }
         return json;
     }
@@ -214,19 +183,13 @@ namespace PayloadService
     {
         if (type == "start") return 0;
         if (type == "first_throttle") return 1;
-        if (type == "vehicle_changed") return 2;
-        if (type == "checkpoint") return 3;
-        if (type == "respawn") return 4;
-        return 5;
+        if (type == "checkpoint") return 2;
+        if (type == "respawn") return 3;
+        return 4;
     }
 
     string MapUid(CGameCtnChallenge@ map)
     {
         return map is null ? "" : map.EdChallengeId;
-    }
-
-    string VehicleTypeOrUnknown(const string &in vehicleType)
-    {
-        return vehicleType.Length > 0 ? vehicleType : "unknown";
     }
 }
