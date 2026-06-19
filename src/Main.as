@@ -165,7 +165,7 @@ void Update(float dt)
             if (AwaitingAttemptReset) continue;
             @state = CreatePlayerState(playground, i, player, scriptPlayer, racePlayer);
             PlayerStates.InsertLast(state);
-            EnsureAttemptStarted(raceData, racePlayer);
+            EnsureAttemptStarted(raceData);
             AddStartEvent(state);
             print("[" + PluginName + "] PLAYER_STARTED key=" + state.ParticipantKey +
                 " gameStartTime=" + state.MlStartTime);
@@ -209,10 +209,7 @@ const MLFeed::PlayerCpInfo_V4@ FindRacePlayer(
     return raceData.GetPlayer_V4(name);
 }
 
-void EnsureAttemptStarted(
-    const MLFeed::HookRaceStatsEventsBase_V4@ raceData,
-    const MLFeed::PlayerCpInfo_V4@ racePlayer
-)
+void EnsureAttemptStarted(const MLFeed::HookRaceStatsEventsBase_V4@ raceData)
 {
     if (CurrentMap is null) return;
 
@@ -221,7 +218,7 @@ void EnsureAttemptStarted(
 
     Attempt.Active = true;
     Attempt.Ordinal = ++AttemptOrdinal;
-    Attempt.StartedAtUtcMs = CurrentUtcMs() - racePlayer.CurrentRaceTimeRaw;
+    Attempt.StartedAtUtcMs = EarliestPlayerStartedAtUtcMs();
     Attempt.AttemptId = GetMapUid(CurrentMap) + "-" + Time::Stamp + "-" + Attempt.Ordinal;
     print("[" + PluginName + "] ATTEMPT_STARTED id=" + Attempt.AttemptId +
         " timing=mlfeed_game_clock");
@@ -295,6 +292,9 @@ void SnapshotPlayerTelemetry(
     if (racePlayer.Login.Length > 0) state.Login = racePlayer.Login;
     state.IsLocalPlayer = racePlayer.IsLocalPlayer;
     state.CurrentLap = int(racePlayer.CurrentLap);
+    if (Attempt.MlFeedLapCount > 0) {
+        state.CurrentLap = Math::Max(1, Math::Min(state.CurrentLap, Attempt.MlFeedLapCount));
+    }
     state.CheckpointsPassed = racePlayer.CpCount;
     state.FinalRaceTimeMs = racePlayer.IsFinished
         ? racePlayer.LastCpTime : Math::Max(racePlayer.CurrentRaceTimeRaw, 0);
@@ -509,12 +509,16 @@ void EndAttempt(const string &in endReason, const string &in unfinishedOutcome)
         if (!state.Finished) {
             state.Outcome = unfinishedOutcome;
             AddTerminalEvent(state, unfinishedOutcome, state.LastRaceTimeMs);
+        } else {
+            state.FinalRaceTimeMs = LastEventDuration(state);
         }
     }
 
     ComputeFinishPositions();
-    int durationMs = AttemptDurationMs();
-    string endedAtUtc = FormatUtcMs(Attempt.StartedAtUtcMs + durationMs);
+    Attempt.StartedAtUtcMs = EarliestPlayerStartedAtUtcMs();
+    int64 endedAtUtcMs = LatestPlayerEventAtUtcMs();
+    int durationMs = int(endedAtUtcMs - Attempt.StartedAtUtcMs);
+    string endedAtUtc = FormatUtcMs(endedAtUtcMs);
     Json::Value@ payload = BuildPayload(endReason, endedAtUtc, durationMs);
     string body = Json::Write(payload);
     print("[" + PluginName + "] ATTEMPT_ENDED id=" + Attempt.AttemptId +
@@ -552,20 +556,37 @@ void ComputeFinishPositions()
     }
 }
 
-int AttemptDurationMs()
+int64 EarliestPlayerStartedAtUtcMs()
 {
-    int64 endedAtUtcMs = Attempt.StartedAtUtcMs;
+    if (PlayerStates.Length == 0) return 0;
+    int64 startedAtUtcMs = PlayerStates[0].StartedAtUtcMs;
+    for (uint i = 1; i < PlayerStates.Length; i++) {
+        if (PlayerStates[i].StartedAtUtcMs < startedAtUtcMs) {
+            startedAtUtcMs = PlayerStates[i].StartedAtUtcMs;
+        }
+    }
+    return startedAtUtcMs;
+}
+
+int64 LatestPlayerEventAtUtcMs()
+{
+    int64 endedAtUtcMs = EarliestPlayerStartedAtUtcMs();
     for (uint i = 0; i < PlayerStates.Length; i++) {
-        int64 playerEndedAtUtcMs = PlayerStates[i].StartedAtUtcMs + LastEventDuration(PlayerStates[i]);
+        int64 playerEndedAtUtcMs = PlayerStates[i].StartedAtUtcMs +
+            LastEventDuration(PlayerStates[i]);
         if (playerEndedAtUtcMs > endedAtUtcMs) endedAtUtcMs = playerEndedAtUtcMs;
     }
-    return int(endedAtUtcMs - Attempt.StartedAtUtcMs);
+    return endedAtUtcMs;
 }
 
 int LastEventDuration(PlayerCaptureState@ state)
 {
     if (state.Events.Length == 0) return state.LastRaceTimeMs;
-    return state.Events[state.Events.Length - 1].DurationMs;
+    int durationMs = 0;
+    for (uint i = 0; i < state.Events.Length; i++) {
+        durationMs = Math::Max(durationMs, state.Events[i].DurationMs);
+    }
+    return durationMs;
 }
 
 Json::Value@ BuildPayload(
@@ -613,7 +634,7 @@ Json::Value@ BuildMapJson(CGameCtnChallenge@ map)
     json["authorName"] = Text::StripFormatCodes(map.AuthorNickName);
     json["mapType"] = Text::StripFormatCodes(map.MapType);
     json["mapStyle"] = Text::StripFormatCodes(map.MapStyle);
-    json["laps"] = map.TMObjective_NbLaps;
+    SetNullableInt(json, "laps", Attempt.MlFeedLapCount);
     json["isLapRace"] = map.TMObjective_IsLapRace;
     SetNullableInt(json, "checkpointsPerLap", Attempt.CheckpointsPerLap);
     SetNullableInt(json, "waypointsToFinish", Attempt.WaypointsToFinish);
@@ -677,10 +698,10 @@ Json::Value@ BuildPlayerJson(PlayerCaptureState@ state)
     Json::Value@ sessionBest = Json::Object();
     sessionBest["raceCheckpointTimesMs"] = UIntArrayJson(state.BestRaceTimes);
     sessionBest["raceIsComplete"] = Attempt.WaypointsToFinish >= 0 &&
-        state.BestRaceTimes.Length >= uint(Attempt.WaypointsToFinish + 1);
+        state.BestRaceTimes.Length >= uint(Attempt.WaypointsToFinish);
     sessionBest["lapCheckpointTimesMs"] = UIntArrayJson(state.BestLapTimes);
     sessionBest["lapIsComplete"] = Attempt.CheckpointsPerLap >= 0 &&
-        state.BestLapTimes.Length >= uint(Attempt.CheckpointsPerLap + 2);
+        state.BestLapTimes.Length >= uint(Attempt.CheckpointsPerLap + 1);
     json["sessionBest"] = sessionBest;
 
     if (state.AcceleratorRecorded) {

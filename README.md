@@ -92,9 +92,9 @@ by default.
         },
         "timingDiagnostics": { "latencyEstimateMs": 16.5, "latencySampleCount": 8.0 },
         "sessionBest": {
-          "raceCheckpointTimesMs": [0, 13210, 25000, 37000, 48123],
+          "raceCheckpointTimesMs": [13210, 25000, 37000, 48123],
           "raceIsComplete": true,
-          "lapCheckpointTimesMs": [0, 13210, 25000, 37000, 48123],
+          "lapCheckpointTimesMs": [13210, 25000, 37000, 48123],
           "lapIsComplete": true
         },
         "firstAccelerator": { "atUtc": "2026-06-19T20:14:44.830Z", "durationMs": 1830 },
@@ -140,6 +140,10 @@ Every player's `events` array starts with `start`. Checkpoints and respawns are
 ordered by authoritative game duration, and the last event is `finish`, `quit`,
 `restart`, or `dnf`. A finish event also contains its checkpoint information.
 At equal durations the order is start, checkpoint, respawn, then terminal event.
+The attempt starts at the earliest player `start` event and ends at the latest
+player terminal event, so `attempt.durationMs` is exactly the difference between
+those two UTC timestamps. `map.laps` and completed-player `currentLap` are
+normalized using MLFeed's game-mode lap count.
 
 MLFeed ranks and unavailable timing or checkpoint associations are serialized as
 `null`, not zero or inferred values. `sessionBest.raceCheckpointTimesMs` and
