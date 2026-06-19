@@ -23,6 +23,11 @@ class RaceEventCapture
     int CheckpointIndex = -1;
     int Lap = -1;
     int LapCheckpointIndex = -1;
+    int SplitDurationMs = -1;
+    int TheoreticalDurationMs = -1;
+    int RespawnCountAtCheckpoint = -1;
+    int TimeLostToRespawnsMs = -1;
+    int RespawnOrdinal = -1;
 }
 
 class PlayerCaptureState
@@ -40,7 +45,26 @@ class PlayerCaptureState
     uint MlStartTime = 0;
     int64 StartedAtUtcMs = 0;
     int LastCapturedCp = 0;
+    int LastCheckpointDurationMs = 0;
     int LastRaceTimeMs = 0;
+    bool IsLocalPlayer = false;
+    int CurrentLap = -1;
+    int CheckpointsPassed = 0;
+    int FinalRaceTimeMs = -1;
+    int TheoreticalRaceTimeMs = -1;
+    int SessionBestTimeMs = -1;
+    int RaceRank = -1;
+    int RaceRespawnRank = -1;
+    int TimeAttackRank = -1;
+    int RespawnCount = 0;
+    int CapturedRespawnEvents = 0;
+    int RespawnTimeLostMs = 0;
+    int LastRespawnCheckpoint = -1;
+    int LastRespawnDurationMs = -1;
+    float LatencyEstimateMs = 0.0f;
+    float LatencySampleCount = 0.0f;
+    array<uint> BestRaceTimes;
+    array<uint> BestLapTimes;
     bool AcceleratorRecorded = false;
     bool Finished = false;
     int FinishPosition = -1;
@@ -56,6 +80,9 @@ class RaceAttemptState
     string AttemptId;
     int64 StartedAtUtcMs = 0;
     uint Ordinal = 0;
+    int CheckpointsPerLap = -1;
+    int WaypointsToFinish = -1;
+    int MlFeedLapCount = -1;
 }
 
 class WebhookJob
@@ -138,7 +165,7 @@ void Update(float dt)
             if (AwaitingAttemptReset) continue;
             @state = CreatePlayerState(playground, i, player, scriptPlayer, racePlayer);
             PlayerStates.InsertLast(state);
-            EnsureAttemptStarted(racePlayer);
+            EnsureAttemptStarted(raceData, racePlayer);
             AddStartEvent(state);
             print("[" + PluginName + "] PLAYER_STARTED key=" + state.ParticipantKey +
                 " gameStartTime=" + state.MlStartTime);
@@ -147,6 +174,7 @@ void Update(float dt)
                 state.LastRaceTimeMs,
                 int(MLFeed::GameTime) - int(state.MlStartTime)
             );
+            state.FinalRaceTimeMs = state.LastRaceTimeMs;
             EndAttempt("restart", "restart");
             PlayerStates.RemoveRange(0, PlayerStates.Length);
             ResetAttempt();
@@ -181,9 +209,15 @@ const MLFeed::PlayerCpInfo_V4@ FindRacePlayer(
     return raceData.GetPlayer_V4(name);
 }
 
-void EnsureAttemptStarted(const MLFeed::PlayerCpInfo_V4@ racePlayer)
+void EnsureAttemptStarted(
+    const MLFeed::HookRaceStatsEventsBase_V4@ raceData,
+    const MLFeed::PlayerCpInfo_V4@ racePlayer
+)
 {
-    if (Attempt.Active || CurrentMap is null) return;
+    if (CurrentMap is null) return;
+
+    SnapshotRaceConfiguration(raceData);
+    if (Attempt.Active) return;
 
     Attempt.Active = true;
     Attempt.Ordinal = ++AttemptOrdinal;
@@ -193,6 +227,13 @@ void EnsureAttemptStarted(const MLFeed::PlayerCpInfo_V4@ racePlayer)
         " timing=mlfeed_game_clock");
 }
 
+void SnapshotRaceConfiguration(const MLFeed::HookRaceStatsEventsBase_V4@ raceData)
+{
+    Attempt.CheckpointsPerLap = int(raceData.CPCount);
+    Attempt.WaypointsToFinish = int(raceData.CPsToFinish);
+    Attempt.MlFeedLapCount = int(raceData.LapCount_Accurate);
+}
+
 void CapturePlayerEvents(
     const MLFeed::HookRaceStatsEventsBase_V4@ raceData,
     const MLFeed::PlayerCpInfo_V4@ racePlayer,
@@ -200,9 +241,8 @@ void CapturePlayerEvents(
     PlayerCaptureState@ state
 )
 {
-    state.LastRaceTimeMs = Math::Max(state.LastRaceTimeMs, racePlayer.CurrentRaceTimeRaw);
-    state.AccountId = racePlayer.WebServicesUserId;
-    if (racePlayer.Login.Length > 0) state.Login = racePlayer.Login;
+    SnapshotPlayerTelemetry(racePlayer, state);
+    CaptureRespawnEvents(racePlayer, state);
 
     while (state.LastCapturedCp < racePlayer.CpCount) {
         int nextCp = state.LastCapturedCp + 1;
@@ -212,7 +252,7 @@ void CapturePlayerEvents(
         if (checkpointTime <= 0) break;
 
         bool isFinish = uint(nextCp) == raceData.CPsToFinish;
-        AddCheckpointEvent(state, raceData, nextCp, checkpointTime, isFinish);
+        AddCheckpointEvent(state, raceData, racePlayer, nextCp, checkpointTime, isFinish);
         state.LastCapturedCp = nextCp;
 
         if (isFinish) {
@@ -222,7 +262,14 @@ void CapturePlayerEvents(
     }
 
     if (!state.Finished && racePlayer.IsFinished && racePlayer.LastCpTime > 0) {
-        AddCheckpointEvent(state, raceData, racePlayer.CpCount, racePlayer.LastCpTime, true);
+        AddCheckpointEvent(
+            state,
+            raceData,
+            racePlayer,
+            racePlayer.CpCount,
+            racePlayer.LastCpTime,
+            true
+        );
         state.LastCapturedCp = racePlayer.CpCount;
         state.Finished = true;
         state.Outcome = "finished";
@@ -238,6 +285,77 @@ void CapturePlayerEvents(
     }
 }
 
+void SnapshotPlayerTelemetry(
+    const MLFeed::PlayerCpInfo_V4@ racePlayer,
+    PlayerCaptureState@ state
+)
+{
+    state.LastRaceTimeMs = Math::Max(state.LastRaceTimeMs, racePlayer.CurrentRaceTimeRaw);
+    state.AccountId = racePlayer.WebServicesUserId;
+    if (racePlayer.Login.Length > 0) state.Login = racePlayer.Login;
+    state.IsLocalPlayer = racePlayer.IsLocalPlayer;
+    state.CurrentLap = int(racePlayer.CurrentLap);
+    state.CheckpointsPassed = racePlayer.CpCount;
+    state.FinalRaceTimeMs = racePlayer.IsFinished
+        ? racePlayer.LastCpTime : Math::Max(racePlayer.CurrentRaceTimeRaw, 0);
+    state.TheoreticalRaceTimeMs = racePlayer.IsFinished
+        ? racePlayer.LastTheoreticalCpTime : Math::Max(racePlayer.TheoreticalRaceTime, 0);
+    state.SessionBestTimeMs = racePlayer.BestTime > 0 ? racePlayer.BestTime : -1;
+    state.RaceRank = racePlayer.RaceRank > 0 ? int(racePlayer.RaceRank) : -1;
+    state.RaceRespawnRank = racePlayer.RaceRespawnRank > 0 ? int(racePlayer.RaceRespawnRank) : -1;
+    state.TimeAttackRank = racePlayer.TaRank > 0 ? int(racePlayer.TaRank) : -1;
+    state.RespawnTimeLostMs = int(racePlayer.TimeLostToRespawns);
+    state.LastRespawnCheckpoint = racePlayer.NbRespawnsRequested > 0
+        ? int(racePlayer.LastRespawnCheckpoint) : -1;
+    state.LastRespawnDurationMs = racePlayer.NbRespawnsRequested > 0
+        ? int(racePlayer.LastRespawnRaceTime) : -1;
+    state.LatencyEstimateMs = racePlayer.latencyEstimate;
+    state.LatencySampleCount = racePlayer.lagDataPoints;
+
+    state.BestRaceTimes.RemoveRange(0, state.BestRaceTimes.Length);
+    if (racePlayer.BestRaceTimes !is null) {
+        for (uint i = 0; i < racePlayer.BestRaceTimes.Length; i++) {
+            state.BestRaceTimes.InsertLast(racePlayer.BestRaceTimes[i]);
+        }
+    }
+
+    state.BestLapTimes.RemoveRange(0, state.BestLapTimes.Length);
+    if (racePlayer.BestLapTimes !is null) {
+        for (uint i = 0; i < racePlayer.BestLapTimes.Length; i++) {
+            state.BestLapTimes.InsertLast(racePlayer.BestLapTimes[i]);
+        }
+    }
+}
+
+void CaptureRespawnEvents(
+    const MLFeed::PlayerCpInfo_V4@ racePlayer,
+    PlayerCaptureState@ state
+)
+{
+    uint requested = racePlayer.NbRespawnsRequested;
+    const array<int>@ respawnTimes = racePlayer.RespawnTimes;
+    uint available = respawnTimes is null ? 0 : respawnTimes.Length;
+    uint captured = uint(Math::Max(state.CapturedRespawnEvents, 0));
+    uint toCapture = requested < available ? requested : available;
+
+    while (captured < toCapture) {
+        bool isNewest = captured + 1 == requested;
+        int checkpointIndex = isNewest ? int(racePlayer.LastRespawnCheckpoint) : -1;
+        int cumulativeTimeLostMs = isNewest ? int(racePlayer.TimeLostToRespawns) : -1;
+        AddRespawnEvent(
+            state,
+            int(captured + 1),
+            respawnTimes[captured],
+            checkpointIndex,
+            cumulativeTimeLostMs
+        );
+        captured++;
+    }
+
+    state.CapturedRespawnEvents = int(captured);
+    state.RespawnCount = int(requested);
+}
+
 void AddStartEvent(PlayerCaptureState@ state)
 {
     RaceEventCapture@ event = RaceEventCapture();
@@ -251,6 +369,7 @@ void AddStartEvent(PlayerCaptureState@ state)
 void AddCheckpointEvent(
     PlayerCaptureState@ state,
     const MLFeed::HookRaceStatsEventsBase_V4@ raceData,
+    const MLFeed::PlayerCpInfo_V4@ racePlayer,
     int checkpointIndex,
     int durationMs,
     bool isFinish
@@ -262,6 +381,20 @@ void AddCheckpointEvent(
     event.DurationMs = durationMs;
     event.AtUtc = EventUtc(state, durationMs);
     event.CheckpointIndex = checkpointIndex;
+    event.SplitDurationMs = durationMs - state.LastCheckpointDurationMs;
+    state.LastCheckpointDurationMs = durationMs;
+
+    if (racePlayer.TimeLostToRespawnByCp !is null) {
+        event.TimeLostToRespawnsMs = CumulativeTimeLostAtCheckpoint(
+            racePlayer.TimeLostToRespawnByCp,
+            checkpointIndex
+        );
+        event.TheoreticalDurationMs = durationMs - event.TimeLostToRespawnsMs;
+    }
+    if (racePlayer.NbRespawnsByCp !is null &&
+        uint(checkpointIndex) < racePlayer.NbRespawnsByCp.Length) {
+        event.RespawnCountAtCheckpoint = racePlayer.NbRespawnsByCp[checkpointIndex];
+    }
 
     int checkpointsPerLap = int(raceData.CPCount) + 1;
     if (checkpointsPerLap > 0) {
@@ -273,6 +406,37 @@ void AddCheckpointEvent(
     print("[" + PluginName + "] " + event.Type.ToUpper() +
         " key=" + state.ParticipantKey + " checkpoint=" + checkpointIndex +
         " durationMs=" + durationMs);
+}
+
+int CumulativeTimeLostAtCheckpoint(const array<int>@ losses, int checkpointIndex)
+{
+    int total = 0;
+    uint requestedCount = uint(Math::Max(checkpointIndex, 0));
+    uint count = requestedCount < losses.Length ? requestedCount : losses.Length;
+    for (uint i = 0; i < count; i++) total += losses[i];
+    return total;
+}
+
+void AddRespawnEvent(
+    PlayerCaptureState@ state,
+    int ordinal,
+    int durationMs,
+    int checkpointIndex,
+    int cumulativeTimeLostMs
+)
+{
+    RaceEventCapture@ event = RaceEventCapture();
+    event.Sequence = state.Events.Length;
+    event.Type = "respawn";
+    event.DurationMs = Math::Max(durationMs, 0);
+    event.AtUtc = EventUtc(state, event.DurationMs);
+    event.RespawnOrdinal = ordinal;
+    event.CheckpointIndex = checkpointIndex;
+    event.TimeLostToRespawnsMs = cumulativeTimeLostMs;
+    state.Events.InsertLast(event);
+
+    print("[" + PluginName + "] RESPAWN key=" + state.ParticipantKey +
+        " ordinal=" + ordinal + " durationMs=" + durationMs);
 }
 
 void AddTerminalEvent(PlayerCaptureState@ state, const string &in type, int durationMs)
@@ -451,6 +615,9 @@ Json::Value@ BuildMapJson(CGameCtnChallenge@ map)
     json["mapStyle"] = Text::StripFormatCodes(map.MapStyle);
     json["laps"] = map.TMObjective_NbLaps;
     json["isLapRace"] = map.TMObjective_IsLapRace;
+    SetNullableInt(json, "checkpointsPerLap", Attempt.CheckpointsPerLap);
+    SetNullableInt(json, "waypointsToFinish", Attempt.WaypointsToFinish);
+    SetNullableInt(json, "mlFeedLapCount", Attempt.MlFeedLapCount);
 
     Json::Value@ medals = Json::Object();
     medals["author"] = map.TMObjective_AuthorTime;
@@ -473,10 +640,48 @@ Json::Value@ BuildPlayerJson(PlayerCaptureState@ state)
     json["name"] = state.Name;
     json["isFake"] = state.IsFake;
     json["isBot"] = state.IsBot;
+    json["isLocalPlayer"] = state.IsLocalPlayer;
     json["spawnIndex"] = state.SpawnIndex;
     if (state.FinishPosition >= 0) json["finishPosition"] = state.FinishPosition;
     else json["finishPosition"] = Json::Parse("null");
     json["outcome"] = state.Outcome;
+    SetNullableInt(json, "currentLap", state.CurrentLap);
+    json["checkpointsPassed"] = state.CheckpointsPassed;
+    SetNullableInt(json, "finalRaceTimeMs", state.FinalRaceTimeMs);
+    SetNullableInt(json, "theoreticalRaceTimeMs", state.TheoreticalRaceTimeMs);
+    SetNullableInt(json, "sessionBestTimeMs", state.SessionBestTimeMs);
+
+    Json::Value@ ranks = Json::Object();
+    SetNullableInt(ranks, "race", state.RaceRank);
+    SetNullableInt(ranks, "raceWithRespawns", state.RaceRespawnRank);
+    SetNullableInt(ranks, "timeAttack", state.TimeAttackRank);
+    json["ranks"] = ranks;
+
+    Json::Value@ respawns = Json::Object();
+    respawns["count"] = state.RespawnCount;
+    respawns["timeLostMs"] = state.RespawnTimeLostMs;
+    SetNullableInt(respawns, "lastCheckpointIndex", state.LastRespawnCheckpoint);
+    SetNullableInt(respawns, "lastAtDurationMs", state.LastRespawnDurationMs);
+    json["respawns"] = respawns;
+
+    Json::Value@ timingDiagnostics = Json::Object();
+    if (state.LatencySampleCount > 0.0f) {
+        timingDiagnostics["latencyEstimateMs"] = state.LatencyEstimateMs;
+        timingDiagnostics["latencySampleCount"] = state.LatencySampleCount;
+    } else {
+        timingDiagnostics["latencyEstimateMs"] = Json::Parse("null");
+        timingDiagnostics["latencySampleCount"] = Json::Parse("null");
+    }
+    json["timingDiagnostics"] = timingDiagnostics;
+
+    Json::Value@ sessionBest = Json::Object();
+    sessionBest["raceCheckpointTimesMs"] = UIntArrayJson(state.BestRaceTimes);
+    sessionBest["raceIsComplete"] = Attempt.WaypointsToFinish >= 0 &&
+        state.BestRaceTimes.Length >= uint(Attempt.WaypointsToFinish + 1);
+    sessionBest["lapCheckpointTimesMs"] = UIntArrayJson(state.BestLapTimes);
+    sessionBest["lapIsComplete"] = Attempt.CheckpointsPerLap >= 0 &&
+        state.BestLapTimes.Length >= uint(Attempt.CheckpointsPerLap + 2);
+    json["sessionBest"] = sessionBest;
 
     if (state.AcceleratorRecorded) {
         Json::Value@ accelerator = Json::Object();
@@ -488,24 +693,82 @@ Json::Value@ BuildPlayerJson(PlayerCaptureState@ state)
     }
 
     Json::Value@ events = Json::Array();
-    for (uint i = 0; i < state.Events.Length; i++) {
-        RaceEventCapture@ event = state.Events[i];
+    array<RaceEventCapture@> orderedEvents = OrderedEvents(state.Events);
+    for (uint i = 0; i < orderedEvents.Length; i++) {
+        RaceEventCapture@ event = orderedEvents[i];
         Json::Value@ item = Json::Object();
-        item["sequence"] = event.Sequence;
+        item["sequence"] = i;
         item["type"] = event.Type;
         item["atUtc"] = event.AtUtc;
         item["durationMs"] = event.DurationMs;
-        if (event.CheckpointIndex >= 0) {
+        if (event.Type == "checkpoint" || event.Type == "finish") {
             Json::Value@ checkpoint = Json::Object();
             checkpoint["index"] = event.CheckpointIndex;
             checkpoint["lap"] = event.Lap;
             checkpoint["lapCheckpointIndex"] = event.LapCheckpointIndex;
             item["checkpoint"] = checkpoint;
+            SetNullableInt(item, "splitDurationMs", event.SplitDurationMs);
+            SetNullableInt(item, "theoreticalDurationMs", event.TheoreticalDurationMs);
+            SetNullableInt(item, "respawnCountAtCheckpoint", event.RespawnCountAtCheckpoint);
+            SetNullableInt(item, "timeLostToRespawnsMs", event.TimeLostToRespawnsMs);
+        } else if (event.Type == "respawn") {
+            Json::Value@ respawn = Json::Object();
+            respawn["ordinal"] = event.RespawnOrdinal;
+            SetNullableInt(respawn, "checkpointIndex", event.CheckpointIndex);
+            SetNullableInt(respawn, "timeLostToRespawnsMs", event.TimeLostToRespawnsMs);
+            item["respawn"] = respawn;
         }
         events.Add(item);
     }
     json["events"] = events;
     return json;
+}
+
+void SetNullableInt(Json::Value@ object, const string &in key, int value)
+{
+    if (value >= 0) object[key] = value;
+    else object[key] = Json::Parse("null");
+}
+
+Json::Value@ UIntArrayJson(const array<uint>@ values)
+{
+    Json::Value@ json = Json::Array();
+    for (uint i = 0; i < values.Length; i++) json.Add(values[i]);
+    return json;
+}
+
+array<RaceEventCapture@> OrderedEvents(const array<RaceEventCapture@>@ events)
+{
+    array<RaceEventCapture@> ordered;
+    for (uint i = 0; i < events.Length; i++) ordered.InsertLast(events[i]);
+
+    for (uint i = 1; i < ordered.Length; i++) {
+        RaceEventCapture@ candidate = ordered[i];
+        int j = int(i) - 1;
+        while (j >= 0 && EventComesBefore(candidate, ordered[j])) {
+            @ordered[j + 1] = ordered[j];
+            j--;
+        }
+        @ordered[j + 1] = candidate;
+    }
+    return ordered;
+}
+
+bool EventComesBefore(RaceEventCapture@ left, RaceEventCapture@ right)
+{
+    if (left.DurationMs != right.DurationMs) return left.DurationMs < right.DurationMs;
+    int leftPriority = EventTypePriority(left.Type);
+    int rightPriority = EventTypePriority(right.Type);
+    if (leftPriority != rightPriority) return leftPriority < rightPriority;
+    return left.Sequence < right.Sequence;
+}
+
+int EventTypePriority(const string &in type)
+{
+    if (type == "start") return 0;
+    if (type == "checkpoint") return 1;
+    if (type == "respawn") return 2;
+    return 3;
 }
 
 void DeliverNextWebhook()
