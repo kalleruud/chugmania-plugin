@@ -102,10 +102,6 @@ namespace PayloadService
     {
         Json::Value@ json = Json::Object();
         AddIdentity(json, state);
-        SetNullableInt(json, "theoreticalRaceTimeMs", state.TheoreticalRaceTimeMs);
-        json["ranks"] = BuildRanks(state);
-        json["timingDiagnostics"] = BuildTimingDiagnostics(state);
-        json["sessionBest"] = BuildSessionBest(state);
         json["events"] = BuildEvents(state.Events);
         return json;
     }
@@ -119,41 +115,7 @@ namespace PayloadService
         if (state.AccountId.Length > 0) json["accountId"] = state.AccountId;
         else json["accountId"] = Json::Parse("null");
         json["name"] = state.Name;
-        json["isFake"] = state.IsFake;
-        json["isBot"] = state.IsBot;
-        json["isLocalPlayer"] = state.IsLocalPlayer;
-        json["spawnIndex"] = state.SpawnIndex;
         SetNullableInt(json, "finishPosition", state.FinishPosition);
-    }
-
-    Json::Value@ BuildRanks(PlayerCaptureState@ state)
-    {
-        Json::Value@ json = Json::Object();
-        SetNullableInt(json, "race", state.RaceRank);
-        SetNullableInt(json, "raceWithRespawns", state.RaceRespawnRank);
-        SetNullableInt(json, "timeAttack", state.TimeAttackRank);
-        return json;
-    }
-
-    Json::Value@ BuildTimingDiagnostics(PlayerCaptureState@ state)
-    {
-        Json::Value@ json = Json::Object();
-        if (state.LatencySampleCount > 0.0f) {
-            json["latencyEstimateMs"] = state.LatencyEstimateMs;
-            json["latencySampleCount"] = state.LatencySampleCount;
-        } else {
-            json["latencyEstimateMs"] = Json::Parse("null");
-            json["latencySampleCount"] = Json::Parse("null");
-        }
-        return json;
-    }
-
-    Json::Value@ BuildSessionBest(PlayerCaptureState@ state)
-    {
-        Json::Value@ json = Json::Object();
-        json["raceCheckpointTimesMs"] = UIntArray(state.BestRaceTimes);
-        json["lapCheckpointTimesMs"] = UIntArray(state.BestLapTimes);
-        return json;
     }
 
     Json::Value@ BuildEvents(const array<RaceEventCapture@>@ events)
@@ -187,13 +149,6 @@ namespace PayloadService
     {
         if (value >= 0) object[key] = value;
         else object[key] = Json::Parse("null");
-    }
-
-    Json::Value@ UIntArray(const array<uint>@ values)
-    {
-        Json::Value@ json = Json::Array();
-        for (uint i = 0; i < values.Length; i++) json.Add(values[i]);
-        return json;
     }
 
     array<RaceEventCapture@> OrderedEvents(const array<RaceEventCapture@>@ events)

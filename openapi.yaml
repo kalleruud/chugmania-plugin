@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.0
 info:
   title: Chugmania Webhook Contract
   version: 1.1.0
@@ -52,33 +52,44 @@ components:
         - attempt
       properties:
         schemaVersion:
+          description: Version of the webhook payload schema used to encode this event.
           type: string
           const: '1.1'
         eventType:
+          description: Stable identifier for the kind of event represented by the payload.
           type: string
           const: race.attempt.ended
         eventId:
+          description: Unique attempt identifier that receivers can use as an idempotency key.
           type: string
           minLength: 1
         occurredAtUtc:
+          description: UTC timestamp when the captured race attempt ended.
           type: string
           format: date-time
         source:
-          $ref: '#/components/schemas/EventSource'
+          description: Plugin and game that emitted the event.
+          allOf:
+            - $ref: '#/components/schemas/EventSource'
         attempt:
-          $ref: '#/components/schemas/RaceAttempt'
+          description: Complete captured state and event history for the race attempt.
+          allOf:
+            - $ref: '#/components/schemas/RaceAttempt'
     EventSource:
       type: object
       additionalProperties: false
       required: [pluginName, pluginVersion, game]
       properties:
         pluginName:
+          description: Name of the Openplanet plugin that emitted the event.
           type: string
           const: Chugmania Webhooks
         pluginVersion:
+          description: Installed version of the Openplanet plugin that emitted the event.
           type: string
           minLength: 1
         game:
+          description: Game from which the race attempt was captured.
           type: string
           const: Trackmania
     RaceAttempt:
@@ -98,34 +109,47 @@ components:
         - players
       properties:
         attemptId:
+          description: Unique identifier generated for this captured race attempt.
           type: string
           minLength: 1
         format:
+          description: Whether the attempt involved one player or multiple local split-screen players.
           type: string
           enum: [solo, split_screen]
         playerCount:
+          description: Number of players included in the attempt payload.
           type: integer
           minimum: 1
         startedAtUtc:
+          description: UTC timestamp of the earliest captured player start in the attempt.
           type: string
           format: date-time
         endedAtUtc:
+          description: UTC timestamp of the latest terminal player event in the attempt.
           type: string
           format: date-time
         durationMs:
+          description: Elapsed milliseconds from the attempt start to its final player event.
           type: integer
           minimum: 0
         endReason:
+          description: Condition that caused the plugin to close and emit the attempt.
           type: string
           enum: [all_finished, round_ended, restart, playground_closed, map_changed]
         timingSource:
+          description: Clock source used for race durations and checkpoint times.
           type: string
           const: mlfeed_game_clock
         mode:
-          $ref: '#/components/schemas/GameMode'
+          description: Game mode state captured during the attempt.
+          allOf:
+            - $ref: '#/components/schemas/GameMode'
         map:
-          $ref: '#/components/schemas/Map'
+          description: Map metadata and race configuration for the attempt.
+          allOf:
+            - $ref: '#/components/schemas/Map'
         players:
+          description: Players captured in the attempt, each with an ordered event history.
           type: array
           minItems: 1
           items:
@@ -136,17 +160,27 @@ components:
       required: [name, warmupActive, startTime, endTime, timeLimitMs, settings]
       properties:
         name:
+          description: Server mode name, or null when the rules API does not expose one.
           type: [string, 'null']
         warmupActive:
+          description: Whether the game mode was in its warmup phase when captured.
           type: boolean
         startTime:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
+          description: Mode start time on the game clock in milliseconds, or null when unavailable.
+          allOf:
+            - $ref: '#/components/schemas/NullableNonNegativeInteger'
         endTime:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
+          description: Mode end time on the game clock in milliseconds, or null when unavailable.
+          allOf:
+            - $ref: '#/components/schemas/NullableNonNegativeInteger'
         timeLimitMs:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
+          description: Difference between mode end and start times in milliseconds, or null when no positive limit is exposed.
+          allOf:
+            - $ref: '#/components/schemas/NullableNonNegativeInteger'
         settings:
-          $ref: '#/components/schemas/ModeSettings'
+          description: Generic behavior and scoring settings exposed by the mode rules.
+          allOf:
+            - $ref: '#/components/schemas/ModeSettings'
     ModeSettings:
       type: object
       additionalProperties: false
@@ -162,25 +196,37 @@ components:
         - usesTeams
       properties:
         lapCountOverride:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
+          description: Mode-level lap count override, or null when none is exposed.
+          allOf:
+            - $ref: '#/components/schemas/NullableNonNegativeInteger'
         pointsLimit:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
+          description: Points required by the mode's score limit, or null when unavailable.
+          allOf:
+            - $ref: '#/components/schemas/NullableNonNegativeInteger'
         spawnDelayDurationMs:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
+          description: Delay in milliseconds imposed by the mode before a player can spawn, or null when unavailable.
+          allOf:
+            - $ref: '#/components/schemas/NullableNonNegativeInteger'
         respawnBehavior:
+          description: Mode rule that determines what happens when a player requests a respawn.
           type: string
           enum: [do_nothing, give_up_before_first_checkpoint, always_give_up, always_respawn, custom]
         checkpointBehavior:
+          description: Mode rule that determines how checkpoint progression is handled.
           type: string
           enum: [default, infinite_laps, custom]
         giveUpBehavior:
+          description: Mode rule that determines what happens when a player gives up.
           type: string
           enum: [do_nothing, give_up, custom]
         giveUpRespawnAfter:
+          description: Whether the mode respawns a player after processing a give-up request.
           type: boolean
         giveUpSkipAfterFinish:
+          description: Whether the mode ignores give-up requests after the player crosses the finish line.
           type: boolean
         usesTeams:
+          description: Whether the mode enables clans, multiple clans, or forced clans.
           type: boolean
     Map:
       type: object
@@ -200,44 +246,65 @@ components:
         - medalTimesMs
       properties:
         uid:
+          description: Stable unique identifier assigned to the Trackmania map.
           type: string
         name:
+          description: Display name of the map with Trackmania formatting codes removed.
           type: string
         authorLogin:
+          description: Trackmania login of the map author.
           type: string
         authorName:
+          description: Display name of the map author with Trackmania formatting codes removed.
           type: string
         mapType:
+          description: Map type reported by Trackmania, with formatting codes removed.
           type: string
         mapStyle:
+          description: Map style reported by Trackmania, with formatting codes removed.
           type: string
         laps:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
+          description: Accurate lap count reported by MLFeed, or null when unavailable.
+          allOf:
+            - $ref: '#/components/schemas/NullableNonNegativeInteger'
         isLapRace:
+          description: Whether the map objective is configured as a lap race.
           type: boolean
         checkpointsPerLap:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
+          description: Number of checkpoints in one lap reported by MLFeed, or null when unavailable.
+          allOf:
+            - $ref: '#/components/schemas/NullableNonNegativeInteger'
         waypointsToFinish:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
+          description: Total number of checkpoint or finish waypoints required to complete the race, or null when unavailable.
+          allOf:
+            - $ref: '#/components/schemas/NullableNonNegativeInteger'
         mlFeedLapCount:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
+          description: Accurate lap count supplied directly by MLFeed, or null when unavailable.
+          allOf:
+            - $ref: '#/components/schemas/NullableNonNegativeInteger'
         medalTimesMs:
-          $ref: '#/components/schemas/MedalTimes'
+          description: Map medal target times measured in milliseconds.
+          allOf:
+            - $ref: '#/components/schemas/MedalTimes'
     MedalTimes:
       type: object
       additionalProperties: false
       required: [author, gold, silver, bronze]
       properties:
         author:
+          description: Author medal target time in milliseconds.
           type: integer
           minimum: 0
         gold:
+          description: Gold medal target time in milliseconds.
           type: integer
           minimum: 0
         silver:
+          description: Silver medal target time in milliseconds.
           type: integer
           minimum: 0
         bronze:
+          description: Bronze medal target time in milliseconds.
           type: integer
           minimum: 0
     Player:
@@ -250,92 +317,42 @@ components:
         - login
         - accountId
         - name
-        - isFake
-        - isBot
-        - isLocalPlayer
-        - spawnIndex
         - finishPosition
-        - theoreticalRaceTimeMs
-        - ranks
-        - timingDiagnostics
-        - sessionBest
         - events
       properties:
         participantKey:
+          description: Best available stable player key, chosen from account ID, login, or a local fallback identifier.
           type: string
           minLength: 1
         playerIndex:
+          description: Zero-based index of the player in the playground player list when capture began.
           type: integer
           minimum: 0
         terminalIndex:
+          description: Zero-based split-screen terminal controlling the player, or -1 when no controlling terminal was found.
           type: integer
           minimum: -1
         login:
+          description: Trackmania login associated with the player, or an empty string when unavailable.
           type: string
         accountId:
+          description: Web services account identifier for the player, or null when unavailable.
           type: [string, 'null']
         name:
+          description: Player display name with Trackmania formatting codes removed.
           type: string
-        isFake:
-          type: boolean
-        isBot:
-          type: boolean
-        isLocalPlayer:
-          type: boolean
-        spawnIndex:
-          type: integer
-          minimum: -1
         finishPosition:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
-        theoreticalRaceTimeMs:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
-        ranks:
-          $ref: '#/components/schemas/PlayerRanks'
-        timingDiagnostics:
-          $ref: '#/components/schemas/TimingDiagnostics'
-        sessionBest:
-          $ref: '#/components/schemas/SessionBest'
+          description: One-based finishing position among captured finishers, or null when the player did not finish.
+          allOf:
+            - $ref: '#/components/schemas/NullableNonNegativeInteger'
         events:
+          description: Chronologically ordered race events captured for the player.
           type: array
           minItems: 2
           items:
             $ref: '#/components/schemas/RaceEvent'
-    PlayerRanks:
-      type: object
-      additionalProperties: false
-      required: [race, raceWithRespawns, timeAttack]
-      properties:
-        race:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
-        raceWithRespawns:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
-        timeAttack:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
-    TimingDiagnostics:
-      type: object
-      additionalProperties: false
-      required: [latencyEstimateMs, latencySampleCount]
-      properties:
-        latencyEstimateMs:
-          type: [number, 'null']
-        latencySampleCount:
-          type: [number, 'null']
-          minimum: 0
-    SessionBest:
-      type: object
-      additionalProperties: false
-      required: [raceCheckpointTimesMs, lapCheckpointTimesMs]
-      properties:
-        raceCheckpointTimesMs:
-          $ref: '#/components/schemas/DurationArray'
-        lapCheckpointTimesMs:
-          $ref: '#/components/schemas/DurationArray'
-    DurationArray:
-      type: array
-      items:
-        type: integer
-        minimum: 0
     RaceEvent:
+      description: A timestamped milestone or terminal action in a player's race.
       oneOf:
         - $ref: '#/components/schemas/BasicRaceEvent'
         - $ref: '#/components/schemas/CheckpointRaceEvent'
@@ -357,12 +374,15 @@ components:
       required: [type, atUtc, durationMs]
       properties:
         type:
+          description: Kind of non-checkpoint event recorded for the player.
           type: string
           enum: [start, first_throttle, quit, restart, dnf]
         atUtc:
+          description: UTC timestamp when the event occurred.
           type: string
           format: date-time
         durationMs:
+          description: Player race time in milliseconds at which the event occurred.
           type: integer
           minimum: 0
     CheckpointRaceEvent:
@@ -371,40 +391,53 @@ components:
       required: [type, atUtc, durationMs, checkpoint, theoreticalDurationMs]
       properties:
         type:
+          description: Whether the player reached an intermediate checkpoint or the finish.
           type: string
           enum: [checkpoint, finish]
         atUtc:
+          description: UTC timestamp when the checkpoint or finish was reached.
           type: string
           format: date-time
         durationMs:
+          description: Player race time in milliseconds when the checkpoint or finish was reached, including respawn losses.
           type: integer
           minimum: 0
         checkpoint:
-          $ref: '#/components/schemas/CheckpointReference'
+          description: Checkpoint sequence position reached by this event.
+          allOf:
+            - $ref: '#/components/schemas/CheckpointReference'
         theoreticalDurationMs:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
+          description: Race time in milliseconds with cumulative respawn losses removed, or null when loss data is unavailable.
+          allOf:
+            - $ref: '#/components/schemas/NullableNonNegativeInteger'
     RespawnRaceEvent:
       type: object
       additionalProperties: false
       required: [type, atUtc, durationMs, respawn]
       properties:
         type:
+          description: Identifies the event as a player respawn request.
           type: string
           const: respawn
         atUtc:
+          description: UTC timestamp when the respawn occurred.
           type: string
           format: date-time
         durationMs:
+          description: Player race time in milliseconds at which the respawn occurred.
           type: integer
           minimum: 0
         respawn:
-          $ref: '#/components/schemas/RespawnReference'
+          description: Checkpoint context associated with the respawn.
+          allOf:
+            - $ref: '#/components/schemas/RespawnReference'
     CheckpointReference:
       type: object
       additionalProperties: false
       required: [index]
       properties:
         index:
+          description: One-based checkpoint sequence index reached by the player.
           type: integer
           minimum: 0
     RespawnReference:
@@ -413,7 +446,10 @@ components:
       required: [checkpointIndex]
       properties:
         checkpointIndex:
-          $ref: '#/components/schemas/NullableNonNegativeInteger'
+          description: Checkpoint sequence index from which the player respawned, or null when unavailable for an older respawn.
+          allOf:
+            - $ref: '#/components/schemas/NullableNonNegativeInteger'
     NullableNonNegativeInteger:
+      description: A non-negative integer value, or null when the source does not provide it.
       type: [integer, 'null']
       minimum: 0
