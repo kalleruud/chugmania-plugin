@@ -9,4 +9,4 @@ supported_games = [ "Trackmania" ]
 
 [script]
 timeout = 0
- 
+dependencies = [ "MLHook", "MLFeedRaceData" ]
