@@ -25,7 +25,9 @@ webhooks:
               $ref: '#/components/schemas/RaceAttemptEndedEvent'
       responses:
         '204':
-          description: Event accepted
+          description: Event consumed by the receiver
+        '503':
+          description: Event not consumed because no session was available
         '400':
           description: Invalid event payload
         '401':
@@ -51,7 +53,9 @@ webhooks:
               $ref: '#/components/schemas/TurboArcadeNameInputEvent'
       responses:
         '204':
-          description: Event accepted
+          description: Event consumed by the receiver
+        '503':
+          description: Event not consumed because no session was available
         '400':
           description: Invalid event payload
         '401':

@@ -73,6 +73,10 @@ Configure the plugin in **Openplanet > Settings > Chugmania Webhooks**:
 - optionally change the retry count.
 
 Requests use `POST`, `Content-Type: application/json`, and the API key is sent
-in the `X-API-Key` header. Rate-limited requests honor numeric `Retry-After` and
-`X-RateLimit-Reset` response headers, with a 30, 60, and 120 second fallback.
+in the `X-API-Key` header. Rate-limited requests honor `X-RateLimit-Reset`
+response headers, with a 30, 60, and 120 second fallback.
 Other failed requests are retried after 1, 3, and 10 seconds by default.
+
+The receiver should return `204 No Content` when it consumes the webhook and
+`503 Service Unavailable` when no session is available yet. The plugin treats
+`503` as a retryable not-consumed response.

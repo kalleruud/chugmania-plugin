@@ -41,10 +41,25 @@ namespace WebhookService
 
             int status = request.ResponseCode();
             if (status >= 200 && status < 300) {
-                print("[" + PluginInfo::Name + "] WEBHOOK_DELIVERED id=" +
+                print("[" + PluginInfo::Name + "] WEBHOOK_CONSUMED id=" +
                     job.EventId + " status=" + status);
                 Queue.RemoveAt(0);
                 return;
+            }
+
+            if (status == 503) {
+                if (attemptNumber < maxAttempts) {
+                    uint retryDelayMs = RetryDelayMs(request, status, attemptNumber);
+                    warn("[" + PluginInfo::Name + "] WEBHOOK_NOT_CONSUMED id=" +
+                        job.EventId + " attempt=" + attemptNumber + " status=" +
+                        status + " retryInMs=" + retryDelayMs);
+                    sleep(retryDelayMs);
+                } else {
+                    warn("[" + PluginInfo::Name + "] WEBHOOK_NOT_CONSUMED id=" +
+                        job.EventId + " attempt=" + attemptNumber + " status=" +
+                        status);
+                }
+                continue;
             }
 
             if (attemptNumber < maxAttempts) {
@@ -70,7 +85,7 @@ namespace WebhookService
         uint attemptNumber
     )
     {
-        if (status == 429) return RateLimitDelayMs(request, attemptNumber);
+        if (status == 429 || status == 503) return RateLimitDelayMs(request, attemptNumber);
         if (attemptNumber == 1) return 1000;
         if (attemptNumber == 2) return 3000;
         return 10000;
@@ -78,12 +93,6 @@ namespace WebhookService
 
     uint RateLimitDelayMs(Net::HttpRequest@ request, uint attemptNumber)
     {
-        int retryAfterSeconds = 0;
-        string retryAfter = request.ResponseHeader("Retry-After");
-        if (Text::TryParseUInt(retryAfter, retryAfterSeconds) && retryAfterSeconds > 0) {
-            return ClampedDelayMs(retryAfterSeconds);
-        }
-
         int64 resetAt = 0;
         string rateLimitReset = request.ResponseHeader("X-RateLimit-Reset");
         if (Text::TryParseInt64(rateLimitReset, resetAt) && resetAt > Time::Stamp) {
