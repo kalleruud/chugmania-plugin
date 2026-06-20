@@ -812,6 +812,11 @@ namespace RaceCaptureService
             }
             CaptureEvents(player, state);
         }
+
+        if (Attempt.Active && HasActiveTurboAttemptWithoutRacers(playground)) {
+            EndAttempt("quit", "quit");
+            ClearAttempt();
+        }
     }
 
     bool IsRacing(CTrackManiaPlayer@ player)
@@ -889,6 +894,43 @@ namespace RaceCaptureService
     {
         return state.AcceleratorRecorded || state.CapturedNativeRaceResults > 0 ||
             state.CapturedRespawnEvents > 0;
+    }
+
+    bool HasActiveTurboAttemptWithoutRacers(CTrackManiaRace@ playground)
+    {
+        bool hasCapturedUnfinishedPlayer = false;
+        for (uint i = 0; i < Players.Length; i++) {
+            PlayerCaptureState@ state = Players[i];
+            if (state.Finished || !HasTurboRaceActivity(state)) continue;
+
+            hasCapturedUnfinishedPlayer = true;
+            CTrackManiaPlayer@ player = FindTrackedTurboPlayer(playground, state);
+            if (player !is null && IsRacing(player)) return false;
+        }
+        return hasCapturedUnfinishedPlayer;
+    }
+
+    CTrackManiaPlayer@ FindTrackedTurboPlayer(
+        CTrackManiaRace@ playground,
+        PlayerCaptureState@ state
+    )
+    {
+        if (state.PlayerIndex < playground.Players.Length) {
+            CTrackManiaPlayer@ indexedPlayer =
+                cast<CTrackManiaPlayer>(playground.Players[state.PlayerIndex]);
+            if (indexedPlayer !is null &&
+                FindTerminalIndex(playground, indexedPlayer) == state.TerminalIndex) {
+                return indexedPlayer;
+            }
+        }
+
+        for (uint i = 0; i < playground.Players.Length; i++) {
+            CTrackManiaPlayer@ player = cast<CTrackManiaPlayer>(playground.Players[i]);
+            if (player is null) continue;
+            if (state.Login.Length > 0 && player.Login == state.Login) return player;
+            if (FindTerminalIndex(playground, player) == state.TerminalIndex) return player;
+        }
+        return null;
     }
 
     void EnsureAttemptStarted()
