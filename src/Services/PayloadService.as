@@ -3,7 +3,7 @@ namespace PayloadService
     Json::Value@ Build(CompletedRaceAttempt@ completed)
     {
         Json::Value@ root = Json::Object();
-        root["schemaVersion"] = "1.2";
+        root["schemaVersion"] = "1.0";
         root["eventType"] = "race.attempt.ended";
         root["eventId"] = completed.Attempt.AttemptId;
         root["occurredAtUtc"] = completed.EndedAtUtc;
@@ -153,9 +153,12 @@ namespace PayloadService
         json["type"] = event.Type;
         json["atUtc"] = event.AtUtc;
         json["durationMs"] = event.DurationMs;
-        if (event.Type == "checkpoint" || event.Type == "finish") {
+        if (event.Type == "start" || event.Type == "lap") {
+            json["lapNumber"] = event.LapNumber;
+        } else if (event.Type == "checkpoint" || event.Type == "finish") {
             Json::Value@ checkpoint = Json::Object();
             checkpoint["index"] = event.CheckpointIndex;
+            checkpoint["lapIndex"] = event.LapCheckpointIndex;
             json["checkpoint"] = checkpoint;
             SetNullableInt(json, "theoreticalDurationMs", event.TheoreticalDurationMs);
         } else if (event.Type == "respawn") {
@@ -203,10 +206,11 @@ namespace PayloadService
     int EventPriority(const string &in type)
     {
         if (type == "start") return 0;
-        if (type == "first_throttle") return 1;
-        if (type == "checkpoint") return 2;
-        if (type == "respawn") return 3;
-        return 4;
+        if (type == "lap") return 1;
+        if (type == "first_throttle") return 2;
+        if (type == "checkpoint") return 3;
+        if (type == "respawn") return 4;
+        return 5;
     }
 
 }

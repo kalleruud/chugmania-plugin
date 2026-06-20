@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Chugmania Webhook Contract
-  version: 1.2.0
+  version: 1.0.0
   description: >-
     Contract for race attempt events emitted by the Chugmania Webhooks
     Openplanet plugin.
@@ -54,7 +54,7 @@ components:
         schemaVersion:
           description: Version of the webhook payload schema used to encode this event.
           type: string
-          const: '1.2'
+          const: '1.0'
         eventType:
           description: Stable identifier for the kind of event represented by the payload.
           type: string
@@ -355,12 +355,14 @@ components:
       description: A timestamped milestone or terminal action in a player's race.
       oneOf:
         - $ref: '#/components/schemas/BasicRaceEvent'
+        - $ref: '#/components/schemas/LapRaceEvent'
         - $ref: '#/components/schemas/CheckpointRaceEvent'
         - $ref: '#/components/schemas/RespawnRaceEvent'
       discriminator:
         propertyName: type
         mapping:
-          start: '#/components/schemas/BasicRaceEvent'
+          start: '#/components/schemas/LapRaceEvent'
+          lap: '#/components/schemas/LapRaceEvent'
           first_throttle: '#/components/schemas/BasicRaceEvent'
           quit: '#/components/schemas/BasicRaceEvent'
           restart: '#/components/schemas/BasicRaceEvent'
@@ -376,7 +378,7 @@ components:
         type:
           description: Kind of non-checkpoint event recorded for the player.
           type: string
-          enum: [start, first_throttle, quit, restart, dnf]
+          enum: [first_throttle, quit, restart, dnf]
         atUtc:
           description: UTC timestamp when the event occurred.
           type: string
@@ -385,6 +387,27 @@ components:
           description: Player race time in milliseconds at which the event occurred.
           type: integer
           minimum: 0
+    LapRaceEvent:
+      type: object
+      additionalProperties: false
+      required: [type, atUtc, durationMs, lapNumber]
+      properties:
+        type:
+          description: Whether this event starts the race or a subsequent lap.
+          type: string
+          enum: [start, lap]
+        atUtc:
+          description: UTC timestamp when the lap started.
+          type: string
+          format: date-time
+        durationMs:
+          description: Player race time in milliseconds when the lap started.
+          type: integer
+          minimum: 0
+        lapNumber:
+          description: One-based number of the lap that started with this event.
+          type: integer
+          minimum: 1
     CheckpointRaceEvent:
       type: object
       additionalProperties: false
@@ -434,12 +457,16 @@ components:
     CheckpointReference:
       type: object
       additionalProperties: false
-      required: [index]
+      required: [index, lapIndex]
       properties:
         index:
-          description: One-based checkpoint sequence index reached by the player.
+          description: One-based checkpoint sequence index across the whole race; lap lines are excluded.
           type: integer
-          minimum: 0
+          minimum: 1
+        lapIndex:
+          description: One-based checkpoint sequence index within the current lap.
+          type: integer
+          minimum: 1
     RespawnReference:
       type: object
       additionalProperties: false
