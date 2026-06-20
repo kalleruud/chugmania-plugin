@@ -20,6 +20,8 @@ class PlayerCaptureState
     bool IsBot = false;
     int SpawnIndex = -1;
     uint MlStartTime = 0;
+    uint NativeStartTime = 0;
+    uint64 StartedAtMonotonicMs = 0;
     int64 StartedAtUtcMs = 0;
     int LastCapturedCp = 0;
     int LastRaceTimeMs = 0;
@@ -48,6 +50,7 @@ class MapCaptureState
     string MapType;
     string MapStyle;
     bool IsLapRace = false;
+    int Laps = -1;
     int AuthorTimeMs = 0;
     int GoldTimeMs = 0;
     int SilverTimeMs = 0;

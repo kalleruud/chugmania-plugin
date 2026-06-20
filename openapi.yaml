@@ -1,7 +1,7 @@
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   title: Chugmania Webhook Contract
-  version: 1.1.0
+  version: 1.2.0
   description: >-
     Contract for race attempt events emitted by the Chugmania Webhooks
     Openplanet plugin.
@@ -54,7 +54,7 @@ components:
         schemaVersion:
           description: Version of the webhook payload schema used to encode this event.
           type: string
-          const: '1.1'
+          const: '1.2'
         eventType:
           description: Stable identifier for the kind of event represented by the payload.
           type: string
@@ -91,7 +91,7 @@ components:
         game:
           description: Game from which the race attempt was captured.
           type: string
-          const: Trackmania
+          enum: [Trackmania, Trackmania Turbo]
     RaceAttempt:
       type: object
       additionalProperties: false
@@ -139,7 +139,7 @@ components:
         timingSource:
           description: Clock source used for race durations and checkpoint times.
           type: string
-          const: mlfeed_game_clock
+          enum: [mlfeed_game_clock, turbo_native_race_clock]
         mode:
           description: Game mode state captured during the attempt.
           allOf:
@@ -208,26 +208,26 @@ components:
           allOf:
             - $ref: '#/components/schemas/NullableNonNegativeInteger'
         respawnBehavior:
-          description: Mode rule that determines what happens when a player requests a respawn.
-          type: string
-          enum: [do_nothing, give_up_before_first_checkpoint, always_give_up, always_respawn, custom]
+          description: Mode rule that determines what happens when a player requests a respawn, or null when unavailable in Turbo.
+          type: [string, 'null']
+          enum: [do_nothing, give_up_before_first_checkpoint, always_give_up, always_respawn, custom, null]
         checkpointBehavior:
-          description: Mode rule that determines how checkpoint progression is handled.
-          type: string
-          enum: [default, infinite_laps, custom]
+          description: Mode rule that determines how checkpoint progression is handled, or null when unavailable in Turbo.
+          type: [string, 'null']
+          enum: [default, infinite_laps, custom, null]
         giveUpBehavior:
-          description: Mode rule that determines what happens when a player gives up.
-          type: string
-          enum: [do_nothing, give_up, custom]
+          description: Mode rule that determines what happens when a player gives up, or null when unavailable in Turbo.
+          type: [string, 'null']
+          enum: [do_nothing, give_up, custom, null]
         giveUpRespawnAfter:
-          description: Whether the mode respawns a player after processing a give-up request.
-          type: boolean
+          description: Whether the mode respawns a player after processing a give-up request, or null when unavailable in Turbo.
+          type: [boolean, 'null']
         giveUpSkipAfterFinish:
-          description: Whether the mode ignores give-up requests after the player crosses the finish line.
-          type: boolean
+          description: Whether the mode ignores give-up requests after the player crosses the finish line, or null when unavailable in Turbo.
+          type: [boolean, 'null']
         usesTeams:
-          description: Whether the mode enables clans, multiple clans, or forced clans.
-          type: boolean
+          description: Whether the mode enables clans, multiple clans, or forced clans, or null when unavailable in Turbo.
+          type: [boolean, 'null']
     Map:
       type: object
       additionalProperties: false
@@ -264,7 +264,7 @@ components:
           description: Map style reported by Trackmania, with formatting codes removed.
           type: string
         laps:
-          description: Accurate lap count reported by MLFeed, or null when unavailable.
+          description: Accurate lap count reported by MLFeed in Trackmania or by the map objective in Turbo, or null when unavailable.
           allOf:
             - $ref: '#/components/schemas/NullableNonNegativeInteger'
         isLapRace:
@@ -279,7 +279,7 @@ components:
           allOf:
             - $ref: '#/components/schemas/NullableNonNegativeInteger'
         mlFeedLapCount:
-          description: Accurate lap count supplied directly by MLFeed, or null when unavailable.
+          description: Accurate lap count supplied directly by MLFeed, or null in Turbo and when unavailable.
           allOf:
             - $ref: '#/components/schemas/NullableNonNegativeInteger'
         medalTimesMs:

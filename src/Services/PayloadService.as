@@ -3,7 +3,7 @@ namespace PayloadService
     Json::Value@ Build(CompletedRaceAttempt@ completed)
     {
         Json::Value@ root = Json::Object();
-        root["schemaVersion"] = "1.1";
+        root["schemaVersion"] = "1.2";
         root["eventType"] = "race.attempt.ended";
         root["eventId"] = completed.Attempt.AttemptId;
         root["occurredAtUtc"] = completed.EndedAtUtc;
@@ -17,7 +17,11 @@ namespace PayloadService
         Json::Value@ source = Json::Object();
         source["pluginName"] = PluginInfo::Name;
         source["pluginVersion"] = PluginInfo::Version;
+#if TURBO
+        source["game"] = "Trackmania Turbo";
+#else
         source["game"] = "Trackmania";
+#endif
         return source;
     }
 
@@ -32,7 +36,11 @@ namespace PayloadService
         json["endedAtUtc"] = completed.EndedAtUtc;
         json["durationMs"] = completed.DurationMs;
         json["endReason"] = completed.EndReason;
+#if TURBO
+        json["timingSource"] = "turbo_native_race_clock";
+#else
         json["timingSource"] = "mlfeed_game_clock";
+#endif
         json["mode"] = BuildMode(state);
         json["map"] = BuildMap(state, completed.Map);
         json["players"] = BuildPlayers(completed.Players);
@@ -53,12 +61,21 @@ namespace PayloadService
         SetNullableInt(settings, "lapCountOverride", state.LapCountOverride);
         SetNullableInt(settings, "pointsLimit", state.PointsLimit);
         SetNullableInt(settings, "spawnDelayDurationMs", state.SpawnDelayDurationMs);
+#if TURBO
+        settings["respawnBehavior"] = Json::Parse("null");
+        settings["checkpointBehavior"] = Json::Parse("null");
+        settings["giveUpBehavior"] = Json::Parse("null");
+        settings["giveUpRespawnAfter"] = Json::Parse("null");
+        settings["giveUpSkipAfterFinish"] = Json::Parse("null");
+        settings["usesTeams"] = Json::Parse("null");
+#else
         settings["respawnBehavior"] = state.RespawnBehavior;
         settings["checkpointBehavior"] = state.CheckpointBehavior;
         settings["giveUpBehavior"] = state.GiveUpBehavior;
         settings["giveUpRespawnAfter"] = state.GiveUpRespawnAfter;
         settings["giveUpSkipAfterFinish"] = state.GiveUpSkipAfterFinish;
         settings["usesTeams"] = state.UsesTeams;
+#endif
         json["settings"] = settings;
         return json;
     }
@@ -72,7 +89,11 @@ namespace PayloadService
         json["authorName"] = map.AuthorName;
         json["mapType"] = map.MapType;
         json["mapStyle"] = map.MapStyle;
+#if TURBO
+        SetNullableInt(json, "laps", map.Laps);
+#else
         SetNullableInt(json, "laps", state.MlFeedLapCount);
+#endif
         json["isLapRace"] = map.IsLapRace;
         SetNullableInt(json, "checkpointsPerLap", state.CheckpointsPerLap);
         SetNullableInt(json, "waypointsToFinish", state.WaypointsToFinish);
