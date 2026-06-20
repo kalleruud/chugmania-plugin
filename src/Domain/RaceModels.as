@@ -5,6 +5,8 @@ class RaceEventCapture
     string AtUtc;
     int DurationMs;
     int CheckpointIndex = -1;
+    int LapCheckpointIndex = -1;
+    int LapNumber = -1;
     int TheoreticalDurationMs = -1;
 }
 
@@ -20,8 +22,14 @@ class PlayerCaptureState
     bool IsBot = false;
     int SpawnIndex = -1;
     uint MlStartTime = 0;
+    uint NativeStartTime = 0;
+    uint64 StartedAtMonotonicMs = 0;
     int64 StartedAtUtcMs = 0;
     int LastCapturedCp = 0;
+    int CapturedNativeRaceResults = 0;
+    int GlobalCheckpointIndex = 0;
+    int LapCheckpointIndex = 0;
+    int CurrentLapNumber = 1;
     int LastRaceTimeMs = 0;
     bool IsLocalPlayer = false;
     int TheoreticalRaceTimeMs = -1;
@@ -47,7 +55,9 @@ class MapCaptureState
     string AuthorName;
     string MapType;
     string MapStyle;
+    string Environment;
     bool IsLapRace = false;
+    int Laps = -1;
     int AuthorTimeMs = 0;
     int GoldTimeMs = 0;
     int SilverTimeMs = 0;

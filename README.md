@@ -1,7 +1,7 @@
 # Chugmania Webhooks
 
-An Openplanet plugin that captures local Trackmania race attempts and sends one
-JSON webhook when an attempt ends.
+An Openplanet plugin that captures local Trackmania 2020 or Trackmania Turbo
+race attempts and sends one JSON webhook when an attempt ends.
 
 The plugin watches every player in `CurrentPlayground.Players`, including local
 split-screen players, and captures:
@@ -14,7 +14,48 @@ split-screen players, and captures:
 
 One `race.attempt.ended` request represents the complete attempt and always uses
 the same `players[]` format for solo and split screen. Race durations and
-checkpoint times come from MLFeed's ManiaScript-backed game clock.
+checkpoint times come from MLFeed's ManiaScript-backed game clock in Trackmania
+2020 and Turbo's native race results in Trackmania Turbo.
+
+## Supported games
+
+- **Trackmania 2020:** local solo and split-screen capture using MLHook and
+  MLFeed: Race Data.
+- **Trackmania Turbo:** local solo and split-screen capture using the native
+  Turbo playground, player, and race-result APIs.
+
+Turbo mode names distinguish `campaign`, `arcade`, `hot_seat`, and
+`split_screen`, and map payloads include the Canyon, Valley, Lagoon, or Stadium
+`environment`. Turbo does not expose every mode rule or MLFeed-derived value. Those fields are
+sent as `null`, including `mlFeedLapCount`, theoretical checkpoint times,
+respawn checkpoint indexes, and generic mode settings. Turbo checkpoint and
+finish times are native race-result values; lifecycle-only event times use a
+monotonic clock anchored when the race is detected.
+
+Online and party-mode capture are not currently guaranteed in Turbo.
+
+## Build and install
+
+Game metadata lives in `info.next.toml` and `info.turbo.toml`. The build
+scripts select the requested manifest and package it as `info.toml`, as required
+by Openplanet.
+
+Build both game packages on Windows:
+
+```powershell
+.\scripts\build-op.ps1 all
+```
+
+Or build one package with `trackmania` or `turbo`. The shell script accepts the
+same target as its first argument:
+
+```bash
+./scripts/build-op.sh all
+```
+
+The resulting files are named with `-trackmania-` or `-turbo-`; install the one
+matching the game. Unsigned development builds require Openplanet Developer
+signature mode. Public distribution requires Openplanet review and signing.
 
 ## Webhook settings
 
