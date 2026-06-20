@@ -18,6 +18,7 @@ class PlayerCaptureState
     string Login;
     string AccountId;
     string Name;
+    uint ArcadeNameInputCount = 0;
     bool IsFake = false;
     bool IsBot = false;
     int SpawnIndex = -1;

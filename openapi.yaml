@@ -3,8 +3,8 @@ info:
   title: Chugmania Webhook Contract
   version: 1.0.0
   description: >-
-    Contract for race attempt events emitted by the Chugmania Webhooks
-    Openplanet plugin.
+    Contract for race attempt and Turbo arcade name-input events emitted by
+    the Chugmania Webhooks Openplanet plugin.
 webhooks:
   raceAttemptEnded:
     post:
@@ -23,6 +23,32 @@ webhooks:
           application/json:
             schema:
               $ref: '#/components/schemas/RaceAttemptEndedEvent'
+      responses:
+        '204':
+          description: Event accepted
+        '400':
+          description: Invalid event payload
+        '401':
+          description: Missing or invalid API key
+        '500':
+          description: Receiver failed to process the event
+  turboArcadeNameInput:
+    post:
+      summary: A Turbo arcade name was input
+      description: >-
+        Sent whenever a Turbo arcade player changes their registered name
+        during a captured attempt. Receivers should use eventId as an
+        idempotency key because delivery may be retried.
+      operationId: receiveTurboArcadeNameInput
+      security:
+        - ApiKey: []
+        - {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TurboArcadeNameInputEvent'
       responses:
         '204':
           description: Event accepted
@@ -75,6 +101,61 @@ components:
           description: Complete captured state and event history for the race attempt.
           allOf:
             - $ref: '#/components/schemas/RaceAttempt'
+    TurboArcadeNameInputEvent:
+      type: object
+      additionalProperties: false
+      required:
+        - schemaVersion
+        - eventType
+        - eventId
+        - occurredAtUtc
+        - source
+        - attemptId
+        - nameInput
+        - playerIndex
+        - terminalIndex
+        - durationMs
+      properties:
+        schemaVersion:
+          description: Version of the webhook payload schema used to encode this event.
+          type: string
+          const: '1.0'
+        eventType:
+          description: Stable identifier for the kind of event represented by the payload.
+          type: string
+          const: turbo.arcade.name.input
+        eventId:
+          description: Unique event identifier that receivers can use as an idempotency key.
+          type: string
+          minLength: 1
+        occurredAtUtc:
+          description: UTC timestamp when the name input was observed.
+          type: string
+          format: date-time
+        source:
+          description: Plugin and game that emitted the event.
+          allOf:
+            - $ref: '#/components/schemas/EventSource'
+        attemptId:
+          description: Attempt identifier that the name input belongs to.
+          type: string
+          minLength: 1
+        nameInput:
+          description: Player name entered or changed in Turbo arcade mode.
+          type: string
+          minLength: 1
+        playerIndex:
+          description: Zero-based index of the player in the playground player list when the name input was observed.
+          type: integer
+          minimum: 0
+        terminalIndex:
+          description: Zero-based split-screen terminal controlling the player, or -1 when no controlling terminal was found.
+          type: integer
+          minimum: -1
+        durationMs:
+          description: Elapsed milliseconds from the attempt start when the name input was observed.
+          type: integer
+          minimum: 0
     EventSource:
       type: object
       additionalProperties: false

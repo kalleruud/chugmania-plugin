@@ -871,6 +871,7 @@ namespace RaceCaptureService
         CaptureRaceResults(player, state);
         CaptureFirstThrottle(player, state, elapsed);
         CaptureFinish(player, state);
+        CaptureArcadeNameInput(player, state, elapsed);
     }
 
     int CurrentDuration(PlayerCaptureState@ state)
@@ -965,6 +966,34 @@ namespace RaceCaptureService
             " lapCheckpoint=" + event.LapCheckpointIndex + " durationMs=" + duration);
     }
 
+    void CaptureArcadeNameInput(
+        CTrackManiaPlayer@ player,
+        PlayerCaptureState@ state,
+        int elapsed
+    )
+    {
+        if (Attempt.ModeName.ToLower() != "arcade") return;
+
+        string inputName = Text::StripFormatCodes(player.Name);
+        if (inputName.Length == 0 || inputName == state.Name) return;
+
+        state.ArcadeNameInputCount++;
+        state.Name = inputName;
+
+        Json::Value@ body = PayloadService::BuildTurboArcadeNameInput(
+            Attempt,
+            state,
+            inputName,
+            elapsed
+        );
+        string eventId = Attempt.AttemptId + "-player-" + state.PlayerIndex +
+            "-terminal-" + state.TerminalIndex + "-name-" + state.ArcadeNameInputCount;
+        print("[" + PluginInfo::Name + "] ARCADE_NAME_INPUT id=" + eventId +
+            " key=" + state.ParticipantKey + " name=\"" + inputName + "\"" +
+            " durationMs=" + elapsed);
+        QueueWebhook(eventId, Json::Write(body));
+    }
+
     PlayerCaptureState@ FindPlayerState(uint playerIndex, int terminalIndex)
     {
         for (uint i = 0; i < Players.Length; i++) {
@@ -1002,7 +1031,7 @@ namespace RaceCaptureService
         string body = Json::Write(PayloadService::Build(completed));
         print("[" + PluginInfo::Name + "] ATTEMPT_ENDED id=" + Attempt.AttemptId +
             " reason=" + endReason + " durationMs=" + completed.DurationMs);
-        QueueWebhook(body);
+        QueueWebhook(Attempt.AttemptId, body);
         Attempt.Active = false;
     }
 
@@ -1025,10 +1054,10 @@ namespace RaceCaptureService
         return completed;
     }
 
-    void QueueWebhook(const string &in body)
+    void QueueWebhook(const string &in eventId, const string &in body)
     {
         if (Setting_WebhookEnabled && Setting_WebhookEndpoint.Length > 0) {
-            WebhookService::Enqueue(Attempt.AttemptId, body);
+            WebhookService::Enqueue(eventId, body);
             WebhookService::StartDelivery();
         } else {
             print("[" + PluginInfo::Name + "] WEBHOOK_SKIPPED disabled or endpoint missing");

@@ -12,6 +12,28 @@ namespace PayloadService
         return root;
     }
 
+    Json::Value@ BuildTurboArcadeNameInput(
+        RaceAttemptState@ attempt,
+        PlayerCaptureState@ state,
+        const string &in nameInput,
+        int durationMs
+    )
+    {
+        Json::Value@ root = Json::Object();
+        root["schemaVersion"] = "1.0";
+        root["eventType"] = "turbo.arcade.name.input";
+        root["eventId"] = attempt.AttemptId + "-player-" + state.PlayerIndex +
+            "-terminal-" + state.TerminalIndex + "-name-" + state.ArcadeNameInputCount;
+        root["occurredAtUtc"] = UtcClockService::Format(state.StartedAtUtcMs + durationMs);
+        root["source"] = BuildSource();
+        root["attemptId"] = attempt.AttemptId;
+        root["nameInput"] = nameInput;
+        root["playerIndex"] = state.PlayerIndex;
+        root["terminalIndex"] = state.TerminalIndex;
+        root["durationMs"] = durationMs;
+        return root;
+    }
+
     Json::Value@ BuildSource()
     {
         Json::Value@ source = Json::Object();

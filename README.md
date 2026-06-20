@@ -1,7 +1,8 @@
 # Chugmania Webhooks
 
 An Openplanet plugin that captures local Trackmania 2020 or Trackmania Turbo
-race attempts and sends one JSON webhook when an attempt ends.
+race attempts and sends JSON webhooks when an attempt ends, plus a Turbo
+arcade name-input webhook when the player name changes.
 
 The plugin watches every player in `CurrentPlayground.Players`, including local
 split-screen players, and captures:
@@ -16,6 +17,11 @@ One `race.attempt.ended` request represents the complete attempt and always uses
 the same `players[]` format for solo and split screen. Race durations and
 checkpoint times come from MLFeed's ManiaScript-backed game clock in Trackmania
 2020 and Turbo's native race results in Trackmania Turbo.
+
+Turbo arcade mode also emits a `turbo.arcade.name.input` request whenever a
+registered player name changes during a captured attempt. That event carries
+the attempt id, the entered name, and the elapsed attempt time at which it was
+observed.
 
 ## Supported games
 
