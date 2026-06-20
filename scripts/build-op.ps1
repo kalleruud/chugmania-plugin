@@ -40,9 +40,9 @@ New-Item -ItemType Directory -Force -Path $outputDirectoryPath | Out-Null
 
 foreach ($game in $targets) {
     $manifestPath = if ($game -eq "trackmania") {
-        Join-Path $repositoryRoot "info.toml"
+        Join-Path $repositoryRoot "info.next.toml"
     } else {
-        Join-Path $repositoryRoot "manifests\info.turbo.toml"
+        Join-Path $repositoryRoot "info.turbo.toml"
     }
     if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
         throw "Could not find $manifestPath"

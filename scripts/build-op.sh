@@ -44,9 +44,9 @@ trap 'rm -rf -- "$staging_root"' EXIT
 
 for game in "${targets[@]}"; do
   if [[ "$game" == "trackmania" ]]; then
-    manifest="$repository_root/info.toml"
+    manifest="$repository_root/info.next.toml"
   else
-    manifest="$repository_root/manifests/info.turbo.toml"
+    manifest="$repository_root/info.turbo.toml"
   fi
   if [[ ! -f "$manifest" ]]; then
     echo "Error: Could not find $manifest" >&2

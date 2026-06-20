@@ -34,6 +34,10 @@ Online and party-mode capture are not currently guaranteed in Turbo.
 
 ## Build and install
 
+Game metadata lives in `info.next.toml` and `info.turbo.toml`. The build
+scripts select the requested manifest and package it as `info.toml`, as required
+by Openplanet.
+
 Build both game packages on Windows:
 
 ```powershell
