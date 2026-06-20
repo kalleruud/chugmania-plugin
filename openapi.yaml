@@ -210,11 +210,11 @@ components:
           type: string
           format: date-time
         endedAtUtc:
-          description: UTC timestamp of the latest terminal player event in the attempt.
+          description: UTC timestamp of the final captured player event in the attempt.
           type: string
           format: date-time
         durationMs:
-          description: Elapsed milliseconds from the attempt start to its final player event.
+          description: Duration in milliseconds of the final captured player event in the attempt.
           type: integer
           minimum: 0
         endReason:

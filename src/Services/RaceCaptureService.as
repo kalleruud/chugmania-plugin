@@ -542,10 +542,7 @@ namespace RaceCaptureService
         ComputeFinishPositions();
 
         Attempt.StartedAtUtcMs = EarliestPlayerStart();
-        int64 endedAtUtcMs = LatestPlayerEnd();
-        CompletedRaceAttempt@ completed = BuildCompletedAttempt(
-            endReason, endedAtUtcMs
-        );
+        CompletedRaceAttempt@ completed = BuildCompletedAttempt(endReason);
         string body = Json::Write(PayloadService::Build(completed));
         print("[" + PluginInfo::Name + "] ATTEMPT_ENDED id=" + Attempt.AttemptId +
             " reason=" + endReason + " durationMs=" + completed.DurationMs);
@@ -562,18 +559,21 @@ namespace RaceCaptureService
         }
     }
 
-    CompletedRaceAttempt@ BuildCompletedAttempt(
-        const string &in endReason,
-        int64 endedAtUtcMs
-    )
+    CompletedRaceAttempt@ BuildCompletedAttempt(const string &in endReason)
     {
         CompletedRaceAttempt@ completed = CompletedRaceAttempt();
         @completed.Attempt = Attempt;
         @completed.Map = CurrentMap;
         for (uint i = 0; i < Players.Length; i++) completed.Players.InsertLast(Players[i]);
         completed.EndReason = endReason;
-        completed.EndedAtUtc = UtcClockService::Format(endedAtUtcMs);
-        completed.DurationMs = int(endedAtUtcMs - Attempt.StartedAtUtcMs);
+        RaceEventCapture@ lastEvent = LatestAttemptEvent();
+        if (lastEvent !is null) {
+            completed.EndedAtUtc = lastEvent.AtUtc;
+            completed.DurationMs = lastEvent.DurationMs;
+        } else {
+            completed.EndedAtUtc = UtcClockService::Format(Attempt.StartedAtUtcMs);
+            completed.DurationMs = 0;
+        }
         return completed;
     }
 
@@ -620,12 +620,24 @@ namespace RaceCaptureService
         return earliest;
     }
 
-    int64 LatestPlayerEnd()
+    RaceEventCapture@ LatestAttemptEvent()
     {
-        int64 latest = EarliestPlayerStart();
+        RaceEventCapture@ latest;
+        int64 latestAtUtcMs = Attempt.StartedAtUtcMs;
+        int latestDurationMs = -1;
         for (uint i = 0; i < Players.Length; i++) {
-            int64 playerEnd = Players[i].StartedAtUtcMs + LastEventDuration(Players[i]);
-            if (playerEnd > latest) latest = playerEnd;
+            PlayerCaptureState@ state = Players[i];
+            for (uint j = 0; j < state.Events.Length; j++) {
+                RaceEventCapture@ event = state.Events[j];
+                int64 eventAtUtcMs = state.StartedAtUtcMs + event.DurationMs;
+                if (latest is null || eventAtUtcMs > latestAtUtcMs ||
+                    (eventAtUtcMs == latestAtUtcMs &&
+                        event.DurationMs > latestDurationMs)) {
+                    @latest = event;
+                    latestAtUtcMs = eventAtUtcMs;
+                    latestDurationMs = event.DurationMs;
+                }
+            }
         }
         return latest;
     }
@@ -708,6 +720,7 @@ namespace RaceCaptureService
 namespace RaceCaptureService
 {
     const float AcceleratorThreshold = 0.01f;
+    const int RestartDurationResetToleranceMs = 1000;
 
     array<PlayerCaptureState@> Players;
     MapCaptureState@ CurrentMap;
@@ -781,15 +794,17 @@ namespace RaceCaptureService
             CTrackManiaPlayer@ player = cast<CTrackManiaPlayer>(playground.Players[i]);
             if (player is null || !IsRacing(player)) continue;
 
+            int knownDuration = LatestKnownDuration(player);
             int terminalIndex = FindTerminalIndex(playground, player);
             PlayerCaptureState@ state = FindPlayerState(i, terminalIndex);
             if (state is null) {
                 @state = StartPlayer(playground, player, i, terminalIndex);
-            } else if (player.RaceStartTime > state.NativeStartTime) {
+            } else if (HasRestarted(player, state, knownDuration)) {
                 EndAttempt("restart", "restart");
                 ClearAttempt();
                 return;
             }
+            if (knownDuration > 0) state.SawNativeDuration = true;
             CaptureEvents(player, state);
         }
     }
@@ -813,12 +828,17 @@ namespace RaceCaptureService
         state.TerminalIndex = terminalIndex;
         state.Login = player.Login;
         state.Name = Text::StripFormatCodes(player.Name);
-        state.ParticipantKey = state.Login.Length > 0 ? state.Login :
-            "local-player-" + playerIndex + "-terminal-" + terminalIndex;
+        if (state.Login.Length > 0) {
+            state.ParticipantKey = state.Login;
+        } else {
+            state.ParticipantKey = "local-player-" + tostring(playerIndex) +
+                "-terminal-" + tostring(terminalIndex);
+        }
         state.NativeStartTime = player.RaceStartTime;
 
         int knownDuration = LatestKnownDuration(player);
         state.LastRaceTimeMs = knownDuration;
+        state.SawNativeDuration = knownDuration > 0;
         state.StartedAtMonotonicMs = Time::Now - uint64(knownDuration);
         state.StartedAtUtcMs = UtcClockService::CurrentMs() - knownDuration;
         Players.InsertLast(state);
@@ -839,6 +859,23 @@ namespace RaceCaptureService
             if (player.CurRace.Time > 0) duration = Math::Max(duration, player.CurRace.Time);
         }
         return duration;
+    }
+
+    bool HasRestarted(
+        CTrackManiaPlayer@ player,
+        PlayerCaptureState@ state,
+        int knownDuration
+    )
+    {
+        if (player.RaceStartTime > state.NativeStartTime) return true;
+        if (state.Finished) return false;
+
+        // Turbo Arcade can reset the native race clock before it advances the
+        // player start timestamp. Once we have observed native race time, a
+        // large duration drop is a reliable restart signal.
+        if (!state.SawNativeDuration) return false;
+        return state.LastRaceTimeMs > 0 &&
+            knownDuration + RestartDurationResetToleranceMs < state.LastRaceTimeMs;
     }
 
     void EnsureAttemptStarted()
@@ -1026,8 +1063,7 @@ namespace RaceCaptureService
         AddMissingTerminalEvents(unfinishedOutcome);
         ComputeFinishPositions();
         Attempt.StartedAtUtcMs = EarliestPlayerStart();
-        int64 endedAtUtcMs = LatestPlayerEnd();
-        CompletedRaceAttempt@ completed = BuildCompletedAttempt(endReason, endedAtUtcMs);
+        CompletedRaceAttempt@ completed = BuildCompletedAttempt(endReason);
         string body = Json::Write(PayloadService::Build(completed));
         print("[" + PluginInfo::Name + "] ATTEMPT_ENDED id=" + Attempt.AttemptId +
             " reason=" + endReason + " durationMs=" + completed.DurationMs);
@@ -1042,15 +1078,21 @@ namespace RaceCaptureService
         }
     }
 
-    CompletedRaceAttempt@ BuildCompletedAttempt(const string &in reason, int64 endedAtUtcMs)
+    CompletedRaceAttempt@ BuildCompletedAttempt(const string &in reason)
     {
         CompletedRaceAttempt@ completed = CompletedRaceAttempt();
         @completed.Attempt = Attempt;
         @completed.Map = CurrentMap;
         for (uint i = 0; i < Players.Length; i++) completed.Players.InsertLast(Players[i]);
         completed.EndReason = reason;
-        completed.EndedAtUtc = UtcClockService::Format(endedAtUtcMs);
-        completed.DurationMs = int(endedAtUtcMs - Attempt.StartedAtUtcMs);
+        RaceEventCapture@ lastEvent = LatestAttemptEvent();
+        if (lastEvent !is null) {
+            completed.EndedAtUtc = lastEvent.AtUtc;
+            completed.DurationMs = lastEvent.DurationMs;
+        } else {
+            completed.EndedAtUtc = UtcClockService::Format(Attempt.StartedAtUtcMs);
+            completed.DurationMs = 0;
+        }
         return completed;
     }
 
@@ -1119,12 +1161,24 @@ namespace RaceCaptureService
         return earliest;
     }
 
-    int64 LatestPlayerEnd()
+    RaceEventCapture@ LatestAttemptEvent()
     {
-        int64 latest = EarliestPlayerStart();
+        RaceEventCapture@ latest;
+        int64 latestAtUtcMs = Attempt.StartedAtUtcMs;
+        int latestDurationMs = -1;
         for (uint i = 0; i < Players.Length; i++) {
-            int64 playerEnd = Players[i].StartedAtUtcMs + LastEventDuration(Players[i]);
-            if (playerEnd > latest) latest = playerEnd;
+            PlayerCaptureState@ state = Players[i];
+            for (uint j = 0; j < state.Events.Length; j++) {
+                RaceEventCapture@ event = state.Events[j];
+                int64 eventAtUtcMs = state.StartedAtUtcMs + event.DurationMs;
+                if (latest is null || eventAtUtcMs > latestAtUtcMs ||
+                    (eventAtUtcMs == latestAtUtcMs &&
+                        event.DurationMs > latestDurationMs)) {
+                    @latest = event;
+                    latestAtUtcMs = eventAtUtcMs;
+                    latestDurationMs = event.DurationMs;
+                }
+            }
         }
         return latest;
     }
