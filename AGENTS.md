@@ -1,0 +1,1 @@
+- Always keep the @openapi.yaml file up to date with the webhook payload contract.
