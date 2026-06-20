@@ -47,9 +47,16 @@ namespace WebhookService
                 return;
             }
 
-            warn("[" + PluginInfo::Name + "] WEBHOOK_FAILED id=" + job.EventId +
-                " attempt=" + attemptNumber + " status=" + status);
-            if (attemptNumber < maxAttempts) sleep(RetryDelayMs(attemptNumber));
+            if (attemptNumber < maxAttempts) {
+                uint retryDelayMs = RetryDelayMs(request, status, attemptNumber);
+                warn("[" + PluginInfo::Name + "] WEBHOOK_FAILED id=" + job.EventId +
+                    " attempt=" + attemptNumber + " status=" + status +
+                    " retryInMs=" + retryDelayMs);
+                sleep(retryDelayMs);
+            } else {
+                warn("[" + PluginInfo::Name + "] WEBHOOK_FAILED id=" + job.EventId +
+                    " attempt=" + attemptNumber + " status=" + status);
+            }
         }
 
         error("[" + PluginInfo::Name + "] WEBHOOK_DROPPED id=" + job.EventId +
@@ -57,10 +64,39 @@ namespace WebhookService
         Queue.RemoveAt(0);
     }
 
-    uint RetryDelayMs(uint attemptNumber)
+    uint RetryDelayMs(
+        Net::HttpRequest@ request,
+        int status,
+        uint attemptNumber
+    )
     {
+        if (status == 429) return RateLimitDelayMs(request, attemptNumber);
         if (attemptNumber == 1) return 1000;
         if (attemptNumber == 2) return 3000;
         return 10000;
+    }
+
+    uint RateLimitDelayMs(Net::HttpRequest@ request, uint attemptNumber)
+    {
+        int retryAfterSeconds = 0;
+        string retryAfter = request.ResponseHeader("Retry-After");
+        if (Text::TryParseUInt(retryAfter, retryAfterSeconds) && retryAfterSeconds > 0) {
+            return ClampedDelayMs(retryAfterSeconds);
+        }
+
+        int64 resetAt = 0;
+        string rateLimitReset = request.ResponseHeader("X-RateLimit-Reset");
+        if (Text::TryParseInt64(rateLimitReset, resetAt) && resetAt > Time::Stamp) {
+            return ClampedDelayMs(int(resetAt - Time::Stamp));
+        }
+
+        if (attemptNumber == 1) return 30000;
+        if (attemptNumber == 2) return 60000;
+        return 120000;
+    }
+
+    uint ClampedDelayMs(int seconds)
+    {
+        return uint(Math::Clamp(seconds, 1, 300)) * 1000;
     }
 }
