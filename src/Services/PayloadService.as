@@ -89,6 +89,7 @@ namespace PayloadService
         json["authorName"] = map.AuthorName;
         json["mapType"] = map.MapType;
         json["mapStyle"] = map.MapStyle;
+        json["environment"] = map.Environment;
 #if TURBO
         SetNullableInt(json, "laps", map.Laps);
 #else

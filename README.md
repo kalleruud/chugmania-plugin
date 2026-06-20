@@ -24,7 +24,9 @@ checkpoint times come from MLFeed's ManiaScript-backed game clock in Trackmania
 - **Trackmania Turbo:** local solo and split-screen capture using the native
   Turbo playground, player, and race-result APIs.
 
-Turbo does not expose every mode rule or MLFeed-derived value. Those fields are
+Turbo mode names distinguish `campaign`, `arcade`, `hot_seat`, and
+`split_screen`, and map payloads include the Canyon, Valley, Lagoon, or Stadium
+`environment`. Turbo does not expose every mode rule or MLFeed-derived value. Those fields are
 sent as `null`, including `mlFeedLapCount`, theoretical checkpoint times,
 respawn checkpoint indexes, and generic mode settings. Turbo checkpoint and
 finish times are native race-result values; lifecycle-only event times use a

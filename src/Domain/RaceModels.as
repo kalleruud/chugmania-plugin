@@ -55,6 +55,7 @@ class MapCaptureState
     string AuthorName;
     string MapType;
     string MapStyle;
+    string Environment;
     bool IsLapRace = false;
     int Laps = -1;
     int AuthorTimeMs = 0;

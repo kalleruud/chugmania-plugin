@@ -65,6 +65,7 @@ namespace RaceCaptureService
         snapshot.AuthorName = Text::StripFormatCodes(map.AuthorNickName);
         snapshot.MapType = Text::StripFormatCodes(map.MapType);
         snapshot.MapStyle = Text::StripFormatCodes(map.MapStyle);
+        snapshot.Environment = map.CollectionName;
         snapshot.IsLapRace = map.TMObjective_IsLapRace;
         snapshot.AuthorTimeMs = map.TMObjective_AuthorTime;
         snapshot.GoldTimeMs = map.TMObjective_GoldTime;
@@ -728,7 +729,7 @@ namespace RaceCaptureService
 
         PlaygroundWasAvailable = true;
         HandleMapChange(app.Challenge, playground);
-        CapturePlayers(playground);
+        CapturePlayers(app, playground);
         if (Attempt.Active && AllPlayersFinished()) {
             EndAttempt("all_finished", "finished");
         }
@@ -763,6 +764,7 @@ namespace RaceCaptureService
         snapshot.AuthorName = Text::StripFormatCodes(map.AuthorNickName);
         snapshot.MapType = Text::StripFormatCodes(map.MapType);
         snapshot.MapStyle = Text::StripFormatCodes(map.MapStyle);
+        snapshot.Environment = map.CollectionName;
         snapshot.IsLapRace = map.TMObjective_IsLapRace;
         snapshot.Laps = int(map.TMObjective_NbLaps);
         snapshot.AuthorTimeMs = int(map.TMObjective_AuthorTime);
@@ -772,8 +774,9 @@ namespace RaceCaptureService
         return snapshot;
     }
 
-    void CapturePlayers(CTrackManiaRace@ playground)
+    void CapturePlayers(CTrackMania@ app, CTrackManiaRace@ playground)
     {
+        Attempt.ModeName = DetectTurboMode(app, playground);
         for (uint i = 0; i < playground.Players.Length; i++) {
             CTrackManiaPlayer@ player = cast<CTrackManiaPlayer>(playground.Players[i]);
             if (player is null || !IsRacing(player)) continue;
@@ -820,7 +823,6 @@ namespace RaceCaptureService
         state.StartedAtUtcMs = UtcClockService::CurrentMs() - knownDuration;
         Players.InsertLast(state);
         EnsureAttemptStarted();
-        if (Players.Length > 1) Attempt.ModeName = "local_split_screen";
         AddLapEvent(state, "start", 0, 1);
         print("[" + PluginInfo::Name + "] PLAYER_STARTED key=" + state.ParticipantKey +
             " gameStartTime=" + state.NativeStartTime);
@@ -846,9 +848,19 @@ namespace RaceCaptureService
         Attempt.Ordinal = ++AttemptOrdinal;
         Attempt.StartedAtUtcMs = EarliestPlayerStart();
         Attempt.AttemptId = CurrentMap.Uid + "-" + Time::Stamp + "-" + Attempt.Ordinal;
-        Attempt.ModeName = Players.Length > 1 ? "local_split_screen" : "local_solo";
         print("[" + PluginInfo::Name + "] ATTEMPT_STARTED id=" + Attempt.AttemptId +
-            " timing=turbo_native_race_clock");
+            " mode=" + Attempt.ModeName + " timing=turbo_native_race_clock");
+    }
+
+    string DetectTurboMode(CTrackMania@ app, CTrackManiaRace@ playground)
+    {
+        CTrackManiaRaceMultiLocal@ multiLocal =
+            cast<CTrackManiaRaceMultiLocal>(playground);
+        if (multiLocal !is null) {
+            return playground.GameTerminals.Length > 1 ? "split_screen" : "hot_seat";
+        }
+        if (app.CurrentCampaign !is null) return "campaign";
+        return "arcade";
     }
 
     void CaptureEvents(CTrackManiaPlayer@ player, PlayerCaptureState@ state)

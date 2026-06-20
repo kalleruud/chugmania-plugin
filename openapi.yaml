@@ -160,7 +160,9 @@ components:
       required: [name, warmupActive, startTime, endTime, timeLimitMs, settings]
       properties:
         name:
-          description: Server mode name, or null when the rules API does not expose one.
+          description: >-
+            Server mode name in Trackmania, or one of campaign, arcade,
+            hot_seat, and split_screen when captured in Turbo.
           type: [string, 'null']
         warmupActive:
           description: Whether the game mode was in its warmup phase when captured.
@@ -238,6 +240,7 @@ components:
         - authorName
         - mapType
         - mapStyle
+        - environment
         - laps
         - isLapRace
         - checkpointsPerLap
@@ -262,6 +265,9 @@ components:
           type: string
         mapStyle:
           description: Map style reported by Trackmania, with formatting codes removed.
+          type: string
+        environment:
+          description: Map environment or vehicle family, such as Canyon, Valley, Lagoon, or Stadium.
           type: string
         laps:
           description: Accurate lap count reported by MLFeed in Trackmania or by the map objective in Turbo, or null when unavailable.
