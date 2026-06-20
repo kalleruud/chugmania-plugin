@@ -177,7 +177,7 @@ namespace RaceCaptureService
         );
         Players.InsertLast(state);
         EnsureAttemptStarted(raceData);
-        AddEvent(state, "start", 0);
+        AddLapEvent(state, "start", 0, 1);
         print("[" + PluginInfo::Name + "] PLAYER_STARTED key=" + state.ParticipantKey +
             " gameStartTime=" + state.MlStartTime);
         return state;
@@ -298,15 +298,32 @@ namespace RaceCaptureService
             if (durationMs <= 0) break;
 
             bool isFinish = uint(checkpointIndex) == raceData.CPsToFinish;
-            AddCheckpointEvent(state, racePlayer, checkpointIndex, durationMs, isFinish);
+            int waypointsPerLap = int(raceData.CPCount) + 1;
+            bool isLap = !isFinish &&
+                checkpointIndex % waypointsPerLap == 0;
+            if (isLap) {
+                state.CurrentLapNumber++;
+                state.LapCheckpointIndex = 0;
+                AddLapEvent(state, "lap", durationMs, state.CurrentLapNumber);
+            } else {
+                state.GlobalCheckpointIndex++;
+                state.LapCheckpointIndex++;
+                AddCheckpointEvent(
+                    state, racePlayer, checkpointIndex, durationMs, isFinish,
+                    state.GlobalCheckpointIndex, state.LapCheckpointIndex
+                );
+            }
             state.LastCapturedCp = checkpointIndex;
             if (isFinish) state.Finished = true;
         }
 
         if (!state.Finished && racePlayer.IsFinished && racePlayer.LastCpTime > 0) {
             AddCheckpointEvent(
-                state, racePlayer, racePlayer.CpCount, racePlayer.LastCpTime, true
+                state, racePlayer, racePlayer.CpCount, racePlayer.LastCpTime, true,
+                state.GlobalCheckpointIndex + 1, state.LapCheckpointIndex + 1
             );
+            state.GlobalCheckpointIndex++;
+            state.LapCheckpointIndex++;
             state.LastCapturedCp = racePlayer.CpCount;
             state.Finished = true;
         }
@@ -333,6 +350,18 @@ namespace RaceCaptureService
         state.Events.InsertLast(event);
     }
 
+    void AddLapEvent(
+        PlayerCaptureState@ state,
+        const string &in type,
+        int durationMs,
+        int lapNumber
+    )
+    {
+        RaceEventCapture@ event = NewEvent(state, type, durationMs);
+        event.LapNumber = lapNumber;
+        state.Events.InsertLast(event);
+    }
+
     RaceEventCapture@ NewEvent(
         PlayerCaptureState@ state,
         const string &in type,
@@ -352,13 +381,16 @@ namespace RaceCaptureService
         const MLFeed::PlayerCpInfo_V4@ racePlayer,
         int checkpointIndex,
         int durationMs,
-        bool isFinish
+        bool isFinish,
+        int globalCheckpointIndex,
+        int lapCheckpointIndex
     )
     {
         RaceEventCapture@ event = NewEvent(
             state, isFinish ? "finish" : "checkpoint", durationMs
         );
-        event.CheckpointIndex = checkpointIndex;
+        event.CheckpointIndex = globalCheckpointIndex;
+        event.LapCheckpointIndex = lapCheckpointIndex;
         if (racePlayer.TimeLostToRespawnByCp !is null) {
             event.TheoreticalDurationMs = durationMs - CumulativeRespawnLoss(
                 racePlayer.TimeLostToRespawnByCp, checkpointIndex
@@ -367,7 +399,8 @@ namespace RaceCaptureService
         state.Events.InsertLast(event);
 
         print("[" + PluginInfo::Name + "] " + event.Type.ToUpper() +
-            " key=" + state.ParticipantKey + " checkpoint=" + checkpointIndex +
+            " key=" + state.ParticipantKey + " checkpoint=" + globalCheckpointIndex +
+            " lapCheckpoint=" + lapCheckpointIndex +
             " durationMs=" + durationMs);
     }
 
@@ -788,7 +821,7 @@ namespace RaceCaptureService
         Players.InsertLast(state);
         EnsureAttemptStarted();
         if (Players.Length > 1) Attempt.ModeName = "local_split_screen";
-        AddEvent(state, "start", 0);
+        AddLapEvent(state, "start", 0, 1);
         print("[" + PluginInfo::Name + "] PLAYER_STARTED key=" + state.ParticipantKey +
             " gameStartTime=" + state.NativeStartTime);
         return state;
@@ -823,7 +856,7 @@ namespace RaceCaptureService
         int elapsed = CurrentDuration(state);
         state.LastRaceTimeMs = Math::Max(state.LastRaceTimeMs, elapsed);
         CaptureRespawns(player, state, elapsed);
-        CaptureCheckpoints(player, state);
+        CaptureRaceResults(player, state);
         CaptureFirstThrottle(player, state, elapsed);
         CaptureFinish(player, state);
     }
@@ -848,20 +881,44 @@ namespace RaceCaptureService
         }
     }
 
-    void CaptureCheckpoints(CTrackManiaPlayer@ player, PlayerCaptureState@ state)
+    void CaptureRaceResults(CTrackManiaPlayer@ player, PlayerCaptureState@ state)
     {
         if (player.CurRace is null) return;
-        while (state.LastCapturedCp < int(player.CurRace.Checkpoints.Length)) {
-            int checkpointIndex = state.LastCapturedCp + 1;
-            int duration = player.CurRace.Checkpoints[checkpointIndex - 1];
+        int available = int(player.CurRace.Checkpoints.Length);
+        if (player.RaceState == CTrackManiaPlayer::ERaceState::Finished &&
+            available > 0 && player.CurRace.Time > 0 &&
+            player.CurRace.Checkpoints[available - 1] == player.CurRace.Time) {
+            available--;
+        }
+        while (state.CapturedNativeRaceResults < available) {
+            int resultIndex = state.CapturedNativeRaceResults;
+            int duration = player.CurRace.Checkpoints[resultIndex];
             if (duration <= 0) break;
-            RaceEventCapture@ event = NewEvent(state, "checkpoint", duration);
-            event.CheckpointIndex = checkpointIndex;
-            state.Events.InsertLast(event);
-            state.LastCapturedCp = checkpointIndex;
+            int observedLap = int(player.CurLapIndex) + 1;
+            bool isNewest = resultIndex + 1 == available;
+            bool isLap = CurrentMap !is null && CurrentMap.IsLapRace &&
+                player.RaceState != CTrackManiaPlayer::ERaceState::Finished &&
+                isNewest && observedLap > state.CurrentLapNumber;
+            if (isLap) {
+                state.CurrentLapNumber = observedLap;
+                state.LapCheckpointIndex = 0;
+                AddLapEvent(state, "lap", duration, observedLap);
+                print("[" + PluginInfo::Name + "] LAP key=" + state.ParticipantKey +
+                    " lap=" + observedLap + " durationMs=" + duration);
+            } else {
+                state.GlobalCheckpointIndex++;
+                state.LapCheckpointIndex++;
+                RaceEventCapture@ event = NewEvent(state, "checkpoint", duration);
+                event.CheckpointIndex = state.GlobalCheckpointIndex;
+                event.LapCheckpointIndex = state.LapCheckpointIndex;
+                state.Events.InsertLast(event);
+                print("[" + PluginInfo::Name + "] CHECKPOINT key=" + state.ParticipantKey +
+                    " checkpoint=" + event.CheckpointIndex +
+                    " lapCheckpoint=" + event.LapCheckpointIndex +
+                    " durationMs=" + duration);
+            }
+            state.CapturedNativeRaceResults++;
             state.LastRaceTimeMs = Math::Max(state.LastRaceTimeMs, duration);
-            print("[" + PluginInfo::Name + "] CHECKPOINT key=" + state.ParticipantKey +
-                " checkpoint=" + checkpointIndex + " durationMs=" + duration);
         }
     }
 
@@ -884,12 +941,16 @@ namespace RaceCaptureService
         int duration = player.CurRace !is null && player.CurRace.Time > 0
             ? player.CurRace.Time : CurrentDuration(state);
         RaceEventCapture@ event = NewEvent(state, "finish", duration);
-        event.CheckpointIndex = state.LastCapturedCp + 1;
+        state.GlobalCheckpointIndex++;
+        state.LapCheckpointIndex++;
+        event.CheckpointIndex = state.GlobalCheckpointIndex;
+        event.LapCheckpointIndex = state.LapCheckpointIndex;
         state.Events.InsertLast(event);
         state.LastRaceTimeMs = Math::Max(state.LastRaceTimeMs, duration);
         state.Finished = true;
         print("[" + PluginInfo::Name + "] FINISH key=" + state.ParticipantKey +
-            " checkpoint=" + event.CheckpointIndex + " durationMs=" + duration);
+            " checkpoint=" + event.CheckpointIndex +
+            " lapCheckpoint=" + event.LapCheckpointIndex + " durationMs=" + duration);
     }
 
     PlayerCaptureState@ FindPlayerState(uint playerIndex, int terminalIndex)
@@ -965,6 +1026,18 @@ namespace RaceCaptureService
     void AddEvent(PlayerCaptureState@ state, const string &in type, int durationMs)
     {
         state.Events.InsertLast(NewEvent(state, type, durationMs));
+    }
+
+    void AddLapEvent(
+        PlayerCaptureState@ state,
+        const string &in type,
+        int durationMs,
+        int lapNumber
+    )
+    {
+        RaceEventCapture@ event = NewEvent(state, type, durationMs);
+        event.LapNumber = lapNumber;
+        state.Events.InsertLast(event);
     }
 
     RaceEventCapture@ NewEvent(PlayerCaptureState@ state, const string &in type, int durationMs)
