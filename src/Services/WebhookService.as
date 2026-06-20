@@ -1,6 +1,7 @@
 namespace WebhookService
 {
     array<WebhookJob@> Queue;
+    bool Delivering = false;
 
     void Enqueue(const string &in eventId, const string &in body)
     {
@@ -10,10 +11,17 @@ namespace WebhookService
         Queue.InsertLast(job);
     }
 
-    void DeliverNextIfQueued()
+    void StartDelivery()
     {
-        if (Queue.Length == 0) return;
-        Deliver(Queue[0]);
+        if (Delivering || Queue.Length == 0) return;
+        Delivering = true;
+        startnew(DeliverQueued);
+    }
+
+    void DeliverQueued()
+    {
+        while (Queue.Length > 0) Deliver(Queue[0]);
+        Delivering = false;
     }
 
     void Deliver(WebhookJob@ job)

@@ -10,7 +10,6 @@ class RaceEventCapture
 
 class PlayerCaptureState
 {
-    CSmPlayer@ Player;
     uint PlayerIndex;
     int TerminalIndex = -1;
     string ParticipantKey;
@@ -38,6 +37,21 @@ class PlayerCaptureState
     bool Finished = false;
     int FinishPosition = -1;
     array<RaceEventCapture@> Events;
+}
+
+class MapCaptureState
+{
+    string Uid;
+    string Name;
+    string AuthorLogin;
+    string AuthorName;
+    string MapType;
+    string MapStyle;
+    bool IsLapRace = false;
+    int AuthorTimeMs = 0;
+    int GoldTimeMs = 0;
+    int SilverTimeMs = 0;
+    int BronzeTimeMs = 0;
 }
 
 class RaceAttemptState
@@ -74,7 +88,7 @@ class WebhookJob
 class CompletedRaceAttempt
 {
     RaceAttemptState@ Attempt;
-    CGameCtnChallenge@ Map;
+    MapCaptureState@ Map;
     array<PlayerCaptureState@> Players;
     string EndReason;
     string EndedAtUtc;

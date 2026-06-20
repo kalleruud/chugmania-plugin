@@ -3,7 +3,7 @@ namespace RaceCaptureService
     const float AcceleratorThreshold = 0.01f;
 
     array<PlayerCaptureState@> Players;
-    CGameCtnChallenge@ CurrentMap;
+    MapCaptureState@ CurrentMap;
     RaceAttemptState@ Attempt = RaceAttemptState();
     bool PlaygroundWasAvailable = false;
     bool AwaitingReset = false;
@@ -19,6 +19,7 @@ namespace RaceCaptureService
             HandleClosedPlayground();
             return;
         }
+        if (playground.Map is null) return;
 
         PlaygroundWasAvailable = true;
         HandleMapChange(playground);
@@ -43,13 +44,32 @@ namespace RaceCaptureService
 
     void HandleMapChange(CSmArenaClient@ playground)
     {
-        if (CurrentMap is playground.Map) return;
+        if (playground.Map is null) return;
+        string nextMapUid = playground.Map.EdChallengeId;
+        if (CurrentMap !is null && CurrentMap.Uid == nextMapUid) return;
         EndAttempt("map_changed", "dnf");
-        @CurrentMap = playground.Map;
+        @CurrentMap = SnapshotMap(playground.Map);
         Players.RemoveRange(0, Players.Length);
         ResetAttempt();
         AwaitingReset = false;
         PrintMapInfo(playground);
+    }
+
+    MapCaptureState@ SnapshotMap(CGameCtnChallenge@ map)
+    {
+        MapCaptureState@ snapshot = MapCaptureState();
+        snapshot.Uid = map.EdChallengeId;
+        snapshot.Name = Text::StripFormatCodes(map.MapName);
+        snapshot.AuthorLogin = map.AuthorLogin;
+        snapshot.AuthorName = Text::StripFormatCodes(map.AuthorNickName);
+        snapshot.MapType = Text::StripFormatCodes(map.MapType);
+        snapshot.MapStyle = Text::StripFormatCodes(map.MapStyle);
+        snapshot.IsLapRace = map.TMObjective_IsLapRace;
+        snapshot.AuthorTimeMs = map.TMObjective_AuthorTime;
+        snapshot.GoldTimeMs = map.TMObjective_GoldTime;
+        snapshot.SilverTimeMs = map.TMObjective_SilverTime;
+        snapshot.BronzeTimeMs = map.TMObjective_BronzeTime;
+        return snapshot;
     }
 
     bool PrepareForCapture(const MLFeed::HookRaceStatsEventsBase_V4@ raceData)
@@ -124,7 +144,8 @@ namespace RaceCaptureService
         );
         if (racePlayer is null || racePlayer.StartTime == 0) return false;
 
-        PlayerCaptureState@ state = FindPlayerState(player);
+        int terminalIndex = FindTerminalIndex(playground, player);
+        PlayerCaptureState@ state = FindPlayerState(playerIndex, terminalIndex);
         if (state is null) {
             @state = StartPlayerIfActive(
                 playground, raceData, racePlayer, player, scriptPlayer, playerIndex
@@ -192,7 +213,7 @@ namespace RaceCaptureService
         Attempt.Active = true;
         Attempt.Ordinal = ++AttemptOrdinal;
         Attempt.StartedAtUtcMs = EarliestPlayerStart();
-        Attempt.AttemptId = MapUid(CurrentMap) + "-" + Time::Stamp + "-" + Attempt.Ordinal;
+        Attempt.AttemptId = CurrentMap.Uid + "-" + Time::Stamp + "-" + Attempt.Ordinal;
         print("[" + PluginInfo::Name + "] ATTEMPT_STARTED id=" + Attempt.AttemptId +
             " timing=mlfeed_game_clock");
     }
@@ -372,10 +393,11 @@ namespace RaceCaptureService
             " ordinal=" + ordinal + " durationMs=" + durationMs);
     }
 
-    PlayerCaptureState@ FindPlayerState(CSmPlayer@ player)
+    PlayerCaptureState@ FindPlayerState(uint playerIndex, int terminalIndex)
     {
         for (uint i = 0; i < Players.Length; i++) {
-            if (Players[i].Player is player) return Players[i];
+            if (Players[i].PlayerIndex == playerIndex &&
+                Players[i].TerminalIndex == terminalIndex) return Players[i];
         }
         return null;
     }
@@ -389,7 +411,6 @@ namespace RaceCaptureService
     )
     {
         PlayerCaptureState@ state = PlayerCaptureState();
-        @state.Player = player;
         state.PlayerIndex = playerIndex;
         state.TerminalIndex = FindTerminalIndex(playground, player);
         state.Login = racePlayer.Login.Length > 0 ? racePlayer.Login : scriptPlayer.Login;
@@ -525,6 +546,7 @@ namespace RaceCaptureService
     {
         if (Setting_WebhookEnabled && Setting_WebhookEndpoint.Length > 0) {
             WebhookService::Enqueue(Attempt.AttemptId, body);
+            WebhookService::StartDelivery();
         } else {
             print("[" + PluginInfo::Name + "] WEBHOOK_SKIPPED disabled or endpoint missing");
         }
@@ -617,11 +639,6 @@ namespace RaceCaptureService
         return "custom";
     }
 
-    string MapUid(CGameCtnChallenge@ map)
-    {
-        return map is null ? "" : map.EdChallengeId;
-    }
-
     int FindTerminalIndex(CSmArenaClient@ playground, CSmPlayer@ player)
     {
         for (uint i = 0; i < playground.GameTerminals.Length; i++) {
@@ -633,7 +650,7 @@ namespace RaceCaptureService
     void PrintMapInfo(CSmArenaClient@ playground)
     {
         if (playground.Map is null) return;
-        print("[" + PluginInfo::Name + "] MAP uid=" + MapUid(playground.Map) +
+        print("[" + PluginInfo::Name + "] MAP uid=" + playground.Map.EdChallengeId +
             " name=\"" + Text::StripFormatCodes(playground.Map.MapName) + "\"" +
             " players=" + playground.Players.Length +
             " terminals=" + playground.GameTerminals.Length);

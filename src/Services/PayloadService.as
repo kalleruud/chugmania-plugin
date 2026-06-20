@@ -63,17 +63,17 @@ namespace PayloadService
         return json;
     }
 
-    Json::Value@ BuildMap(RaceAttemptState@ state, CGameCtnChallenge@ map)
+    Json::Value@ BuildMap(RaceAttemptState@ state, MapCaptureState@ map)
     {
         Json::Value@ json = Json::Object();
-        json["uid"] = MapUid(map);
-        json["name"] = Text::StripFormatCodes(map.MapName);
+        json["uid"] = map.Uid;
+        json["name"] = map.Name;
         json["authorLogin"] = map.AuthorLogin;
-        json["authorName"] = Text::StripFormatCodes(map.AuthorNickName);
-        json["mapType"] = Text::StripFormatCodes(map.MapType);
-        json["mapStyle"] = Text::StripFormatCodes(map.MapStyle);
+        json["authorName"] = map.AuthorName;
+        json["mapType"] = map.MapType;
+        json["mapStyle"] = map.MapStyle;
         SetNullableInt(json, "laps", state.MlFeedLapCount);
-        json["isLapRace"] = map.TMObjective_IsLapRace;
+        json["isLapRace"] = map.IsLapRace;
         SetNullableInt(json, "checkpointsPerLap", state.CheckpointsPerLap);
         SetNullableInt(json, "waypointsToFinish", state.WaypointsToFinish);
         SetNullableInt(json, "mlFeedLapCount", state.MlFeedLapCount);
@@ -81,13 +81,13 @@ namespace PayloadService
         return json;
     }
 
-    Json::Value@ BuildMedalTimes(CGameCtnChallenge@ map)
+    Json::Value@ BuildMedalTimes(MapCaptureState@ map)
     {
         Json::Value@ medals = Json::Object();
-        medals["author"] = map.TMObjective_AuthorTime;
-        medals["gold"] = map.TMObjective_GoldTime;
-        medals["silver"] = map.TMObjective_SilverTime;
-        medals["bronze"] = map.TMObjective_BronzeTime;
+        medals["author"] = map.AuthorTimeMs;
+        medals["gold"] = map.GoldTimeMs;
+        medals["silver"] = map.SilverTimeMs;
+        medals["bronze"] = map.BronzeTimeMs;
         return medals;
     }
 
@@ -188,8 +188,4 @@ namespace PayloadService
         return 4;
     }
 
-    string MapUid(CGameCtnChallenge@ map)
-    {
-        return map is null ? "" : map.EdChallengeId;
-    }
 }
