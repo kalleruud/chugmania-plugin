@@ -804,7 +804,12 @@ namespace RaceCaptureService
                 ClearAttempt();
                 return;
             }
-            if (knownDuration > 0) state.SawNativeDuration = true;
+            if (knownDuration > 0) {
+                state.SawNativeDuration = true;
+                state.LastObservedNativeDurationMs = Math::Max(
+                    state.LastObservedNativeDurationMs, knownDuration
+                );
+            }
             CaptureEvents(player, state);
         }
     }
@@ -838,6 +843,7 @@ namespace RaceCaptureService
 
         int knownDuration = LatestKnownDuration(player);
         state.LastRaceTimeMs = knownDuration;
+        state.LastObservedNativeDurationMs = knownDuration;
         state.SawNativeDuration = knownDuration > 0;
         state.StartedAtMonotonicMs = Time::Now - uint64(knownDuration);
         state.StartedAtUtcMs = UtcClockService::CurrentMs() - knownDuration;
@@ -873,9 +879,16 @@ namespace RaceCaptureService
         // Turbo Arcade can reset the native race clock before it advances the
         // player start timestamp. Once we have observed native race time, a
         // large duration drop is a reliable restart signal.
-        if (!state.SawNativeDuration) return false;
-        return state.LastRaceTimeMs > 0 &&
-            knownDuration + RestartDurationResetToleranceMs < state.LastRaceTimeMs;
+        if (!HasTurboRaceActivity(state) || !state.SawNativeDuration) return false;
+        return state.LastObservedNativeDurationMs > 0 &&
+            knownDuration + RestartDurationResetToleranceMs <
+                state.LastObservedNativeDurationMs;
+    }
+
+    bool HasTurboRaceActivity(PlayerCaptureState@ state)
+    {
+        return state.AcceleratorRecorded || state.CapturedNativeRaceResults > 0 ||
+            state.CapturedRespawnEvents > 0;
     }
 
     void EnsureAttemptStarted()

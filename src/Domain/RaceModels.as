@@ -40,6 +40,7 @@ class PlayerCaptureState
     int CapturedRespawnEvents = 0;
     float LatencyEstimateMs = 0.0f;
     float LatencySampleCount = 0.0f;
+    int LastObservedNativeDurationMs = 0;
     bool SawNativeDuration = false;
     array<uint> BestRaceTimes;
     array<uint> BestLapTimes;
