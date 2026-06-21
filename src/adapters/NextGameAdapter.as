@@ -56,7 +56,7 @@ class NextGameAdapter : GameAdapter
             state.respawnCount = feedPlayer.NbRespawnsRequested;
             state.finished = feedPlayer.IsFinished;
             if (state.finished) state.finishDurationMs = Math::Max(0, feedPlayer.FinishTime);
-            state.theoreticalDurationMs = feedPlayer.TheoreticalRaceTime;
+            state.theoreticalDurationMs = feedPlayer.LastTheoreticalCpTime;
             state.lostMs = feedPlayer.TimeLostToRespawns;
             observation.playerStates.InsertLast(state);
         }

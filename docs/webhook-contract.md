@@ -133,13 +133,13 @@ Turbo secret modes identify the activated rule set in `mode.type`:
 Checkpoint fields describe a player's checkpoint position. Events include them
 through a nested `checkpoint` object.
 
-| Field                   | Type                 | Description                                | Rules                                           |
-| ----------------------- | -------------------- | ------------------------------------------ | ----------------------------------------------- |
-| `checkpointIndex`       | non-negative integer | Global checkpoint position across laps     | `0` at the start line; otherwise positive       |
-| `checkpointLapIndex`    | non-negative integer | Checkpoint position within the current lap | See line-crossing convention below              |
-| `lapNumber`             | positive integer     | Current lap                                | Required and one-based                          |
-| `theoreticalDurationMs` | non-negative integer | Dependency-provided theoretical race time  | Optional, Next-only dependency value, unchanged |
-| `lostMs`                | non-negative integer | Dependency-provided time lost on respawn   | Optional, Next-only dependency value, unchanged |
+| Field                   | Type                 | Description                                | Rules                                              |
+| ----------------------- | -------------------- | ------------------------------------------ | -------------------------------------------------- |
+| `checkpointIndex`       | non-negative integer | Global checkpoint position across laps     | `0` at the start line; otherwise positive          |
+| `checkpointLapIndex`    | non-negative integer | Checkpoint position within the current lap | See line-crossing convention below                 |
+| `lapNumber`             | positive integer     | Current lap                                | Required and one-based                             |
+| `theoreticalDurationMs` | non-negative integer | Checkpoint time without respawn losses     | Optional; Next-only MLFeed `LastTheoreticalCpTime` |
+| `lostMs`                | non-negative integer | Dependency-provided time lost on respawn   | Optional, Next-only dependency value, unchanged    |
 
 For a map with `N = map.checkpointsPerLap`, intermediate checkpoints use
 `checkpointLapIndex` values `1..N`. A `lap` event describes the shared

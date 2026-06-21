@@ -264,7 +264,9 @@ components:
           type: integer
           format: int64
           minimum: 0
-          description: Optional Trackmania Next dependency value, sent unchanged.
+          description: >-
+            Optional Trackmania Next checkpoint time with respawn losses
+            removed, sourced from MLFeed LastTheoreticalCpTime.
         lostMs:
           type: integer
           format: int64
