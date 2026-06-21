@@ -18,65 +18,65 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Event'
+              $ref: "#/components/schemas/Event"
       responses:
-        '200':
+        "200":
           description: Event accepted. The plugin ignores the response body.
-        '204':
+        "204":
           description: Event accepted with no response body.
-        '3XX':
+        "3XX":
           description: Permanent delivery failure. The plugin does not follow redirects.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '408':
+                $ref: "#/components/schemas/ErrorResponse"
+        "408":
           description: Request timeout. The plugin retries the event.
           headers:
             Retry-After:
-              $ref: '#/components/headers/RetryAfter'
+              $ref: "#/components/headers/RetryAfter"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
           description: Too many requests. The plugin retries the event.
           headers:
             Retry-After:
-              $ref: '#/components/headers/RetryAfter'
+              $ref: "#/components/headers/RetryAfter"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '4XX':
+                $ref: "#/components/schemas/ErrorResponse"
+        "4XX":
           description: Permanent delivery failure, except for the separately documented 408 and 429 responses.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '503':
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
           description: Service unavailable. NO_ACTIVE_SESSION means no receiver session can currently register the event.
           headers:
             Retry-After:
-              $ref: '#/components/headers/RetryAfter'
+              $ref: "#/components/headers/RetryAfter"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 noActiveSession:
                   value:
                     code: NO_ACTIVE_SESSION
                     message: No active receiver session can register this event.
-        '5XX':
+        "5XX":
           description: Temporary receiver failure. The plugin retries the event.
           headers:
             Retry-After:
-              $ref: '#/components/headers/RetryAfter'
+              $ref: "#/components/headers/RetryAfter"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   securitySchemes:
     bearerAuth:
@@ -90,23 +90,23 @@ components:
   schemas:
     Event:
       oneOf:
-        - $ref: '#/components/schemas/StartEvent'
-        - $ref: '#/components/schemas/FirstThrottleEvent'
-        - $ref: '#/components/schemas/CheckpointEvent'
-        - $ref: '#/components/schemas/LapEvent'
-        - $ref: '#/components/schemas/RespawnEvent'
-        - $ref: '#/components/schemas/FinishEvent'
-        - $ref: '#/components/schemas/EndEvent'
+        - $ref: "#/components/schemas/StartEvent"
+        - $ref: "#/components/schemas/FirstThrottleEvent"
+        - $ref: "#/components/schemas/CheckpointEvent"
+        - $ref: "#/components/schemas/LapEvent"
+        - $ref: "#/components/schemas/RespawnEvent"
+        - $ref: "#/components/schemas/FinishEvent"
+        - $ref: "#/components/schemas/EndEvent"
       discriminator:
         propertyName: type
         mapping:
-          start: '#/components/schemas/StartEvent'
-          first_throttle: '#/components/schemas/FirstThrottleEvent'
-          checkpoint: '#/components/schemas/CheckpointEvent'
-          lap: '#/components/schemas/LapEvent'
-          respawn: '#/components/schemas/RespawnEvent'
-          finish: '#/components/schemas/FinishEvent'
-          end: '#/components/schemas/EndEvent'
+          start: "#/components/schemas/StartEvent"
+          first_throttle: "#/components/schemas/FirstThrottleEvent"
+          checkpoint: "#/components/schemas/CheckpointEvent"
+          lap: "#/components/schemas/LapEvent"
+          respawn: "#/components/schemas/RespawnEvent"
+          finish: "#/components/schemas/FinishEvent"
+          end: "#/components/schemas/EndEvent"
     BaseEvent:
       type: object
       additionalProperties: true
@@ -123,7 +123,7 @@ components:
         schemaVersion:
           type: string
           pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
-          examples: ['1.0.0']
+          examples: ["1.0.0"]
         type:
           type: string
         eventId:
@@ -149,7 +149,7 @@ components:
           format: uuid
           description: UUID v4 shared by all captured events in one round.
         source:
-          $ref: '#/components/schemas/Source'
+          $ref: "#/components/schemas/Source"
     Source:
       type: object
       additionalProperties: true
@@ -189,7 +189,7 @@ components:
           type: string
     PlayerEvent:
       allOf:
-        - $ref: '#/components/schemas/BaseEvent'
+        - $ref: "#/components/schemas/BaseEvent"
         - type: object
           additionalProperties: true
           required: [playerIndex, totalPlayers]
@@ -244,7 +244,7 @@ components:
         type:
           type: string
         medalTimesMs:
-          $ref: '#/components/schemas/MedalTimes'
+          $ref: "#/components/schemas/MedalTimes"
         isLaps:
           type: boolean
         totalLaps:
@@ -271,12 +271,12 @@ components:
         settings:
           type: object
           patternProperties:
-            '.*':
-              $ref: '#/components/schemas/ModeSetting'
+            ".*":
+              $ref: "#/components/schemas/ModeSetting"
           additionalProperties: true
     StartEvent:
       allOf:
-        - $ref: '#/components/schemas/BaseEvent'
+        - $ref: "#/components/schemas/BaseEvent"
         - type: object
           additionalProperties: true
           required: [type, players, totalPlayers, map, mode]
@@ -289,19 +289,19 @@ components:
               type: array
               minItems: 1
               items:
-                $ref: '#/components/schemas/Player'
+                $ref: "#/components/schemas/Player"
               description: Ordered so players[i].playerIndex equals i.
             totalPlayers:
               type: integer
               minimum: 1
               description: Equal to players.length.
             map:
-              $ref: '#/components/schemas/Map'
+              $ref: "#/components/schemas/Map"
             mode:
-              $ref: '#/components/schemas/Mode'
+              $ref: "#/components/schemas/Mode"
     FirstThrottleEvent:
       allOf:
-        - $ref: '#/components/schemas/PlayerEvent'
+        - $ref: "#/components/schemas/PlayerEvent"
         - type: object
           additionalProperties: true
           required: [type]
@@ -312,7 +312,7 @@ components:
               description: The first_throttle event is emitted on the player's first throttle input of the round.
     CheckpointEvent:
       allOf:
-        - $ref: '#/components/schemas/PlayerEvent'
+        - $ref: "#/components/schemas/PlayerEvent"
         - type: object
           additionalProperties: true
           required: [type, checkpointIndex, checkpointLapIndex, lapNumber]
@@ -337,7 +337,7 @@ components:
               description: Optional Trackmania Next dependency value, sent unchanged.
     LapEvent:
       allOf:
-        - $ref: '#/components/schemas/PlayerEvent'
+        - $ref: "#/components/schemas/PlayerEvent"
         - type: object
           additionalProperties: true
           required: [type, checkpointIndex, checkpointLapIndex, lapNumber]
@@ -357,7 +357,7 @@ components:
               minimum: 1
     RespawnEvent:
       allOf:
-        - $ref: '#/components/schemas/PlayerEvent'
+        - $ref: "#/components/schemas/PlayerEvent"
         - type: object
           additionalProperties: true
           required: [type, checkpointIndex, checkpointLapIndex, lapNumber]
@@ -382,7 +382,7 @@ components:
               description: Optional Trackmania Next dependency value, sent unchanged.
     FinishEvent:
       allOf:
-        - $ref: '#/components/schemas/PlayerEvent'
+        - $ref: "#/components/schemas/PlayerEvent"
         - type: object
           additionalProperties: true
           required: [type]
@@ -393,7 +393,7 @@ components:
               description: The finish event is emitted when the player finishes the round.
     EndEvent:
       allOf:
-        - $ref: '#/components/schemas/BaseEvent'
+        - $ref: "#/components/schemas/BaseEvent"
         - type: object
           additionalProperties: true
           required: [type, endReason]
