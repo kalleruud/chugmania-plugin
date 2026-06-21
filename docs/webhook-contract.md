@@ -109,11 +109,10 @@ other identifiers because its runtime does not expose equivalent values.
 
 ### Mode
 
-| Field      | Type   | Description                         | Rules                                            |
-| ---------- | ------ | ----------------------------------- | ------------------------------------------------ |
-| `name`     | enum   | Normalized local game mode          | Required; see mode values below                  |
-| `type`     | string | Specific mode or rule family        | Turbo secret variant, or Next rule family        |
-| `settings` | object | Available configuration of the mode | Optional primitive settings using camelCase keys |
+| Field  | Type   | Description                  | Rules                                     |
+| ------ | ------ | ---------------------------- | ----------------------------------------- |
+| `name` | enum   | Normalized local game mode   | Required; see mode values below           |
+| `type` | string | Specific mode or rule family | Turbo secret variant, or Next rule family |
 
 Turbo emits `campaign`, `arcade`, `hot-seat`, `split-screen`, `secret`, or
 `unknown` as `mode.name`. Next emits `solo` or `split-screen`. `unknown` is the
@@ -130,16 +129,8 @@ Turbo secret modes identify the activated rule set in `mode.type`:
 
 Next split-screen play emits one of the six selectable local rule families as
 `mode.type`. `unknown` is used if the game exposes neither a recognized rule
-enum nor a recognizable script name. Settings are scoped to that rule family:
-
-| `mode.type`         | `mode.settings` fields                                           |
-| ------------------- | ---------------------------------------------------------------- |
-| `time-attack`       | `timeLimitMs`, `synchronizedStartPeriodMs`                       |
-| `rounds`            | `pointsLimit`, `forcedLaps`, `useNewRules`                       |
-| `laps`              | `lapCount`, `timeLimitMs`                                        |
-| `cup`               | `pointsLimit`, `roundsPerMap`, `winnerCount`, `warmupDurationMs` |
-| `royal-time-attack` | `timeLimitMs`                                                    |
-| `platform`          | `timeLimitMs`                                                    |
+enum nor a recognizable script name. Its values are `time-attack`, `rounds`,
+`laps`, `cup`, `royal-time-attack`, and `platform`.
 
 Next solo play uses the same standard rule-family values and may additionally
 emit `team`, `stunts`, or `script` when exposed by the active game script.

@@ -318,11 +318,6 @@ components:
           type: integer
           minimum: 0
           description: Intermediate checkpoints only; excludes start and finish.
-    ModeSetting:
-      oneOf:
-        - type: string
-        - type: number
-        - type: boolean
     Mode:
       type: object
       additionalProperties: true
@@ -344,15 +339,6 @@ components:
             Next rule family. Split-screen values are time-attack, rounds, laps,
             cup, royal-time-attack, platform, or unknown. Solo may additionally
             emit team, stunts, or script.
-        settings:
-          type: object
-          description: >-
-            Primitive settings exposed by the active game mode. Trackmania Next
-            includes only settings applicable to the reported rule family.
-          patternProperties:
-            '.*':
-              $ref: '#/components/schemas/ModeSetting'
-          additionalProperties: true
     StartEvent:
       allOf:
         - $ref: '#/components/schemas/BaseEvent'

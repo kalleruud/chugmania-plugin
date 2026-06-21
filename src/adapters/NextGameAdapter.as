@@ -105,7 +105,6 @@ ModeSnapshot@ ReadNextMode(CTrackMania@ app, bool splitScreen)
     if (serverInfo is null) return mode;
 
     mode.modeType = NextModeType(app, serverInfo, splitScreen);
-    @mode.settings = NextModeSettings(serverInfo, mode.modeType);
     return mode;
 }
 
@@ -144,62 +143,5 @@ string NextLegacyModeType(CTrackManiaNetworkServerInfo::EGameMode_Script gameMod
     if (gameMode == CTrackManiaNetworkServerInfo::EGameMode_Script::Team) return "team";
     if (gameMode == CTrackManiaNetworkServerInfo::EGameMode_Script::Stunts) return "stunts";
     return "script";
-}
-
-Json::Value@ NextModeSettings(CTrackManiaNetworkServerInfo@ serverInfo, const string &in modeType)
-{
-    Json::Value@ settings = Json::Object();
-    if (modeType == "time-attack") {
-        AddNextTimeAttackSettings(settings, serverInfo);
-    } else if (modeType == "rounds") {
-        AddNextRoundsSettings(settings, serverInfo);
-    } else if (modeType == "team") {
-        AddNextTeamSettings(settings, serverInfo);
-    } else if (modeType == "laps") {
-        AddNextLapsSettings(settings, serverInfo);
-    } else if (modeType == "cup") {
-        AddNextCupSettings(settings, serverInfo);
-    } else if (modeType == "royal-time-attack" || modeType == "platform") {
-        settings["timeLimitMs"] = serverInfo.CurTimeAttackLimit;
-    }
-    return settings;
-}
-
-void AddNextTimeAttackSettings(Json::Value@ settings, CTrackManiaNetworkServerInfo@ serverInfo)
-{
-    settings["timeLimitMs"] = serverInfo.CurTimeAttackLimit;
-    settings["synchronizedStartPeriodMs"] = serverInfo.CurTimeAttackSynchStartPeriod;
-}
-
-void AddNextRoundsSettings(Json::Value@ settings, CTrackManiaNetworkServerInfo@ serverInfo)
-{
-    settings["pointsLimit"] = serverInfo.CurRoundUseNewRules
-        ? serverInfo.CurRoundPointsLimitNewRules
-        : serverInfo.CurRoundPointsLimit;
-    settings["forcedLaps"] = serverInfo.CurRoundForcedLaps;
-    settings["useNewRules"] = serverInfo.CurRoundUseNewRules;
-}
-
-void AddNextTeamSettings(Json::Value@ settings, CTrackManiaNetworkServerInfo@ serverInfo)
-{
-    settings["pointsLimit"] = serverInfo.CurTeamUseNewRules
-        ? serverInfo.CurTeamPointsLimitNewRules
-        : serverInfo.CurTeamPointsLimit;
-    settings["maxPoints"] = serverInfo.CurTeamMaxPoints;
-    settings["useNewRules"] = serverInfo.CurTeamUseNewRules;
-}
-
-void AddNextLapsSettings(Json::Value@ settings, CTrackManiaNetworkServerInfo@ serverInfo)
-{
-    settings["lapCount"] = serverInfo.CurLapsNbLaps;
-    settings["timeLimitMs"] = serverInfo.CurLapsTimeLimit;
-}
-
-void AddNextCupSettings(Json::Value@ settings, CTrackManiaNetworkServerInfo@ serverInfo)
-{
-    settings["pointsLimit"] = serverInfo.CurEswcCupPointsLimit;
-    settings["roundsPerMap"] = serverInfo.CurEswcCupRoundsPerChallenge;
-    settings["winnerCount"] = serverInfo.CurEswcCupNbWinners;
-    settings["warmupDurationMs"] = serverInfo.CurEswcCupWarmUpDuration;
 }
 #endif
