@@ -163,7 +163,7 @@ Emitted exactly once when a fully captured round begins.
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "0.1.0",
+    "pluginVersion": "1.0.0",
     "game": "trackmaniaTurbo"
   },
   "players": [
@@ -207,7 +207,7 @@ at most once per player per game and never re-armed.
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "0.1.0",
+    "pluginVersion": "1.0.0",
     "game": "trackmaniaTurbo"
   },
   "player": {
@@ -249,7 +249,7 @@ These event types share one contract:
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "0.1.0",
+    "pluginVersion": "1.0.0",
     "game": "trackmaniaTurbo"
   },
   "player": {
@@ -287,7 +287,7 @@ player fields.
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "0.1.0",
+    "pluginVersion": "1.0.0",
     "game": "trackmaniaTurbo"
   },
   "endReason": "completed"
