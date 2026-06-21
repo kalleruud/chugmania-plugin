@@ -112,8 +112,10 @@ models instead of repeating their fields at the event root.
 | `type`     | string | Specific secret mode variant        | Required when `name` is `secret`; otherwise omitted         |
 | `settings` | object | Available configuration of the mode | Optional available primitive settings, using camelCase keys |
 
-Turbo emits `campaign`, `arcade`, `hot-seat`, `split-screen`, or `secret` as
-`mode.name`. Next emits `solo` or `split-screen`.
+Turbo emits `campaign`, `arcade`, `hot-seat`, `split-screen`, `secret`, or
+`unknown` as `mode.name`. Next emits `solo` or `split-screen`. `unknown` is the
+Turbo fallback when the game does not expose enough information to identify the
+local mode positively; the plugin never guesses another mode as a fallback.
 
 Turbo secret modes identify the activated rule set in `mode.type`:
 

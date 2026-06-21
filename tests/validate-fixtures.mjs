@@ -53,6 +53,7 @@ for (const event of events) {
         'split-screen',
         'secret',
         'solo',
+        'unknown',
       ].includes(event.mode.name)
     )
     if (event.mode.name === 'secret') assert.ok(event.mode.type)

@@ -7,6 +7,7 @@ class TurboGameAdapter : GameAdapter
     bool startArmed;
     bool roundCompleted;
     string pendingEndReason;
+    string launchModeHint;
 
     GameObservation@ Observe()
     {
@@ -16,6 +17,7 @@ class TurboGameAdapter : GameAdapter
             LogTurboState("app", "Turbo capture waiting for the game application.");
             return observation;
         }
+        RememberTurboLaunchMode(app);
         if (app.CurrentPlayground is null) {
             LogTurboState("playground", "Turbo capture waiting for a playground.");
             return observation;
@@ -104,7 +106,8 @@ class TurboGameAdapter : GameAdapter
             roundCompleted = roundCompleted || state.finished;
             observation.playerStates.InsertLast(state);
         }
-        @observation.mode = ReadTurboMode(app, playground, observation.players.Length);
+        bool splitScreen = playground.GameTerminals.Length > 1 || observation.players.Length > 1;
+        @observation.mode = ReadTurboMode(app, splitScreen, launchModeHint);
         observation.active = observation.local && !observation.playerStates.IsEmpty();
         if (observation.active) {
             observation.sessionKey = activeSessionKey;
@@ -124,6 +127,16 @@ class TurboGameAdapter : GameAdapter
         if (state == diagnosticState) return;
         diagnosticState = state;
         print("[detect] " + message);
+    }
+
+    void RememberTurboLaunchMode(CGameManiaPlanet@ app)
+    {
+        for (uint i = 0; i < app.ActiveMenus.Length; i++) {
+            auto menu = app.ActiveMenus[i];
+            if (menu is null) continue;
+            string hint = TurboModeHint(menu.IdName);
+            if (hint.Length > 0) launchModeHint = hint;
+        }
     }
 }
 
@@ -149,18 +162,14 @@ MapSnapshot@ ReadTurboMap(CGameManiaPlanet@ app)
     return map;
 }
 
-ModeSnapshot@ ReadTurboMode(CGameManiaPlanet@ app, CGamePlayground@ playground, uint observedPlayerCount)
+ModeSnapshot@ ReadTurboMode(
+    CGameManiaPlanet@ app,
+    bool splitScreen,
+    const string &in launchModeHint
+)
 {
     ModeSnapshot@ mode = ModeSnapshot();
-    auto multiLocal = cast<CTrackManiaRaceMultiLocal>(playground);
-    uint localPlayerCount = multiLocal is null ? 1 : multiLocal.MultiLocalPlayerInfos.Length;
-    uint terminalCount = playground.GameTerminals.Length;
-    string localMode = TurboLocalModeName(
-        multiLocal !is null,
-        localPlayerCount,
-        terminalCount,
-        observedPlayerCount
-    );
+    string localMode = TurboLocalModeName(app, splitScreen, launchModeHint);
 
     auto network = cast<CTrackManiaNetwork>(app.Network);
     CTrackManiaRaceRules@ rules;
@@ -176,21 +185,53 @@ ModeSnapshot@ ReadTurboMode(CGameManiaPlanet@ app, CGamePlayground@ playground, 
 }
 
 string TurboLocalModeName(
-    bool isMultiLocal,
-    uint localPlayerCount,
-    uint terminalCount,
-    uint observedPlayerCount
+    CGameManiaPlanet@ app,
+    bool splitScreen,
+    const string &in launchModeHint
 )
 {
-    if (terminalCount > 1 || observedPlayerCount > 1) return "split-screen";
-    if (!isMultiLocal) return "campaign";
-    if (localPlayerCount > 1) return "hot-seat";
-    return "arcade";
+    if (splitScreen) return "split-screen";
+
+    string runtimeModeHint = TurboRuntimeModeHint(app);
+    if (runtimeModeHint.Length > 0) return runtimeModeHint;
+    if (launchModeHint.Length > 0) return launchModeHint;
+    if (app.CurrentCampaign !is null) return "campaign";
+    return "unknown";
+}
+
+string TurboRuntimeModeHint(CGameManiaPlanet@ app)
+{
+    string hint = TurboModeHint(app.PlaygroundScript.ServerModeName);
+    if (hint.Length > 0) return hint;
+
+    hint = TurboModeHint(app.PlaygroundScript.IdName);
+    if (hint.Length > 0) return hint;
+
+    auto network = cast<CTrackManiaNetwork>(app.Network);
+    if (network !is null && network.TmRaceRules !is null && network.TmRaceRules.Script !is null) {
+        hint = TurboModeHint(network.TmRaceRules.Script.IdName);
+    }
+    return hint;
+}
+
+string TurboModeHint(const string &in value)
+{
+    string normalized = value.ToLower();
+    if (normalized.Contains("hotseat") || normalized.Contains("hot-seat") || normalized.Contains("hot_seat")) {
+        return "hot-seat";
+    }
+    if (normalized.Contains("splitscreen") || normalized.Contains("split-screen") || normalized.Contains("split_screen")) {
+        return "split-screen";
+    }
+    if (normalized.Contains("arcade")) return "arcade";
+    if (normalized.Contains("campaign")) return "campaign";
+    return "";
 }
 
 string TurboSecretModeType(CTrackManiaRaceRules@ rules, const string &in localMode)
 {
     if (rules is null) return "";
+    if (localMode != "split-screen" && localMode != "arcade" && localMode != "hot-seat") return "";
 
     string variant;
     if (rules.EnableBonusEvents) {
