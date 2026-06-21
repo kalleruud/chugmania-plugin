@@ -329,9 +329,9 @@ components:
             [campaign, arcade, hot-seat, split-screen, secret, solo, unknown]
           description: >-
             Normalized local mode. Turbo emits campaign, arcade, hot-seat,
-            split-screen, secret, or unknown. Next emits solo or split-screen.
-            Unknown is used when the game does not expose enough information
-            to identify the local mode positively.
+            split-screen, secret, or unknown. Next emits campaign, solo, or
+            split-screen. Unknown is used when the game does not expose enough
+            information to identify the local mode positively.
         type:
           type: string
           enum:

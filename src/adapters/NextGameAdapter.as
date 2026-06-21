@@ -106,7 +106,9 @@ MapSnapshot@ ReadNextMap(CTrackMania@ app)
 ModeSnapshot@ ReadNextMode(CTrackMania@ app, bool splitScreen)
 {
     ModeSnapshot@ mode = ModeSnapshot();
-    mode.name = splitScreen ? "split-screen" : "solo";
+    mode.name = NextModeName(app, splitScreen);
+    if (mode.name == "campaign") return mode;
+
     auto network = cast<CTrackManiaNetwork>(app.Network);
     if (network is null) return mode;
     auto serverInfo = cast<CTrackManiaNetworkServerInfo>(network.ServerInfo);
@@ -116,18 +118,30 @@ ModeSnapshot@ ReadNextMode(CTrackMania@ app, bool splitScreen)
     return mode;
 }
 
+string NextModeName(CTrackMania@ app, bool splitScreen)
+{
+    if (splitScreen) return "split-screen";
+    if (NextServerModeName(app).Contains("tm_campaign_")) return "campaign";
+    return "solo";
+}
+
+string NextServerModeName(CTrackMania@ app)
+{
+    if (app.PlaygroundScript is null) return "";
+    return string(app.PlaygroundScript.ServerModeName).ToLower();
+}
+
 string NextModeType(CTrackMania@ app, CTrackManiaNetworkServerInfo@ serverInfo, bool splitScreen)
 {
-    string scriptMode = NextScriptModeType(NextModeScriptName(app, serverInfo));
+    string scriptMode = NextScriptModeType(NextModeIdentifiers(app, serverInfo));
     if (scriptMode.Length > 0) return scriptMode;
     return NextLegacyModeType(serverInfo.CurGameMode_Script, splitScreen);
 }
 
-string NextModeScriptName(CTrackMania@ app, CTrackManiaNetworkServerInfo@ serverInfo)
+string NextModeIdentifiers(CTrackMania@ app, CTrackManiaNetworkServerInfo@ serverInfo)
 {
-    string activeScript;
-    if (app.PlaygroundScript !is null) activeScript = string(app.PlaygroundScript.ServerModeName);
-    return (activeScript + " " + string(serverInfo.CurGameModeStr) + " " + string(serverInfo.CurScriptRelName)).ToLower();
+    return (NextServerModeName(app) + " " + string(serverInfo.CurGameModeStr) + " " +
+        string(serverInfo.CurScriptRelName)).ToLower();
 }
 
 string NextScriptModeType(const string &in scriptName)

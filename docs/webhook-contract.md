@@ -115,9 +115,10 @@ other identifiers because its runtime does not expose equivalent values.
 | `type` | string | Specific mode or rule family | Turbo secret variant, or Next rule family |
 
 Turbo emits `campaign`, `arcade`, `hot-seat`, `split-screen`, `secret`, or
-`unknown` as `mode.name`. Next emits `solo` or `split-screen`. `unknown` is the
-Turbo fallback when the game does not expose enough information to identify the
-local mode positively; the plugin never guesses another mode as a fallback.
+`unknown` as `mode.name`. Next emits `campaign`, `solo`, or `split-screen`.
+`unknown` is the Turbo fallback when the game does not expose enough information
+to identify the local mode positively; the plugin never guesses another mode as
+a fallback.
 
 Turbo secret modes identify the activated rule set in `mode.type`:
 
@@ -135,6 +136,7 @@ enum nor a recognizable script name. Its values are `time-attack`, `rounds`,
 Next solo play uses the same standard rule-family values and may additionally
 emit `team` or `stunts` when exposed by the active game script. The optional
 `mode.type` field is omitted when no meaningful rule family can be resolved.
+Next campaign play emits `campaign` as `mode.name` without a `mode.type`.
 
 ### Checkpoint
 
