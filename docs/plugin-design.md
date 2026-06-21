@@ -92,6 +92,9 @@ behavior. Delivery delay never affects event timestamps or durations.
   zero after the round begins.
 - Emit checkpoint events only on actual validation transitions, suppressing
   duplicate observations across frames.
+- Normalize `checkpointLapIndex` across modes: intermediate checkpoints are
+  `1..checkpointsPerLap`, lap events use `0` for the newly started lap, and
+  finish events use `checkpointsPerLap + 1` for the completed final lap.
 - Emit one respawn event for every detected respawn action, including repeated
   respawns at the same destination.
 - A start-line respawn remains a respawn while the timer continues. It does not

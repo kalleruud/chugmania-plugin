@@ -16,6 +16,7 @@ class RoundTracker
     uint lastDurationMs;
     array<PlayerSnapshot@> roster;
     array<TrackedPlayer@> tracked;
+    MapSnapshot@ roundMap;
 
     RoundTracker(WebhookDelivery@ sender) { @delivery = sender; }
 
@@ -44,6 +45,7 @@ class RoundTracker
         sequence = 0;
         lastDurationMs = 0;
         roster = observation.players;
+        @roundMap = observation.map;
         tracked.Resize(roster.Length);
         for (uint i = 0; i < tracked.Length; i++) @tracked[i] = TrackedPlayer();
         CapturedEvent@ event = NewEvent("start", 0);
@@ -89,7 +91,13 @@ class RoundTracker
         CapturedEvent@ event = NewEvent(type, durationMs);
         @event.player = roster[state.player.playerIndex];
         event.checkpointIndex = state.checkpointIndex;
-        event.checkpointLapIndex = state.checkpointLapIndex;
+        if (type == "lap") {
+            event.checkpointLapIndex = 0;
+        } else if (type == "finish" && roundMap !is null) {
+            event.checkpointLapIndex = roundMap.checkpointsPerLap + 1;
+        } else {
+            event.checkpointLapIndex = state.checkpointLapIndex;
+        }
         event.lapNumber = state.lapNumber;
         event.theoreticalDurationMs = state.theoreticalDurationMs;
         event.lostMs = state.lostMs;
@@ -105,6 +113,7 @@ class RoundTracker
         running = false;
         roster.Resize(0);
         tracked.Resize(0);
+        @roundMap = null;
     }
 
     CapturedEvent@ NewEvent(const string &in type, uint durationMs)

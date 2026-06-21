@@ -229,7 +229,11 @@ components:
         checkpointLapIndex:
           type: integer
           minimum: 0
-          description: Checkpoint position within the current lap.
+          description: >-
+            Checkpoint position within the lap. Intermediate checkpoints are
+            1..map.checkpointsPerLap, lap events use 0 for the start of the new
+            lap, and finish events use map.checkpointsPerLap + 1 for the end of
+            the final lap.
         lapNumber:
           type: integer
           minimum: 1

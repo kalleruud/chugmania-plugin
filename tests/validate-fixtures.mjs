@@ -20,6 +20,15 @@ assert.deepEqual(
   events.map(event => event.type),
   eventTypes
 )
+const start = events.find(event => event.type === 'start')
+const lap = events.find(event => event.type === 'lap')
+const finish = events.find(event => event.type === 'finish')
+assert.equal(lap.checkpoint.checkpointLapIndex, 0)
+assert.equal(
+  finish.checkpoint.checkpointLapIndex,
+  start.map.checkpointsPerLap + 1
+)
+
 for (const event of events) {
   assert.equal(event.schemaVersion, '1.0.0')
   assert.match(event.eventId, uuid)

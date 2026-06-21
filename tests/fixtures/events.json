@@ -16,7 +16,12 @@
       "game": "trackmaniaTurbo"
     },
     "players": [{ "playerIndex": 0, "name": "Player One" }],
-    "map": { "name": "Example Map", "isLaps": false, "checkpointsPerLap": 3 },
+    "map": {
+      "name": "Example Map",
+      "isLaps": true,
+      "totalLaps": 2,
+      "checkpointsPerLap": 3
+    },
     "mode": { "name": "Local play" }
   },
   {

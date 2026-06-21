@@ -115,10 +115,18 @@ through a nested `checkpoint` object.
 | Field                   | Type                 | Description                                | Rules                                           |
 | ----------------------- | -------------------- | ------------------------------------------ | ----------------------------------------------- |
 | `checkpointIndex`       | non-negative integer | Global checkpoint position across laps     | `0` at the start line; otherwise positive       |
-| `checkpointLapIndex`    | non-negative integer | Checkpoint position within the current lap | `0` at the start line; otherwise positive       |
+| `checkpointLapIndex`    | non-negative integer | Checkpoint position within the current lap | See line-crossing convention below              |
 | `lapNumber`             | positive integer     | Current lap                                | Required and one-based                          |
 | `theoreticalDurationMs` | non-negative integer | Dependency-provided theoretical race time  | Optional, Next-only dependency value, unchanged |
 | `lostMs`                | non-negative integer | Dependency-provided time lost on respawn   | Optional, Next-only dependency value, unchanged |
+
+For a map with `N = map.checkpointsPerLap`, intermediate checkpoints use
+`checkpointLapIndex` values `1..N`. A `lap` event describes the shared
+start/finish line as the start of the newly entered lap and therefore uses `0`.
+A `finish` event describes that same line as the end of the final lap and uses
+`N + 1`. The same finish convention applies to point-to-point maps, so a
+start-checkpoint-finish map with one intermediate checkpoint finishes at index
+`2`.
 
 ## Events
 
