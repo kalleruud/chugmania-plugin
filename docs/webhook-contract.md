@@ -40,6 +40,9 @@ The plugin retries network errors, `408`, `429`, and all `5xx` responses. Other
 
 ## Models
 
+Models group fields by functional dependency. Events compose these nested
+models instead of repeating their fields at the event root.
+
 ### Source
 
 | Field           | Type   | Description                         | Rules                                 |
@@ -47,6 +50,13 @@ The plugin retries network errors, `408`, `429`, and all `5xx` responses. Other
 | `pluginName`    | string | Name of the producing plugin        | Required; `Chugmania Webhooks`        |
 | `pluginVersion` | string | Version of the producing plugin     | Required plugin SemVer                |
 | `game`          | enum   | Trackmania game producing the event | `trackmaniaTurbo` or `trackmaniaNext` |
+
+### Game
+
+| Field          | Type             | Description                          | Rules                                                       |
+| -------------- | ---------------- | ------------------------------------ | ----------------------------------------------------------- |
+| `gameId`       | UUID string      | Identity of the captured round       | Required UUID v4, shared by all events in the round         |
+| `totalPlayers` | positive integer | Number of players in the round       | Required and constant; equals `start.players.length`        |
 
 ### Player
 
@@ -59,7 +69,7 @@ The plugin retries network errors, `408`, `429`, and all `5xx` responses. Other
 | `accountId`   | string               | Account identifier of the player     | Optional                                     |
 
 `start.players` is ordered by contiguous index, so
-`players[i].playerIndex == i`. Its length equals `totalPlayers`.
+`players[i].playerIndex == i`. Its length equals `game.totalPlayers`.
 
 ### Map
 
@@ -70,10 +80,19 @@ The plugin retries network errors, `408`, `429`, and all `5xx` responses. Other
 | `author`            | string               | Creator of the map                         | Optional                                        |
 | `environment`       | string               | Environment or setting used by the map     | Optional                                        |
 | `type`              | string               | Map type reported by the game              | Optional                                        |
-| `medalTimesMs`      | object               | Target medal times in milliseconds         | Optional `author`, `gold`, `silver`, and `bronze` non-negative integers |
+| `medalTimesMs`      | MedalTimes           | Target medal times in milliseconds         | Optional                                        |
 | `isLaps`            | boolean              | Whether the map uses multiple laps         | Required                                        |
 | `totalLaps`         | positive integer     | Number of laps required to finish          | Optional; omitted when unknown or not lap-based |
 | `checkpointsPerLap` | non-negative integer | Number of intermediate checkpoints per lap | Optional; excludes start and finish             |
+
+### MedalTimes
+
+| Field    | Type                 | Description              | Rules    |
+| -------- | -------------------- | ------------------------ | -------- |
+| `author` | non-negative integer | Author medal time in ms  | Optional |
+| `gold`   | non-negative integer | Gold medal time in ms    | Optional |
+| `silver` | non-negative integer | Silver medal time in ms  | Optional |
+| `bronze` | non-negative integer | Bronze medal time in ms  | Optional |
 
 ### Mode
 
@@ -107,11 +126,10 @@ Every event contains:
 | `schemaVersion` | string               | Version of the webhook payload schema   | Required SemVer; initially `1.0.0`                       |
 | `type`          | string               | Kind of event represented               | Required event discriminator                             |
 | `eventId`       | UUID string          | Unique identity of the captured event   | Globally unique UUID v4; immutable across retries        |
-| `sequence`      | non-negative integer | Event position within the round         | Contiguous capture order within `gameId`                 |
+| `sequence`      | non-negative integer | Event position within the round         | Contiguous capture order within `game.gameId`            |
 | `occurredAt`    | RFC 3339 string      | Wall-clock time of capture              | UTC with millisecond precision; immutable across retries |
 | `durationMs`    | non-negative integer | Race-clock time of capture              | In-game race timer when the event occurred               |
-| `gameId`        | UUID string          | Identity used to correlate round events | UUID v4 shared by all events in one round                |
-| `totalPlayers`  | positive integer     | Number of players in the round          | Required and constant; equals `start.players.length` when emitted |
+| `game`          | Game                 | Identity and player count for the round | Required                                                 |
 | `source`        | Source               | Metadata describing the event producer  | Required producer metadata                               |
 
 `start.sequence` is `0` for complete captures. When capture begins mid-round,
@@ -127,7 +145,7 @@ Emitted exactly once when a fully captured round begins.
 
 | Additional field | Type             | Description                        | Rules                               |
 | ---------------- | ---------------- | ---------------------------------- | ----------------------------------- |
-| `players`        | Player[]         | Players participating in the round | Required, ordered contiguous roster |
+| `players`        | Player[]         | Players participating in the round | Required; ordered and length equals `game.totalPlayers` |
 | `map`            | Map              | Map played during the round        | Required                            |
 | `mode`           | Mode             | Game mode used during the round    | Required                            |
 
@@ -139,7 +157,10 @@ Emitted exactly once when a fully captured round begins.
   "sequence": 0,
   "occurredAt": "2026-06-21T12:34:56.789Z",
   "durationMs": 0,
-  "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
+  "game": {
+    "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
+    "totalPlayers": 1
+  },
   "source": {
     "pluginName": "Chugmania Webhooks",
     "pluginVersion": "0.1.0",
@@ -151,7 +172,6 @@ Emitted exactly once when a fully captured round begins.
       "name": "Player One"
     }
   ],
-  "totalPlayers": 1,
   "map": {
     "name": "Example Map",
     "isLaps": true,
@@ -181,7 +201,10 @@ at most once per player per game and never re-armed.
   "sequence": 1,
   "occurredAt": "2026-06-21T12:34:56.914Z",
   "durationMs": 125,
-  "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
+  "game": {
+    "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
+    "totalPlayers": 1
+  },
   "source": {
     "pluginName": "Chugmania Webhooks",
     "pluginVersion": "0.1.0",
@@ -190,8 +213,7 @@ at most once per player per game and never re-armed.
   "player": {
     "playerIndex": 0,
     "name": "Player One"
-  },
-  "totalPlayers": 1
+  }
 }
 ```
 
@@ -221,7 +243,10 @@ These event types share one contract:
   "sequence": 2,
   "occurredAt": "2026-06-21T12:35:06.789Z",
   "durationMs": 10000,
-  "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
+  "game": {
+    "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
+    "totalPlayers": 1
+  },
   "source": {
     "pluginName": "Chugmania Webhooks",
     "pluginVersion": "0.1.0",
@@ -231,7 +256,6 @@ These event types share one contract:
     "playerIndex": 0,
     "name": "Player One"
   },
-  "totalPlayers": 1,
   "checkpoint": {
     "checkpointIndex": 1,
     "checkpointLapIndex": 1,
@@ -257,8 +281,10 @@ player fields.
   "sequence": 6,
   "occurredAt": "2026-06-21T12:36:46.789Z",
   "durationMs": 110000,
-  "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
-  "totalPlayers": 1,
+  "game": {
+    "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
+    "totalPlayers": 1
+  },
   "source": {
     "pluginName": "Chugmania Webhooks",
     "pluginVersion": "0.1.0",

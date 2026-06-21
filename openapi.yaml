@@ -114,8 +114,7 @@ components:
         - sequence
         - occurredAt
         - durationMs
-        - gameId
-        - totalPlayers
+        - game
         - source
       properties:
         schemaVersion:
@@ -142,14 +141,8 @@ components:
           format: int64
           minimum: 0
           description: In-game race timer when the event occurred.
-        gameId:
-          type: string
-          format: uuid
-          description: UUID v4 shared by all captured events in one round.
-        totalPlayers:
-          type: integer
-          minimum: 1
-          description: Number of players in the round, constant within the game and equal to start.players.length when start is emitted.
+        game:
+          $ref: "#/components/schemas/Game"
         source:
           $ref: "#/components/schemas/Source"
     Source:
@@ -173,6 +166,21 @@ components:
           description: >-
             Possible values are `trackmaniaTurbo` for Trackmania Turbo and
             `trackmaniaNext` for Trackmania Next.
+    Game:
+      type: object
+      additionalProperties: true
+      required: [gameId, totalPlayers]
+      properties:
+        gameId:
+          type: string
+          format: uuid
+          description: UUID v4 shared by all captured events in one round.
+        totalPlayers:
+          type: integer
+          minimum: 1
+          description: >-
+            Number of players in the round, constant within the game and equal
+            to start.players.length when start is emitted.
     Player:
       type: object
       additionalProperties: true

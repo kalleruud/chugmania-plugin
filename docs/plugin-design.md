@@ -84,7 +84,7 @@ behavior. Delivery delay never affects event timestamps or durations.
 ## Round Lifecycle
 
 - Emit one `start` at timer `0`, after the countdown and before player events.
-- Freeze the player roster and `totalPlayers` when `start` is created.
+- Freeze the player roster and `game.totalPlayers` when `start` is created.
 - Emit `first_throttle` at most once per player per game. Never re-arm it after
   laps or respawns.
 - Trigger first throttle on the first accelerator value strictly greater than
