@@ -7,9 +7,9 @@ target="${1:-all}"
 output_directory="${2:-$repository_root/dist}"
 
 case "$target" in
-  trackmania|turbo) targets=("$target") ;;
-  all) targets=(trackmania turbo) ;;
-  *) echo "Error: target must be trackmania, turbo, or all" >&2; exit 1 ;;
+  all) targets=(next turbo) ;;
+  next|turbo) targets=("$target") ;;
+  *) echo "Error: target must be all, next, or turbo" >&2; exit 1 ;;
 esac
 
 if [[ ! -d "$repository_root/src" ]]; then
@@ -43,7 +43,7 @@ staging_root="$(mktemp -d)"
 trap 'rm -rf -- "$staging_root"' EXIT
 
 for game in "${targets[@]}"; do
-  if [[ "$game" == "trackmania" ]]; then
+  if [[ "$game" == "next" ]]; then
     manifest="$repository_root/info.next.toml"
   else
     manifest="$repository_root/info.turbo.toml"
@@ -53,7 +53,7 @@ for game in "${targets[@]}"; do
     exit 1
   fi
 
-  if [[ "$game" == "trackmania" ]]; then
+  if [[ "$game" == "next" ]]; then
     artifact="$output_directory/chugmania-webhooks-next.op"
   else
     artifact="$output_directory/chugmania-webhooks-turbo.op"

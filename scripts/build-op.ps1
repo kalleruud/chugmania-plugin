@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet("trackmania", "turbo", "all")]
+    [ValidateSet("all", "next", "turbo")]
     [string]$Target = "all",
     [string]$OutputDirectory
 )
@@ -34,12 +34,12 @@ function Get-MetaValue([string]$Metadata, [string]$Key) {
     return $match.Groups[1].Value
 }
 
-$targets = if ($Target -eq "all") { @("trackmania", "turbo") } else { @($Target) }
+$targets = if ($Target -eq "all") { @("next", "turbo") } else { @($Target) }
 $outputDirectoryPath = [System.IO.Path]::GetFullPath($OutputDirectory)
 New-Item -ItemType Directory -Force -Path $outputDirectoryPath | Out-Null
 
 foreach ($game in $targets) {
-    $manifestPath = if ($game -eq "trackmania") {
+    $manifestPath = if ($game -eq "next") {
         Join-Path $repositoryRoot "info.next.toml"
     } else {
         Join-Path $repositoryRoot "info.turbo.toml"
@@ -49,7 +49,7 @@ foreach ($game in $targets) {
     }
 
     $metadata = Get-Content -LiteralPath $manifestPath -Raw
-    $artifactName = if ($game -eq "trackmania") {
+    $artifactName = if ($game -eq "next") {
         "chugmania-webhooks-next.op"
     } else {
         "chugmania-webhooks-turbo.op"
