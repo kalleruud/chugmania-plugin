@@ -70,16 +70,19 @@ models instead of repeating their fields at the event root.
 
 ### Player
 
-| Field         | Type                 | Description                          | Rules                                        |
-| ------------- | -------------------- | ------------------------------------ | -------------------------------------------- |
-| `playerIndex` | non-negative integer | Position of the player in the roster | Required, zero-based, stable within the game |
-| `name`        | string               | Display name of the player           | Optional                                     |
-| `login`       | string               | Login identifier of the player       | Optional                                     |
-| `localId`     | string               | Local identifier of the player       | Optional                                     |
-| `accountId`   | string               | Account identifier of the player     | Optional                                     |
+| Field         | Type                 | Description                          | Rules                                         |
+| ------------- | -------------------- | ------------------------------------ | --------------------------------------------- |
+| `playerIndex` | non-negative integer | Position of the player in the roster | Required, zero-based, stable within the game  |
+| `name`        | string               | Display name of the player           | Optional                                      |
+| `login`       | string               | Game login of the player             | Optional; emitted when exposed by the runtime |
+| `localId`     | string               | Decimal engine-local login ID        | Optional; available in Next                   |
+| `accountId`   | string               | Ubisoft/Nadeo WebServices account ID | Optional; available in Next                   |
 
 `start.players` is ordered by contiguous index, so
 `players[i].playerIndex == i`. Its length equals `game.totalPlayers`.
+Trackmania Next sources `login`, `localId`, and `accountId` from MLFeed V4's
+login, login MwId, and WebServices user ID. Turbo emits `login`, but omits the
+other identifiers because its runtime does not expose equivalent values.
 
 ### Map
 

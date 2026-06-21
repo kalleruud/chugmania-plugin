@@ -15,7 +15,15 @@
       "pluginVersion": "1.0.0",
       "game": "turbo"
     },
-    "players": [{ "playerIndex": 0, "name": "Player One" }],
+    "players": [
+      {
+        "playerIndex": 0,
+        "name": "Player One",
+        "login": "player-one",
+        "localId": "123456789",
+        "accountId": "8f3c8a6e-5ed4-4d50-9d0d-82ea735cba47"
+      }
+    ],
     "map": {
       "name": "Example Map",
       "isLaps": true,

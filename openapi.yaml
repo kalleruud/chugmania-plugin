@@ -218,10 +218,17 @@ components:
           type: string
         login:
           type: string
+          description: Game login. Available in both games when exposed by the runtime.
         localId:
           type: string
+          description: >-
+            Decimal engine-local ID for the player's login. Available in
+            Trackmania Next; omitted when the runtime does not expose it.
         accountId:
           type: string
+          description: >-
+            Ubisoft/Nadeo WebServices account ID. Available in Trackmania Next;
+            omitted when the runtime does not expose it.
     PlayerEvent:
       allOf:
         - $ref: '#/components/schemas/BaseEvent'

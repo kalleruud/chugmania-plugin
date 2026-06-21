@@ -23,6 +23,9 @@ assert.deepEqual(
 const start = events.find(event => event.type === 'start')
 const lap = events.find(event => event.type === 'lap')
 const finish = events.find(event => event.type === 'finish')
+assert.equal(start.players[0].login, 'player-one')
+assert.match(start.players[0].localId, /^\d+$/)
+assert.match(start.players[0].accountId, uuid)
 assert.equal(lap.checkpoint.checkpointLapIndex, 0)
 assert.equal(
   finish.checkpoint.checkpointLapIndex,
