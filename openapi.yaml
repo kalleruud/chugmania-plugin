@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: Webhook contract emitted by the Trackmania Turbo and Trackmania Next plugins.
 servers:
-  - url: https://chugmania.no/api/
+  - url: https://chugmania.no/api
     description: Official chugmania webhook consumer.
 paths:
   /webhook:
