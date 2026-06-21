@@ -55,11 +55,11 @@ models instead of repeating their fields at the event root.
 
 ### Source
 
-| Field           | Type   | Description                         | Rules                                 |
-| --------------- | ------ | ----------------------------------- | ------------------------------------- |
-| `pluginName`    | string | Name of the producing plugin        | Required; `Chugmania Webhooks`        |
-| `pluginVersion` | string | Version of the producing plugin     | Required plugin SemVer                |
-| `game`          | enum   | Trackmania game producing the event | `trackmaniaTurbo` or `trackmaniaNext` |
+| Field           | Type   | Description                         | Rules                          |
+| --------------- | ------ | ----------------------------------- | ------------------------------ |
+| `pluginName`    | string | Name of the producing plugin        | Required; `Chugmania Webhooks` |
+| `pluginVersion` | string | Version of the producing plugin     | Required plugin SemVer         |
+| `game`          | enum   | Trackmania game producing the event | `turbo` or `next`              |
 
 ### Game
 
@@ -155,7 +155,7 @@ the first captured event also uses sequence `0`, even though no start event was
 emitted.
 
 The examples form one Trackmania Turbo round and use fields supported by both
-games. For Trackmania Next, `source.game` is `trackmaniaNext`.
+games. For Trackmania Next, `source.game` is `next`.
 
 ### `start`
 
@@ -182,7 +182,7 @@ Emitted exactly once when a fully captured round begins.
   "source": {
     "pluginName": "Chugmania Webhooks",
     "pluginVersion": "1.0.0",
-    "game": "trackmaniaTurbo"
+    "game": "turbo"
   },
   "players": [
     {
@@ -226,7 +226,7 @@ at most once per player per game and never re-armed.
   "source": {
     "pluginName": "Chugmania Webhooks",
     "pluginVersion": "1.0.0",
-    "game": "trackmaniaTurbo"
+    "game": "turbo"
   },
   "player": {
     "playerIndex": 0,
@@ -268,7 +268,7 @@ These event types share one contract:
   "source": {
     "pluginName": "Chugmania Webhooks",
     "pluginVersion": "1.0.0",
-    "game": "trackmaniaTurbo"
+    "game": "turbo"
   },
   "player": {
     "playerIndex": 0,
@@ -309,7 +309,7 @@ game's eliminated state and is reported as `aborted`.
   "source": {
     "pluginName": "Chugmania Webhooks",
     "pluginVersion": "1.0.0",
-    "game": "trackmaniaTurbo"
+    "game": "turbo"
   },
   "endReason": "completed"
 }

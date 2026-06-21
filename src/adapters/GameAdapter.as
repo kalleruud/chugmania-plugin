@@ -17,8 +17,8 @@ GameAdapter@ CreateGameAdapter()
 string AdapterGameName()
 {
 #if TMNEXT
-    return "trackmaniaNext";
+    return "next";
 #else
-    return "trackmaniaTurbo";
+    return "turbo";
 #endif
 }

@@ -34,7 +34,7 @@ for (const event of events) {
   assert.match(event.eventId, uuid)
   assert.match(event.game.gameId, uuid)
   assert.equal(event.source.pluginName, 'Chugmania Webhooks')
-  assert.ok(['trackmaniaTurbo', 'trackmaniaNext'].includes(event.source.game))
+  assert.ok(['turbo', 'next'].includes(event.source.game))
   assert.ok(Number.isInteger(event.sequence) && event.sequence >= 0)
   assert.ok(Number.isInteger(event.durationMs) && event.durationMs >= 0)
   assert.match(
