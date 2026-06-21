@@ -1,5 +1,6 @@
 {
     "recommendations": [
-        "xertrov.openplanet-angelscript"
+        "xertrov.openplanet-angelscript",
+        "tamasfe.even-better-toml"
     ]
 }

@@ -1,0 +1,2 @@
+- Always keep the @openapi.yaml file up to date with the webhook payload contract.
+- All changes must apply to both Trackmania Turbo and Trackmania Next.

@@ -1,49 +1,72 @@
-# Chugmania Capture Spike
+# Chugmania Webhooks
 
-An Openplanet test plugin for discovering which local Trackmania race data can
-be captured before building the Chugmania webhook integration.
+An Openplanet plugin that captures local Trackmania 2020 or Trackmania Turbo
+race attempts and sends one JSON webhook when an attempt ends.
 
 The plugin watches every player in `CurrentPlayground.Players`, including local
-split-screen players, and prints event records for:
+split-screen players, and captures:
 
 - player discovery and the controlled split-screen terminal index;
-- race and lap starts;
-- first accelerator input after each lap start;
-- lap and race waypoint/checkpoint times;
-- lap finishes and race finishes;
-- detailed player state at every event, including timing arrays, respawns,
-  controls, position, speed, engine state, wheel contact, and skid/air duration;
-- map metadata and medal times.
+- first throttle input as an ordered race event;
+- authoritative start, checkpoint, respawn, finish, restart, quit, and DNF events;
+- map metadata and medal times;
+- local format, game mode, and generic mode settings exposed by the rules API.
 
-`FIRST_ACCELERATOR.delayMs` uses that player's `CurrentLapTime` at the first
-frame where `InputGasPedal` is greater than `0.01`. This is frame-polled, so its
-precision is limited by the game's render frame rate.
+One `race.attempt.ended` request represents the complete attempt and always uses
+the same `players[]` format for solo and split screen. Race durations and
+checkpoint times come from MLFeed's ManiaScript-backed game clock in Trackmania
+2020 and Turbo's native race results in Trackmania Turbo.
 
-## Run the test
+## Supported games
 
-1. Install Openplanet for Trackmania 2020 and enable **Developer** signature
-   mode in Openplanet's settings. Unsigned local plugins only load in this mode.
-2. Copy this repository folder into the Openplanet `Plugins` directory. Keep
-   `info.toml` at the copied folder's root, for example:
-   `OpenplanetNext/Plugins/ChugmaniaCaptureSpike/info.toml`. Alternatively,
-   copy `dist/ChugmaniaCaptureSpike.op` directly into the `Plugins` directory.
-3. Start Trackmania, then reload plugins from Openplanet's plugin manager. The
-   log should contain `Capture test loaded`.
-4. Start **Local > Arcade** or a local **Split Screen** race. Complete
-   checkpoints and at least one lap with every controller/player.
-5. Inspect the Openplanet log/console and filter for
-   `[Chugmania Capture Spike]`. Compare `playerIndex`, `login`, `name`, and
-   `terminal` to identify each split-screen player.
+- **Trackmania 2020:** local solo and split-screen capture using MLHook and
+  MLFeed: Race Data.
+- **Trackmania Turbo:** local solo and split-screen capture using the native
+  Turbo playground, player, and race-result APIs.
 
-Useful event names are `FIRST_ACCELERATOR`, `LAP_WAYPOINT`, `LAP_FINISH`, and
-`RACE_FINISH`. Each event is followed by a `SNAPSHOT` and four `TIMES` records.
+Turbo mode names distinguish `campaign`, `arcade`, `hot_seat`, and
+`split_screen`, and map payloads include the Canyon, Valley, Lagoon, or Stadium
+`environment`. Turbo does not expose every mode rule or MLFeed-derived value. Those fields are
+sent as `null`, including `mlFeedLapCount`, theoretical checkpoint times,
+respawn checkpoint indexes, and generic mode settings. Turbo checkpoint and
+finish times are native race-result values; lifecycle-only event times use a
+monotonic clock anchored when the race is detected.
 
-## Development notes
+Online and party-mode capture are not currently guaranteed in Turbo.
 
-- This spike targets Trackmania 2020 (`TMNEXT`) APIs.
-- Checkpoints are primarily detected from each player's crossed map landmark.
-  The game also exposes waypoint time arrays, but those can be empty in some
-  modes, so the plugin logs both sources for comparison.
-- The plugin only prints data. It does not make network requests yet.
-- For distribution outside Developer mode, package the files inside this folder
-  as a zip, rename it to `.op`, and submit it for Openplanet signing.
+## Build and install
+
+Game metadata lives in `info.next.toml` and `info.turbo.toml`. The build
+scripts select the requested manifest and package it as `info.toml`, as required
+by Openplanet.
+
+Build both game packages on Windows:
+
+```powershell
+.\scripts\build-op.ps1 all
+```
+
+Or build one package with `trackmania` or `turbo`. The shell script accepts the
+same target as its first argument:
+
+```bash
+./scripts/build-op.sh all
+```
+
+The resulting files are named with `-trackmania-` or `-turbo-`; install the one
+matching the game. Unsigned development builds require Openplanet Developer
+signature mode. Public distribution requires Openplanet review and signing.
+
+## Webhook settings
+
+Configure the plugin in **Openplanet > Settings > Chugmania Webhooks**:
+
+- enable **Webhook > Enabled**;
+- set **Webhook > Endpoint** to an HTTPS URL;
+- set **Webhook > API key**;
+- optionally change the retry count.
+
+Requests use `POST`, `Content-Type: application/json`, and the API key is sent
+in the `X-API-Key` header. Rate-limited requests honor numeric `Retry-After` and
+`X-RateLimit-Reset` response headers, with a 30, 60, and 120 second fallback.
+Other failed requests are retried after 1, 3, and 10 seconds by default.

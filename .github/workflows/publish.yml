@@ -36,7 +36,7 @@ jobs:
                 print $2
                 exit
               }
-            ' info.toml
+            ' info.next.toml
           )"
 
           NAME="$(
@@ -49,16 +49,34 @@ jobs:
                 print $2
                 exit
               }
-            ' info.toml
+            ' info.next.toml
+          )"
+
+          TURBO_VERSION="$(
+            awk -F '=' '
+              /^\[meta\]/ { in_meta = 1; next }
+              /^\[/ { in_meta = 0 }
+              in_meta && $1 ~ /^[[:space:]]*version[[:space:]]*$/ {
+                gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2)
+                gsub(/^"|"$/, "", $2)
+                print $2
+                exit
+              }
+            ' info.turbo.toml
           )"
 
           if [[ -z "$VERSION" ]]; then
-            echo "::error::Could not read [meta].version from info.toml"
+            echo "::error::Could not read [meta].version from info.next.toml"
             exit 1
           fi
 
           if [[ -z "$NAME" ]]; then
-            echo "::error::Could not read [meta].name from info.toml"
+            echo "::error::Could not read [meta].name from info.next.toml"
+            exit 1
+          fi
+
+          if [[ "$TURBO_VERSION" != "$VERSION" ]]; then
+            echo "::error::Plugin manifest versions differ: Trackmania=$VERSION Turbo=$TURBO_VERSION"
             exit 1
           fi
 
@@ -85,18 +103,18 @@ jobs:
             git push origin "refs/tags/$TAG"
           fi
 
-      - name: Package plugin .op
+      - name: Package plugin .op files
         id: package
         shell: bash
         run: |
           set -euo pipefail
 
-          mkdir -p dist
+          TRACKMANIA_ARTIFACT="${{ steps.plugin.outputs.slug }}-trackmania-${{ steps.plugin.outputs.tag }}.op"
+          TURBO_ARTIFACT="${{ steps.plugin.outputs.slug }}-turbo-${{ steps.plugin.outputs.tag }}.op"
+          bash scripts/build-op.sh all dist
 
-          ARTIFACT="${{ steps.plugin.outputs.slug }}-${{ steps.plugin.outputs.tag }}.op"
-          zip -r "dist/$ARTIFACT" info.toml src
-
-          echo "artifact=dist/$ARTIFACT" >> "$GITHUB_OUTPUT"
+          echo "trackmania_artifact=dist/$TRACKMANIA_ARTIFACT" >> "$GITHUB_OUTPUT"
+          echo "turbo_artifact=dist/$TURBO_ARTIFACT" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub release
         env:
@@ -107,10 +125,11 @@ jobs:
 
           TAG="${{ steps.plugin.outputs.tag }}"
           TITLE="${{ steps.plugin.outputs.name }} $TAG"
-          ARTIFACT="${{ steps.package.outputs.artifact }}"
+          TRACKMANIA_ARTIFACT="${{ steps.package.outputs.trackmania_artifact }}"
+          TURBO_ARTIFACT="${{ steps.package.outputs.turbo_artifact }}"
 
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$ARTIFACT" --clobber
+            gh release upload "$TAG" "$TRACKMANIA_ARTIFACT" "$TURBO_ARTIFACT" --clobber
           else
-            gh release create "$TAG" "$ARTIFACT" --title "$TITLE" --generate-notes
+            gh release create "$TAG" "$TRACKMANIA_ARTIFACT" "$TURBO_ARTIFACT" --title "$TITLE" --generate-notes
           fi
