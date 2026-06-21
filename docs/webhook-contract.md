@@ -19,44 +19,6 @@ shape. Object schemas permit undeclared properties for forward compatibility.
 Unavailable optional values are omitted, never represented by `null`, empty
 strings, sentinels, or fabricated values.
 
-## Example
-
-The following `start` event uses fields available in both Trackmania Turbo and
-Trackmania Next. The `source.game` value is `trackmaniaTurbo` for Turbo and
-`trackmaniaNext` for Next.
-
-```json
-{
-  "schemaVersion": "1.0.0",
-  "type": "start",
-  "eventId": "4fda6f13-e003-47f6-a5df-32ec4e826749",
-  "sequence": 0,
-  "occurredAt": "2026-06-21T12:34:56.789Z",
-  "durationMs": 0,
-  "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
-  "source": {
-    "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "0.1.0",
-    "game": "trackmaniaTurbo"
-  },
-  "players": [
-    {
-      "playerIndex": 0,
-      "name": "Player One"
-    }
-  ],
-  "totalPlayers": 1,
-  "map": {
-    "name": "Example Map",
-    "isLaps": false,
-    "checkpointsPerLap": 5
-  },
-  "mode": {
-    "name": "Time Attack"
-  }
-}
-```
-
 ## Common Event
 
 Every event contains:
@@ -143,6 +105,9 @@ All medal properties are optional non-negative integer millisecond times:
 
 ## Event Shapes
 
+The examples form one Trackmania Turbo round and use fields supported by both
+games. For Trackmania Next, `source.game` is `trackmaniaNext`.
+
 ### `start`
 
 Emitted exactly once when a fully captured round begins.
@@ -154,10 +119,65 @@ Emitted exactly once when a fully captured round begins.
 | `map`            | Map              | Map played during the round        | Required                            |
 | `mode`           | Mode             | Game mode used during the round    | Required                            |
 
+```json
+{
+  "schemaVersion": "1.0.0",
+  "type": "start",
+  "eventId": "4fda6f13-e003-47f6-a5df-32ec4e826749",
+  "sequence": 0,
+  "occurredAt": "2026-06-21T12:34:56.789Z",
+  "durationMs": 0,
+  "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
+  "source": {
+    "pluginName": "Chugmania Webhooks",
+    "pluginVersion": "0.1.0",
+    "game": "trackmaniaTurbo"
+  },
+  "players": [
+    {
+      "playerIndex": 0,
+      "name": "Player One"
+    }
+  ],
+  "totalPlayers": 1,
+  "map": {
+    "name": "Example Map",
+    "isLaps": true,
+    "totalLaps": 2,
+    "checkpointsPerLap": 5
+  },
+  "mode": {
+    "name": "Time Attack"
+  }
+}
+```
+
 ### `first_throttle`
 
 Contains common and player event fields only. It is emitted at most once per
 player per game and is never re-armed.
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "type": "first_throttle",
+  "eventId": "652d3844-9e57-4528-94e4-1bfe20c0b194",
+  "sequence": 1,
+  "occurredAt": "2026-06-21T12:34:56.914Z",
+  "durationMs": 125,
+  "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
+  "source": {
+    "pluginName": "Chugmania Webhooks",
+    "pluginVersion": "0.1.0",
+    "game": "trackmaniaTurbo"
+  },
+  "player": {
+    "playerIndex": 0,
+    "name": "Player One"
+  },
+  "totalPlayers": 1
+}
+```
 
 ### `checkpoint`
 
@@ -170,6 +190,31 @@ player per game and is never re-armed.
 
 Start and finish crossings are excluded from checkpoint numbering.
 
+```json
+{
+  "schemaVersion": "1.0.0",
+  "type": "checkpoint",
+  "eventId": "a86f8d3d-7a36-4ec4-a9c9-60c69932bfd1",
+  "sequence": 2,
+  "occurredAt": "2026-06-21T12:35:06.789Z",
+  "durationMs": 10000,
+  "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
+  "source": {
+    "pluginName": "Chugmania Webhooks",
+    "pluginVersion": "0.1.0",
+    "game": "trackmaniaTurbo"
+  },
+  "player": {
+    "playerIndex": 0,
+    "name": "Player One"
+  },
+  "totalPlayers": 1,
+  "checkpointIndex": 1,
+  "checkpointLapIndex": 1,
+  "lapNumber": 1
+}
+```
+
 ### `lap`
 
 | Additional field     | Type                 | Description                               | Rules                                        |
@@ -179,6 +224,31 @@ Start and finish crossings are excluded from checkpoint numbering.
 | `lapNumber`          | positive integer     | Lap entered by the player                 | Newly started one-based lap                  |
 
 No lap event is emitted for the final finish crossing.
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "type": "lap",
+  "eventId": "ae91d8c5-c579-4360-8560-6c23aca43e7e",
+  "sequence": 3,
+  "occurredAt": "2026-06-21T12:35:46.789Z",
+  "durationMs": 50000,
+  "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
+  "source": {
+    "pluginName": "Chugmania Webhooks",
+    "pluginVersion": "0.1.0",
+    "game": "trackmaniaTurbo"
+  },
+  "player": {
+    "playerIndex": 0,
+    "name": "Player One"
+  },
+  "totalPlayers": 1,
+  "checkpointIndex": 5,
+  "checkpointLapIndex": 0,
+  "lapNumber": 2
+}
+```
 
 ### `respawn`
 
@@ -192,10 +262,57 @@ No lap event is emitted for the final finish crossing.
 A start-line destination uses both checkpoint indices as `0`. A checkpoint
 destination uses the indices of the last validated checkpoint.
 
+```json
+{
+  "schemaVersion": "1.0.0",
+  "type": "respawn",
+  "eventId": "732780b9-ce63-4880-a17e-253ce4c4b36f",
+  "sequence": 4,
+  "occurredAt": "2026-06-21T12:35:58.789Z",
+  "durationMs": 62000,
+  "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
+  "source": {
+    "pluginName": "Chugmania Webhooks",
+    "pluginVersion": "0.1.0",
+    "game": "trackmaniaTurbo"
+  },
+  "player": {
+    "playerIndex": 0,
+    "name": "Player One"
+  },
+  "totalPlayers": 1,
+  "checkpointIndex": 6,
+  "checkpointLapIndex": 1,
+  "lapNumber": 2
+}
+```
+
 ### `finish`
 
 Contains common and player event fields only. `durationMs` is the player's
 finish time. It is emitted at most once per player per game.
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "type": "finish",
+  "eventId": "50f83623-6649-4865-ab71-10407faf5030",
+  "sequence": 5,
+  "occurredAt": "2026-06-21T12:36:46.789Z",
+  "durationMs": 110000,
+  "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
+  "source": {
+    "pluginName": "Chugmania Webhooks",
+    "pluginVersion": "0.1.0",
+    "game": "trackmaniaTurbo"
+  },
+  "player": {
+    "playerIndex": 0,
+    "name": "Player One"
+  },
+  "totalPlayers": 1
+}
+```
 
 ### `end`
 
@@ -204,6 +321,24 @@ Contains common fields and `endReason`. It contains no player fields.
 | Additional field | Type | Description                     | Rules                                             |
 | ---------------- | ---- | ------------------------------- | ------------------------------------------------- |
 | `endReason`      | enum | Reason the captured round ended | `completed`, `restarted`, `aborted`, or `unknown` |
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "type": "end",
+  "eventId": "b0985c12-77ac-4f81-8f69-19e89f937df1",
+  "sequence": 6,
+  "occurredAt": "2026-06-21T12:36:46.789Z",
+  "durationMs": 110000,
+  "gameId": "b979cde4-2ef3-49b6-9ae8-c8231ba701f2",
+  "source": {
+    "pluginName": "Chugmania Webhooks",
+    "pluginVersion": "0.1.0",
+    "game": "trackmaniaTurbo"
+  },
+  "endReason": "completed"
+}
+```
 
 ## Responses
 
