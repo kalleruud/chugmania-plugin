@@ -19,7 +19,7 @@ class NextGameAdapter : GameAdapter
             if (smPlayer is null) continue;
             PlayerSnapshot@ player = PlayerSnapshot();
             player.playerIndex = observation.players.Length;
-            player.name = smPlayer.Name;
+            player.name = smPlayer.User.Name;
             observation.players.InsertLast(player);
             PlayerObservation@ state = PlayerObservation();
             @state.player = player;
@@ -39,7 +39,8 @@ class NextGameAdapter : GameAdapter
             if (i == 0 && state.durationMs + 100 < previousDuration) sessionNumber++;
             observation.playerStates.InsertLast(state);
         }
-        @observation.mode = ReadNextMode(playground, observation.players.Length);
+        bool splitScreen = playground.GameTerminals.Length > 1 || observation.players.Length > 1;
+        @observation.mode = ReadNextMode(splitScreen);
         if (!observation.playerStates.IsEmpty()) previousDuration = observation.playerStates[0].durationMs;
         observation.active = observation.local && !observation.playerStates.IsEmpty();
         observation.sessionKey = app.RootMap.IdName + ":" + sessionNumber;
@@ -58,7 +59,7 @@ MapSnapshot@ ReadNextMap(CTrackMania@ app)
     map.uid = app.RootMap.IdName;
     map.author = app.RootMap.AuthorNickName;
     map.mapType = app.RootMap.MapType;
-    map.isLaps = app.RootMap.IsLapRace;
+    map.isLaps = app.RootMap.TMObjective_IsLapRace;
     map.authorTime = app.RootMap.TMObjective_AuthorTime;
     map.goldTime = app.RootMap.TMObjective_GoldTime;
     map.silverTime = app.RootMap.TMObjective_SilverTime;
@@ -69,12 +70,10 @@ MapSnapshot@ ReadNextMap(CTrackMania@ app)
     return map;
 }
 
-ModeSnapshot@ ReadNextMode(CGameManiaPlanetPlayground@ playground, uint observedPlayerCount)
+ModeSnapshot@ ReadNextMode(bool splitScreen)
 {
     ModeSnapshot@ mode = ModeSnapshot();
-    mode.name = playground.GameTerminals.Length > 1 || observedPlayerCount > 1
-        ? "split-screen"
-        : "solo";
+    mode.name = splitScreen ? "split-screen" : "solo";
     return mode;
 }
 #endif
