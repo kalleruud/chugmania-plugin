@@ -3,13 +3,13 @@ class WebhookDelivery
     array<PendingWebhook@> queue;
     bool stopping;
 
-    void Enqueue(const string &in eventId, const string &in eventType, const string &in payload)
+    void Enqueue(const string &in eventId, const string &in eventType, uint eventSequence, const string &in payload)
     {
         if (queue.Length >= MAX_QUEUE_SIZE) {
             error("[drop] event=" + eventId + " reason=queue-full");
             return;
         }
-        queue.InsertLast(PendingWebhook(eventId, eventType, payload));
+        queue.InsertLast(PendingWebhook(eventId, eventType, eventSequence, payload));
     }
 
     void Run()
@@ -28,7 +28,12 @@ class WebhookDelivery
         PendingWebhook@ pending = queue[0];
         uint retries = 0;
         while (true) {
-            Net::HttpRequest@ request = CreateRequest(pending.eventType, pending.payload);
+            Net::HttpRequest@ request = CreateRequest(
+                pending.eventId,
+                pending.eventType,
+                pending.eventSequence,
+                pending.payload
+            );
             request.Start();
             uint startedAt = Time::Now;
             while (!request.Finished() && Time::Now - startedAt < 10000) yield();
@@ -48,13 +53,20 @@ class WebhookDelivery
         queue.RemoveAt(0);
     }
 
-    Net::HttpRequest@ CreateRequest(const string &in eventType, const string &in payload)
+    Net::HttpRequest@ CreateRequest(
+        const string &in eventId,
+        const string &in eventType,
+        uint eventSequence,
+        const string &in payload
+    )
     {
         Net::HttpRequest@ request = Net::HttpRequest();
         request.Url = Setting_EndpointUrl;
         request.Method = Net::HttpMethod::Post;
         request.Headers["Content-Type"] = "application/json; charset=utf-8";
         request.Headers["event_type"] = eventType;
+        request.Headers["event-id"] = eventId;
+        request.Headers["event-sequence"] = tostring(eventSequence);
         if (Setting_AuthenticationToken.Length > 0) {
             request.Headers["Authorization"] = "Bearer " + Setting_AuthenticationToken;
         }

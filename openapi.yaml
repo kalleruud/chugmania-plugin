@@ -22,6 +22,21 @@ paths:
           schema:
             type: string
             enum: [start, first_throttle, checkpoint, lap, respawn, finish, end]
+        - name: event-id
+          in: header
+          required: true
+          description: Event UUID matching the request body's `eventId` property.
+          schema:
+            type: string
+            format: uuid
+        - name: event-sequence
+          in: header
+          required: true
+          description: Event sequence matching the request body's `sequence` property.
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
       requestBody:
         required: true
         content:

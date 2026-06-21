@@ -86,12 +86,14 @@ class PendingWebhook
 {
     string eventId;
     string eventType;
+    uint eventSequence;
     string payload;
 
-    PendingWebhook(const string &in id, const string &in type, const string &in body)
+    PendingWebhook(const string &in id, const string &in type, uint sequence, const string &in body)
     {
         eventId = id;
         eventType = type;
+        eventSequence = sequence;
         payload = body;
     }
 }

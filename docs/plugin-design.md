@@ -126,9 +126,11 @@ drop newly occurring events. Log every overflow with the event ID.
 
 Delivery rules:
 
-- Send JSON with `POST`, `Content-Type: application/json; charset=utf-8`, and
-  `event_type: <type>` matching the payload discriminator. Include
-  `Authorization: Bearer <token>` only when the token is nonempty.
+- Send JSON with `POST`, `Content-Type: application/json; charset=utf-8`,
+  `event_type: <type>`, `event-id: <eventId>`, and
+  `event-sequence: <sequence>`. Event headers match the payload and remain
+  unchanged across retries. Include `Authorization: Bearer <token>` only when
+  the token is nonempty.
 - Use a fixed 10-second request timeout. A timeout is a retryable network error.
 - Treat any `2xx` response as success and ignore its response body.
 - Retry network errors, `408`, `429`, and `5xx` responses.
