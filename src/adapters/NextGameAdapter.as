@@ -53,9 +53,13 @@ class NextGameAdapter : GameAdapter
             state.checkpointDurationMs = Math::Max(0, feedPlayer.LastCpTime);
             state.checkpointIndex = Math::Max(0, feedPlayer.CpCount);
             state.checkpointLapIndex = race.CPCount == 0 ? state.checkpointIndex : state.checkpointIndex % race.CPCount;
-            state.lapNumber = feedPlayer.CurrentLap + 1;
             state.respawnCount = feedPlayer.NbRespawnsRequested;
             state.finished = feedPlayer.IsFinished;
+            state.lapNumber = feedPlayer.CurrentLap == 0 ? 1 : feedPlayer.CurrentLap;
+            if (state.finished && state.lapNumber > 1) state.lapNumber--;
+            if (observation.map.totalLaps > 0 && state.lapNumber > observation.map.totalLaps) {
+                state.lapNumber = observation.map.totalLaps;
+            }
             if (state.finished) state.finishDurationMs = Math::Max(0, feedPlayer.FinishTime);
             state.theoreticalDurationMs = feedPlayer.LastTheoreticalCpTime;
             state.lostMs = feedPlayer.TimeLostToRespawns;
