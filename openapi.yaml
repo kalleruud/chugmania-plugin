@@ -4,10 +4,10 @@ info:
   version: 1.0.0
   description: Webhook contract emitted by the Trackmania Turbo and Trackmania Next plugins.
 servers:
-  - url: https://example.invalid
-    description: Replaced by the exact endpoint URL configured in the plugin.
+  - url: https://chugmania.no/api/
+    description: Official chugmania webhook consumer.
 paths:
-  /:
+  /webhook:
     post:
       operationId: receiveTrackmaniaEvent
       summary: Receive one Trackmania race event
