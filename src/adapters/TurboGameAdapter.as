@@ -3,6 +3,9 @@ class TurboGameAdapter : GameAdapter
 {
     string lastMap;
     string diagnosticState;
+    string activeSessionKey;
+    bool startArmed;
+    bool roundCompleted;
 
     GameObservation@ Observe()
     {
@@ -20,22 +23,47 @@ class TurboGameAdapter : GameAdapter
             LogTurboState("map", "Turbo capture waiting for a map.");
             return observation;
         }
+        if (app.PlaygroundScript is null || app.PlaygroundScript.UIManager is null) {
+            LogTurboState("script", "Turbo capture waiting for the playground script.");
+            return observation;
+        }
         auto playground = app.CurrentPlayground;
         observation.local = playground.GameTerminals.Length > 0;
         if (!observation.local) {
             LogTurboState("local", "Turbo capture paused: no local game terminal was detected.");
             return observation;
         }
-        if (lastMap != app.Challenge.IdName) lastMap = app.Challenge.IdName;
+        if (lastMap != app.Challenge.IdName) {
+            lastMap = app.Challenge.IdName;
+            activeSessionKey = "";
+            startArmed = false;
+            roundCompleted = false;
+        }
         @observation.map = ReadTurboMap(app.Challenge);
         @observation.mode = ReadTurboMode();
-        uint firstRaceStartTime = 0;
+        auto uiConfig = app.PlaygroundScript.UIManager.LocalPlayerConfig;
+        bool playingSequence = uiConfig !is null &&
+            (uiConfig.UISequence == CGamePlaygroundUIConfig::EUISequence::Playing ||
+            uiConfig.UISequence == CGamePlaygroundUIConfig::EUISequence::EndRound);
         for (uint i = 0; i < playground.Players.Length; i++) {
             auto tmPlayer = cast<CTrackManiaPlayer>(playground.Players[i]);
-            if (tmPlayer is null || tmPlayer.EnableOnlineMode) continue;
+            if (tmPlayer is null || tmPlayer.EnableOnlineMode || tmPlayer.AutoPilotEnabled) continue;
+            if (tmPlayer.RaceState == CTrackManiaPlayer::ERaceState::BeforeStart) {
+                startArmed = true;
+                activeSessionKey = "";
+                roundCompleted = false;
+                continue;
+            }
             bool racing = tmPlayer.RaceState == CTrackManiaPlayer::ERaceState::Running ||
                 tmPlayer.RaceState == CTrackManiaPlayer::ERaceState::Finished;
-            if (!racing) continue;
+            if (!racing || !playingSequence || tmPlayer.RaceStartTime == 0) continue;
+            string candidateSessionKey = lastMap + ":" + tmPlayer.RaceStartTime;
+            if (activeSessionKey.Length == 0) {
+                if (!startArmed) continue;
+                activeSessionKey = candidateSessionKey;
+                startArmed = false;
+            }
+            if (candidateSessionKey != activeSessionKey) continue;
             PlayerSnapshot@ player = PlayerSnapshot();
             player.playerIndex = observation.players.Length;
             player.name = tmPlayer.Name;
@@ -43,22 +71,25 @@ class TurboGameAdapter : GameAdapter
             observation.players.InsertLast(player);
             PlayerObservation@ state = PlayerObservation();
             @state.player = player;
-            state.durationMs = tmPlayer.CurRace is null ? 0 : uint(Math::Max(0, tmPlayer.CurRace.Time));
+            state.durationMs = app.PlaygroundScript.Now > tmPlayer.RaceStartTime
+                ? app.PlaygroundScript.Now - tmPlayer.RaceStartTime
+                : 0;
             state.throttle = tmPlayer.InputGasPedal;
             state.respawnCount = tmPlayer.NbRespawns;
             state.lapNumber = tmPlayer.CurLapIndex + 1;
             if (tmPlayer.CurRace !is null) state.checkpointIndex = tmPlayer.CurRace.Checkpoints.Length;
             if (tmPlayer.CurLap !is null) state.checkpointLapIndex = tmPlayer.CurLap.Checkpoints.Length;
             state.finished = tmPlayer.RaceState == CTrackManiaPlayer::ERaceState::Finished;
+            roundCompleted = roundCompleted || state.finished;
             observation.playerStates.InsertLast(state);
-            if (observation.playerStates.Length == 1) firstRaceStartTime = tmPlayer.RaceStartTime;
         }
         observation.active = observation.local && !observation.playerStates.IsEmpty();
         if (observation.active) {
-            observation.sessionKey = lastMap + ":" + firstRaceStartTime;
+            observation.sessionKey = activeSessionKey;
             LogTurboState("active", "Turbo capture detected an active local round with " + observation.players.Length + " player(s).");
         } else {
-            LogTurboState("players", "Turbo capture waiting for a local player in a running race.");
+            observation.endReason = roundCompleted ? "completed" : "unknown";
+            LogTurboState("players", "Turbo capture armed and waiting for the race timer to start.");
         }
         return observation;
     }
