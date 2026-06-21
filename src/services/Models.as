@@ -37,6 +37,8 @@ class PlayerObservation
 {
     PlayerSnapshot@ player;
     uint durationMs;
+    int checkpointDurationMs = -1;
+    int finishDurationMs = -1;
     float throttle;
     uint checkpointIndex;
     uint checkpointLapIndex;

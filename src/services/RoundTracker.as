@@ -63,24 +63,30 @@ class RoundTracker
             TrackedPlayer@ previous = tracked[index];
             if (!previous.throttled && state.throttle > 0) {
                 previous.throttled = true;
-                EmitPlayerEvent("first_throttle", state);
+                EmitPlayerEvent("first_throttle", state, state.durationMs);
             }
             if (state.checkpointIndex > previous.checkpointIndex) {
                 string type = state.finished ? "finish" : (state.checkpointLapIndex == 0 ? "lap" : "checkpoint");
                 previous.checkpointIndex = state.checkpointIndex;
-                if (!previous.finished) EmitPlayerEvent(type, state);
+                uint eventDurationMs = state.durationMs;
+                if (type == "finish" && state.finishDurationMs >= 0) {
+                    eventDurationMs = uint(state.finishDurationMs);
+                } else if (state.checkpointDurationMs >= 0) {
+                    eventDurationMs = uint(state.checkpointDurationMs);
+                }
+                if (!previous.finished) EmitPlayerEvent(type, state, eventDurationMs);
             }
             while (previous.respawnCount < state.respawnCount) {
                 previous.respawnCount++;
-                EmitPlayerEvent("respawn", state);
+                EmitPlayerEvent("respawn", state, state.durationMs);
             }
             previous.finished = previous.finished || state.finished;
         }
     }
 
-    void EmitPlayerEvent(const string &in type, PlayerObservation@ state)
+    void EmitPlayerEvent(const string &in type, PlayerObservation@ state, uint durationMs)
     {
-        CapturedEvent@ event = NewEvent(type, state.durationMs);
+        CapturedEvent@ event = NewEvent(type, durationMs);
         @event.player = roster[state.player.playerIndex];
         event.checkpointIndex = state.checkpointIndex;
         event.checkpointLapIndex = state.checkpointLapIndex;

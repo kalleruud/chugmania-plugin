@@ -87,9 +87,17 @@ class TurboGameAdapter : GameAdapter
             state.throttle = tmPlayer.InputGasPedal;
             state.respawnCount = tmPlayer.NbRespawns;
             state.lapNumber = tmPlayer.CurLapIndex + 1;
-            if (tmPlayer.CurRace !is null) state.checkpointIndex = tmPlayer.CurRace.Checkpoints.Length;
+            if (tmPlayer.CurRace !is null) {
+                state.checkpointIndex = tmPlayer.CurRace.Checkpoints.Length;
+                if (tmPlayer.CurCheckpointRaceTime > 0) {
+                    state.checkpointDurationMs = tmPlayer.CurCheckpointRaceTime;
+                }
+            }
             if (tmPlayer.CurLap !is null) state.checkpointLapIndex = tmPlayer.CurLap.Checkpoints.Length;
             state.finished = tmPlayer.RaceState == CTrackManiaPlayer::ERaceState::Finished;
+            if (state.finished && tmPlayer.CurRace !is null && tmPlayer.CurRace.Time >= 0) {
+                state.finishDurationMs = tmPlayer.CurRace.Time;
+            }
             roundCompleted = roundCompleted || state.finished;
             observation.playerStates.InsertLast(state);
         }

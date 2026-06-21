@@ -27,11 +27,13 @@ class NextGameAdapter : GameAdapter
             auto feedPlayer = race.GetPlayer_V4(player.name);
             if (feedPlayer !is null) {
                 state.durationMs = Math::Max(0, feedPlayer.CurrentRaceTime);
+                state.checkpointDurationMs = Math::Max(0, feedPlayer.LastCpTime);
                 state.checkpointIndex = Math::Max(0, feedPlayer.CpCount);
                 state.checkpointLapIndex = race.CPCount == 0 ? state.checkpointIndex : state.checkpointIndex % race.CPCount;
                 state.lapNumber = feedPlayer.CurrentLap + 1;
                 state.respawnCount = feedPlayer.NbRespawnsRequested;
                 state.finished = feedPlayer.IsFinished;
+                if (state.finished) state.finishDurationMs = Math::Max(0, feedPlayer.FinishTime);
                 state.theoreticalDurationMs = feedPlayer.TheoreticalRaceTime;
                 state.lostMs = feedPlayer.TimeLostToRespawns;
             }
