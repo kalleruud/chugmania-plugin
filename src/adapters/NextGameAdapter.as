@@ -34,7 +34,9 @@ class NextGameAdapter : GameAdapter
             auto feedPlayer = race.GetPlayer_V4(smPlayer.User.Name);
             if (feedPlayer is null) continue;
             int raceTime = feedPlayer.CurrentRaceTime;
-            if (!roundActive && playerDriving && feedPlayer.PlayerIsRacing && raceTime >= 0) {
+            bool readyToStart = feedPlayer.PlayerIsRacing &&
+                feedPlayer.SpawnStatus == MLFeed::SpawnStatus::Spawned && raceTime >= 0;
+            if (!roundActive && playerDriving && readyToStart) {
                 activeSpawnIndex = feedPlayer.SpawnIndex;
                 roundActive = true;
             }
