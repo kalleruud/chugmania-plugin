@@ -3,20 +3,35 @@ class NextGameAdapter : GameAdapter
 {
     string lastMap;
     bool roundActive;
+    bool roundCompleted;
+    bool replacementSpawnPending;
     uint activeSpawnIndex;
+    uint observationIndex;
+    uint replacementObservedAt;
+    uint replacementSpawnIndex;
 
     GameObservation@ Observe()
     {
+        observationIndex++;
         GameObservation@ observation = GameObservation();
         CTrackMania@ app = cast<CTrackMania>(GetApp());
-        if (app is null || app.CurrentPlayground is null || app.RootMap is null) return observation;
+        if (app is null || app.CurrentPlayground is null || app.RootMap is null) {
+            EndInterruptedRound(observation);
+            return observation;
+        }
         auto playground = app.CurrentPlayground;
         observation.local = app.Network !is null && app.Network.PlaygroundClientScriptAPI !is null &&
             app.Network.PlaygroundClientScriptAPI.IsServerOrSolo;
         @observation.map = ReadNextMap(app);
         if (lastMap != app.RootMap.IdName) {
+            bool mapChangedDuringRound = lastMap.Length > 0 && roundActive;
             lastMap = app.RootMap.IdName;
-            roundActive = false;
+            ResetRound();
+            if (mapChangedDuringRound) {
+                observation.local = true;
+                observation.endReason = "aborted";
+                return observation;
+            }
         }
         bool playerDriving;
         for (uint i = 0; i < playground.GameTerminals.Length; i++) {
@@ -28,6 +43,8 @@ class NextGameAdapter : GameAdapter
             break;
         }
         auto race = MLFeed::GetRaceData_V4();
+        bool replacementCandidateObserved;
+        bool replacementSpawnReady;
         for (uint i = 0; i < playground.Players.Length; i++) {
             auto smPlayer = cast<CSmPlayer>(playground.Players[i]);
             if (smPlayer is null) continue;
@@ -36,9 +53,18 @@ class NextGameAdapter : GameAdapter
             int raceTime = feedPlayer.CurrentRaceTime;
             bool readyToStart = feedPlayer.PlayerIsRacing &&
                 feedPlayer.SpawnStatus == MLFeed::SpawnStatus::Spawned && raceTime >= 0;
+            if (roundActive && readyToStart && feedPlayer.SpawnIndex != activeSpawnIndex) {
+                replacementCandidateObserved = true;
+                if (ConfirmReplacementSpawn(feedPlayer.SpawnIndex, playerDriving)) {
+                    replacementSpawnReady = true;
+                }
+                continue;
+            }
             if (!roundActive && playerDriving && readyToStart) {
                 activeSpawnIndex = feedPlayer.SpawnIndex;
                 roundActive = true;
+                roundCompleted = false;
+                replacementSpawnPending = false;
             }
             if (!roundActive || !feedPlayer.PlayerIsRacing || feedPlayer.SpawnIndex != activeSpawnIndex) continue;
             PlayerSnapshot@ player = PlayerSnapshot();
@@ -65,18 +91,54 @@ class NextGameAdapter : GameAdapter
             if (state.finished) state.finishDurationMs = Math::Max(0, feedPlayer.FinishTime);
             state.theoreticalDurationMs = feedPlayer.LastTheoreticalCpTime;
             state.lostMs = feedPlayer.TimeLostToRespawns;
+            roundCompleted = roundCompleted || state.finished;
             observation.playerStates.InsertLast(state);
+        }
+        if (!replacementCandidateObserved && !observation.playerStates.IsEmpty()) {
+            replacementSpawnPending = false;
         }
         bool splitScreen = playground.GameTerminals.Length > 1 || observation.players.Length > 1;
         @observation.mode = ReadNextMode(app, splitScreen);
         observation.active = observation.local && !observation.playerStates.IsEmpty();
         if (observation.active) {
             observation.sessionKey = app.RootMap.IdName + ":" + activeSpawnIndex;
+        } else if (roundActive && !roundCompleted && !replacementSpawnReady) {
+            observation.active = true;
+            observation.sessionKey = app.RootMap.IdName + ":" + activeSpawnIndex;
         } else {
-            if (roundActive) roundActive = false;
-            observation.endReason = "unknown";
+            if (roundActive) observation.local = true;
+            observation.endReason = roundCompleted
+                ? "completed"
+                : (replacementSpawnReady ? "restarted" : "aborted");
+            ResetRound();
         }
         return observation;
+    }
+
+    bool ConfirmReplacementSpawn(uint candidateSpawnIndex, bool playerDriving)
+    {
+        if (!replacementSpawnPending || replacementSpawnIndex != candidateSpawnIndex) {
+            replacementSpawnPending = true;
+            replacementSpawnIndex = candidateSpawnIndex;
+            replacementObservedAt = observationIndex;
+            return false;
+        }
+        return playerDriving && replacementObservedAt < observationIndex;
+    }
+
+    void EndInterruptedRound(GameObservation@ observation)
+    {
+        if (!roundActive) return;
+        observation.local = true;
+        observation.endReason = "aborted";
+        ResetRound();
+    }
+
+    void ResetRound()
+    {
+        roundActive = false;
+        roundCompleted = false;
+        replacementSpawnPending = false;
     }
 }
 

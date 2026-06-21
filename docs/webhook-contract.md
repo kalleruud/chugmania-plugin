@@ -320,6 +320,10 @@ player fields.
 In Trackmania Turbo, choosing **Give up** transitions the active player to the
 game's eliminated state and is reported as `aborted`.
 
+In Trackmania Next, a captured finish is reported as `completed` and a stable
+replacement spawn is reported as `restarted`. Other exits, including quitting
+the playground, fall back to `aborted`.
+
 ```json
 {
   "schemaVersion": "1.0.0",

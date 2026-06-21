@@ -431,7 +431,9 @@ components:
                 Possible values are `completed` when the round finished normally,
                 `restarted` when a restart ended it, `aborted` when capture ended
                 before completion (including Trackmania Turbo Give up), and
-                `unknown` when no more specific reason is available.
+                `unknown` when no more specific reason is available. Trackmania
+                Next uses completed for a captured finish, restarted for a stable
+                replacement spawn, and aborted for other exits.
     ErrorResponse:
       type: object
       additionalProperties: true
