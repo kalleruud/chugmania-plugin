@@ -14,6 +14,14 @@ paths:
       security:
         - bearerAuth: []
         - {}
+      parameters:
+        - name: event_type
+          in: header
+          required: true
+          description: Event discriminator matching the request body's `type` property.
+          schema:
+            type: string
+            enum: [start, first_throttle, checkpoint, lap, respawn, finish, end]
       requestBody:
         required: true
         content:

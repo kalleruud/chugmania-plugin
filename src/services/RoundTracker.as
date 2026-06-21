@@ -50,7 +50,6 @@ class RoundTracker
         event.players = roster;
         @event.map = observation.map;
         @event.mode = observation.mode;
-        print("Chugmania round started: game=" + gameId + " players=" + roster.Length);
         Enqueue(event);
     }
 
@@ -97,7 +96,6 @@ class RoundTracker
         CapturedEvent@ event = NewEvent("end", lastDurationMs);
         event.endReason = NormalizeEndReason(reason);
         Enqueue(event);
-        print("Chugmania round ended: game=" + gameId + " reason=" + event.endReason);
         running = false;
         roster.Resize(0);
         tracked.Resize(0);
@@ -116,7 +114,11 @@ class RoundTracker
         return event;
     }
 
-    void Enqueue(CapturedEvent@ event) { delivery.Enqueue(event.eventId, SerializeEvent(event)); }
+    void Enqueue(CapturedEvent@ event)
+    {
+        print("[emit] " + event.sequence + " " + event.eventType);
+        delivery.Enqueue(event.eventId, event.eventType, SerializeEvent(event));
+    }
 
 }
 

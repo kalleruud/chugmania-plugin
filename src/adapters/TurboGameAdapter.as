@@ -98,7 +98,7 @@ class TurboGameAdapter : GameAdapter
     {
         if (state == diagnosticState) return;
         diagnosticState = state;
-        print(message);
+        print("[detect] " + message);
     }
 }
 

@@ -26,8 +26,9 @@ Open **Openplanet > Settings > Chugmania Webhooks > Webhook** and set:
 - **Maximum retry count**: retries after the initial attempt, from 0 to 10
 
 Capture and delivery are disabled while the URL is empty. Requests use
-`Content-Type: application/json; charset=utf-8`. When the token is empty, the
-request is sent without authentication. The token is masked and never logged.
+`Content-Type: application/json; charset=utf-8` and an `event_type` header that
+matches the payload's `type`. When the token is empty, the request is sent
+without authentication. The token is masked and never logged.
 
 ## Build
 

@@ -11,9 +11,11 @@ The plugin sends each event directly to the configured URL:
 ```http
 POST /
 Content-Type: application/json; charset=utf-8
+event_type: <type>
 [Authorization: Bearer <token>]
 ```
 
+`event_type` is required and exactly matches the payload's `type` property.
 `Authorization` is included only when a nonempty authentication token is
 configured. An empty token sends an unauthenticated request.
 

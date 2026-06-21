@@ -17,7 +17,7 @@ void Main()
     @g_delivery = WebhookDelivery();
     @g_tracker = RoundTracker(g_delivery);
     @g_adapter = CreateGameAdapter();
-    print("Chugmania Webhooks initialized for " + AdapterGameName() + ".");
+    print("[init] " + AdapterGameName());
     startnew(CoroutineFunc(DeliveryLoop));
 }
 
@@ -36,11 +36,11 @@ void LogConfigurationState()
     if (state == g_configurationState) return;
     g_configurationState = state;
     if (state == 0) {
-        warn("Chugmania capture disabled: endpoint URL is empty.");
+        warn("[config] capture disabled: endpoint URL is empty");
     } else if (state == 1) {
-        print("Chugmania capture enabled without authentication; waiting for a supported local round.");
+        print("[config] capture enabled without authentication; waiting for a supported local round");
     } else {
-        print("Chugmania capture enabled; waiting for a supported local round.");
+        print("[config] capture enabled; waiting for a supported local round");
     }
 }
 

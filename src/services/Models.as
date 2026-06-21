@@ -83,11 +83,13 @@ class CapturedEvent
 class PendingWebhook
 {
     string eventId;
+    string eventType;
     string payload;
 
-    PendingWebhook(const string &in id, const string &in body)
+    PendingWebhook(const string &in id, const string &in type, const string &in body)
     {
         eventId = id;
+        eventType = type;
         payload = body;
     }
 }
