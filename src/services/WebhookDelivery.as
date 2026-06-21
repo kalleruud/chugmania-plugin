@@ -10,6 +10,7 @@ class WebhookDelivery
             return;
         }
         queue.InsertLast(PendingWebhook(eventId, payload));
+        print("Chugmania queued webhook: event=" + eventId + " queued=" + queue.Length);
     }
 
     void Run()
@@ -28,13 +29,18 @@ class WebhookDelivery
         PendingWebhook@ pending = queue[0];
         uint retries = 0;
         while (true) {
+            print("Chugmania sending webhook: event=" + pending.eventId + " attempt=" + (retries + 1));
             Net::HttpRequest@ request = CreateRequest(pending.payload);
             request.Start();
             uint startedAt = Time::Now;
             while (!request.Finished() && Time::Now - startedAt < 10000) yield();
             bool timedOut = !request.Finished();
+            if (timedOut) request.Cancel();
             int status = timedOut ? 0 : request.ResponseCode();
-            if (!timedOut && status >= 200 && status < 300) break;
+            if (!timedOut && status >= 200 && status < 300) {
+                print("Chugmania delivered webhook: event=" + pending.eventId + " status=" + status);
+                break;
+            }
             if (!IsRetryable(status) || retries >= Setting_MaximumRetryCount) {
                 LogFailure(pending.eventId, retries + 1, status, timedOut ? "request timed out" : request.String());
                 break;
@@ -51,7 +57,9 @@ class WebhookDelivery
         request.Url = Setting_EndpointUrl;
         request.Method = Net::HttpMethod::Post;
         request.Headers["Content-Type"] = "application/json; charset=utf-8";
-        request.Headers["Authorization"] = "Bearer " + Setting_AuthenticationToken;
+        if (Setting_AuthenticationToken.Length > 0) {
+            request.Headers["Authorization"] = "Bearer " + Setting_AuthenticationToken;
+        }
         request.Body = payload;
         return request;
     }
@@ -63,11 +71,13 @@ class WebhookDelivery
 
     uint RetryDelayMs(Net::HttpRequest@ request, uint retry)
     {
-        string retryAfter = request.ResponseHeaders["Retry-After"];
-        int seconds = Text::ParseInt(retryAfter);
-        if (seconds > 0) return uint(seconds) * 1000;
-        int64 retryAt = Time::ParseFormatString("%a, %d %b %Y %H:%M:%S GMT", retryAfter);
-        if (retryAt > Time::Stamp) return uint(retryAt - Time::Stamp) * 1000;
+        string retryAfter = request.ResponseHeader("Retry-After");
+        if (retryAfter.Length > 0) {
+            int seconds = Text::ParseInt(retryAfter);
+            if (seconds > 0) return uint(seconds) * 1000;
+            int64 retryAt = Time::ParseFormatString("%a, %d %b %Y %H:%M:%S GMT", retryAfter);
+            if (retryAt > Time::Stamp) return uint(retryAt - Time::Stamp) * 1000;
+        }
         return retry * 5000;
     }
 

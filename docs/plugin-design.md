@@ -54,13 +54,14 @@ not expose game API details across those boundaries.
 The Openplanet settings are:
 
 - Endpoint URL
-- Authentication token
+- Optional authentication token
 - Maximum retry count, default `3`, minimum `0`, maximum `10`
 
-Capture and delivery are disabled while the endpoint URL or token is empty. No
-URL validation is performed; request failures use the normal delivery rules.
-Settings take effect immediately, including during a round. Enabling capture
-mid-round may therefore produce a partial game without a `start` event.
+Capture and delivery are disabled while the endpoint URL is empty. An empty
+token sends requests without an `Authorization` header. No URL validation is
+performed; request failures use the normal delivery rules. Settings take effect
+immediately, including during a round. Enabling capture mid-round may therefore
+produce a partial game without a `start` event.
 
 Changing the URL or token does not clear the queue or cancel an event. Every
 attempt uses the current URL and token, including retries of previously queued
@@ -122,8 +123,8 @@ drop newly occurring events. Log every overflow with the event ID.
 
 Delivery rules:
 
-- Send JSON with `POST`, `Content-Type: application/json; charset=utf-8`, and
-  `Authorization: Bearer <token>`.
+- Send JSON with `POST` and `Content-Type: application/json; charset=utf-8`.
+  Include `Authorization: Bearer <token>` only when the token is nonempty.
 - Use a fixed 10-second request timeout. A timeout is a retryable network error.
 - Treat any `2xx` response as success and ignore its response body.
 - Retry network errors, `408`, `429`, and `5xx` responses.

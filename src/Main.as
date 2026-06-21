@@ -1,7 +1,7 @@
 [Setting name="Endpoint URL" description="Webhook destination. Capture is disabled while empty." category="Webhook"]
 string Setting_EndpointUrl = "";
 
-[Setting name="Authentication token" description="Bearer token. The value is never logged." category="Webhook" password]
+[Setting name="Authentication token" description="Optional bearer token. The value is never logged." category="Webhook" password]
 string Setting_AuthenticationToken = "";
 
 [Setting name="Maximum retry count" description="Retries after the initial request." category="Webhook" min=0 max=10]
@@ -10,12 +10,14 @@ uint Setting_MaximumRetryCount = 3;
 RoundTracker@ g_tracker;
 GameAdapter@ g_adapter;
 WebhookDelivery@ g_delivery;
+int g_configurationState = -1;
 
 void Main()
 {
     @g_delivery = WebhookDelivery();
     @g_tracker = RoundTracker(g_delivery);
     @g_adapter = CreateGameAdapter();
+    print("Chugmania Webhooks initialized for " + AdapterGameName() + ".");
     startnew(CoroutineFunc(DeliveryLoop));
 }
 
@@ -23,8 +25,23 @@ void DeliveryLoop() { g_delivery.Run(); }
 
 void Update(float dt)
 {
+    LogConfigurationState();
     if (g_adapter is null || g_tracker is null) return;
     g_tracker.Update(g_adapter.Observe());
+}
+
+void LogConfigurationState()
+{
+    int state = Setting_EndpointUrl.Length == 0 ? 0 : (Setting_AuthenticationToken.Length == 0 ? 1 : 2);
+    if (state == g_configurationState) return;
+    g_configurationState = state;
+    if (state == 0) {
+        warn("Chugmania capture disabled: endpoint URL is empty.");
+    } else if (state == 1) {
+        print("Chugmania capture enabled without authentication; waiting for a supported local round.");
+    } else {
+        print("Chugmania capture enabled; waiting for a supported local round.");
+    }
 }
 
 void OnDestroyed()

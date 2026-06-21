@@ -10,9 +10,12 @@ The plugin sends each event directly to the configured URL:
 
 ```http
 POST /
-Authorization: Bearer <token>
 Content-Type: application/json; charset=utf-8
+[Authorization: Bearer <token>]
 ```
+
+`Authorization` is included only when a nonempty authentication token is
+configured. An empty token sends an unauthenticated request.
 
 There is no outer payload wrapper. The `type` property discriminates the event
 shape. Object schemas permit undeclared properties for forward compatibility.

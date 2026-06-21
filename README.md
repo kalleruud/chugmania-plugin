@@ -22,12 +22,12 @@ identified. Pending events share one memory-only FIFO across rounds.
 Open **Openplanet > Settings > Chugmania Webhooks > Webhook** and set:
 
 - **Endpoint URL**: destination for HTTP POST requests
-- **Authentication token**: secret sent as `Authorization: Bearer <token>`
+- **Authentication token**: optional secret sent as `Authorization: Bearer <token>`
 - **Maximum retry count**: retries after the initial attempt, from 0 to 10
 
-Capture and delivery are disabled while the URL or token is empty. Requests use
-`Content-Type: application/json; charset=utf-8`. The token is masked and never
-logged.
+Capture and delivery are disabled while the URL is empty. Requests use
+`Content-Type: application/json; charset=utf-8`. When the token is empty, the
+request is sent without authentication. The token is masked and never logged.
 
 ## Build
 
