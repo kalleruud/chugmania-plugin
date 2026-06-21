@@ -1,2 +1,3 @@
 - Always keep the @openapi.yaml and @docs/webhook-contract.md files up to date with the webhook payload contract.
 - All changes must apply to both Trackmania Turbo and Trackmania Next.
+- Allways run `npx prettier -w .` after making changes to keep formatting consistent.
