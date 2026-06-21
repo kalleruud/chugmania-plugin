@@ -1,19 +1,50 @@
+[Setting name="Endpoint URL" description="Webhook destination. Capture is disabled while empty." category="Webhook"]
+string Setting_EndpointUrl = "";
+
+[Setting name="Authentication token" description="Optional bearer token. The value is never logged." category="Webhook" password]
+string Setting_AuthenticationToken = "";
+
+[Setting name="Maximum retry count" description="Retries after the initial request." category="Webhook" min=0 max=10]
+uint Setting_MaximumRetryCount = 3;
+
+RoundTracker@ g_tracker;
+GameAdapter@ g_adapter;
+WebhookDelivery@ g_delivery;
+int g_configurationState = -1;
+
 void Main()
 {
-    UtcClockService::Initialize();
-#if TURBO
-    print("[" + PluginInfo::Name + "] Turbo race webhook capture loaded with native timing.");
-#else
-    print("[" + PluginInfo::Name + "] Race webhook capture loaded with MLFeed game timing.");
-#endif
+    @g_delivery = WebhookDelivery();
+    @g_tracker = RoundTracker(g_delivery);
+    @g_adapter = CreateGameAdapter();
+    print("[init] " + AdapterGameName());
+    startnew(CoroutineFunc(DeliveryLoop));
 }
+
+void DeliveryLoop() { g_delivery.Run(); }
 
 void Update(float dt)
 {
-    RaceCaptureService::Update();
+    LogConfigurationState();
+    if (g_adapter is null || g_tracker is null) return;
+    g_tracker.Update(g_adapter.Observe());
+}
+
+void LogConfigurationState()
+{
+    int state = Setting_EndpointUrl.Length == 0 ? 0 : (Setting_AuthenticationToken.Length == 0 ? 1 : 2);
+    if (state == g_configurationState) return;
+    g_configurationState = state;
+    if (state == 0) {
+        warn("[config] capture disabled: endpoint URL is empty");
+    } else if (state == 1) {
+        print("[config] capture enabled without authentication; waiting for a supported local round");
+    } else {
+        print("[config] capture enabled; waiting for a supported local round");
+    }
 }
 
 void OnDestroyed()
 {
-    print("[" + PluginInfo::Name + "] Race webhook capture unloaded.");
+    if (g_tracker !is null) g_tracker.Stop("unknown");
 }

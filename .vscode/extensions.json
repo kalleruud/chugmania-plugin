@@ -1,6 +1,7 @@
 {
-    "recommendations": [
-        "xertrov.openplanet-angelscript",
-        "tamasfe.even-better-toml"
-    ]
+  "recommendations": [
+    "xertrov.openplanet-angelscript",
+    "tamasfe.even-better-toml",
+    "sailpoint.telescope"
+  ]
 }

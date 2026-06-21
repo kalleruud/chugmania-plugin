@@ -2,11 +2,11 @@
 name = "Chugmania Webhooks"
 author = "DJ Balle"
 category = "Utilities"
-version = "0.1.0"
+version = "1.0.0"
 
 [game]
 supported_games = [ "Trackmania" ]
 
 [script]
 timeout = 0
-dependencies = [ "MLHook", "MLFeedRaceData" ]
+dependencies = [ "MLHook", "MLFeedRaceData", "VehicleState" ]

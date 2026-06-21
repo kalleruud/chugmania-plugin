@@ -1,488 +1,445 @@
 openapi: 3.1.0
 info:
-  title: Chugmania Webhook Contract
+  title: Chugmania Webhooks
   version: 1.0.0
-  description: >-
-    Contract for race attempt events emitted by the Chugmania Webhooks
-    Openplanet plugin.
-webhooks:
-  raceAttemptEnded:
+  description: Webhook contract emitted by the Trackmania Turbo and Trackmania Next plugins.
+servers:
+  - url: https://chugmania.no/api
+    description: Official chugmania webhook consumer.
+paths:
+  /webhook:
     post:
-      summary: A race attempt ended
-      description: >-
-        Sent once when a captured solo or split-screen race attempt ends.
-        Receivers should use eventId as an idempotency key because delivery may
-        be retried.
-      operationId: receiveRaceAttemptEnded
+      operationId: receiveTrackmaniaEvent
+      summary: Receive one Trackmania race event
       security:
-        - ApiKey: []
+        - bearerAuth: []
         - {}
+      parameters:
+        - name: event_type
+          in: header
+          required: true
+          description: Event discriminator matching the request body's `type` property.
+          schema:
+            type: string
+            enum: [start, first_throttle, checkpoint, lap, respawn, finish, end]
+        - name: event-id
+          in: header
+          required: true
+          description: Event UUID matching the request body's `eventId` property.
+          schema:
+            type: string
+            format: uuid
+        - name: event-sequence
+          in: header
+          required: true
+          description: Event sequence matching the request body's `sequence` property.
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RaceAttemptEndedEvent'
+              $ref: '#/components/schemas/Event'
       responses:
+        '200':
+          description: Event accepted. The plugin ignores the response body.
         '204':
-          description: Event accepted
-        '400':
-          description: Invalid event payload
-        '401':
-          description: Missing or invalid API key
-        '500':
-          description: Receiver failed to process the event
+          description: Event accepted with no response body.
+        '3XX':
+          description: Permanent delivery failure. The plugin does not follow redirects.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '408':
+          description: Request timeout. The plugin retries the event.
+          headers:
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests. The plugin retries the event.
+          headers:
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '4XX':
+          description: Permanent delivery failure, except for the separately documented 408 and 429 responses.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable. NO_ACTIVE_SESSION means no receiver session can currently register the event.
+          headers:
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                noActiveSession:
+                  value:
+                    code: NO_ACTIVE_SESSION
+                    message: No active receiver session can register this event.
+        '5XX':
+          description: Temporary receiver failure. The plugin retries the event.
+          headers:
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   securitySchemes:
-    ApiKey:
-      type: apiKey
-      in: header
-      name: X-API-Key
-      description: Optional; sent only when an API key is configured in the plugin.
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Optional. Omit authentication when the plugin token setting is empty.
+  headers:
+    RetryAfter:
+      description: Delay as integer seconds or an HTTP date.
+      schema:
+        type: string
   schemas:
-    RaceAttemptEndedEvent:
-      type: object
-      additionalProperties: false
-      required:
-        - schemaVersion
-        - eventType
-        - eventId
-        - occurredAtUtc
-        - source
-        - attempt
-      properties:
-        schemaVersion:
-          description: Version of the webhook payload schema used to encode this event.
-          type: string
-          const: '1.0'
-        eventType:
-          description: Stable identifier for the kind of event represented by the payload.
-          type: string
-          const: race.attempt.ended
-        eventId:
-          description: Unique attempt identifier that receivers can use as an idempotency key.
-          type: string
-          minLength: 1
-        occurredAtUtc:
-          description: UTC timestamp when the captured race attempt ended.
-          type: string
-          format: date-time
-        source:
-          description: Plugin and game that emitted the event.
-          allOf:
-            - $ref: '#/components/schemas/EventSource'
-        attempt:
-          description: Complete captured state and event history for the race attempt.
-          allOf:
-            - $ref: '#/components/schemas/RaceAttempt'
-    EventSource:
-      type: object
-      additionalProperties: false
-      required: [pluginName, pluginVersion, game]
-      properties:
-        pluginName:
-          description: Name of the Openplanet plugin that emitted the event.
-          type: string
-          const: Chugmania Webhooks
-        pluginVersion:
-          description: Installed version of the Openplanet plugin that emitted the event.
-          type: string
-          minLength: 1
-        game:
-          description: Game from which the race attempt was captured.
-          type: string
-          enum: [Trackmania, Trackmania Turbo]
-    RaceAttempt:
-      type: object
-      additionalProperties: false
-      required:
-        - attemptId
-        - format
-        - playerCount
-        - startedAtUtc
-        - endedAtUtc
-        - durationMs
-        - endReason
-        - timingSource
-        - mode
-        - map
-        - players
-      properties:
-        attemptId:
-          description: Unique identifier generated for this captured race attempt.
-          type: string
-          minLength: 1
-        format:
-          description: Whether the attempt involved one player or multiple local split-screen players.
-          type: string
-          enum: [solo, split_screen]
-        playerCount:
-          description: Number of players included in the attempt payload.
-          type: integer
-          minimum: 1
-        startedAtUtc:
-          description: UTC timestamp of the earliest captured player start in the attempt.
-          type: string
-          format: date-time
-        endedAtUtc:
-          description: UTC timestamp of the latest terminal player event in the attempt.
-          type: string
-          format: date-time
-        durationMs:
-          description: Elapsed milliseconds from the attempt start to its final player event.
-          type: integer
-          minimum: 0
-        endReason:
-          description: Condition that caused the plugin to close and emit the attempt.
-          type: string
-          enum: [all_finished, round_ended, restart, playground_closed, map_changed]
-        timingSource:
-          description: Clock source used for race durations and checkpoint times.
-          type: string
-          enum: [mlfeed_game_clock, turbo_native_race_clock]
-        mode:
-          description: Game mode state captured during the attempt.
-          allOf:
-            - $ref: '#/components/schemas/GameMode'
-        map:
-          description: Map metadata and race configuration for the attempt.
-          allOf:
-            - $ref: '#/components/schemas/Map'
-        players:
-          description: Players captured in the attempt, each with an ordered event history.
-          type: array
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/Player'
-    GameMode:
-      type: object
-      additionalProperties: false
-      required: [name, warmupActive, startTime, endTime, timeLimitMs, settings]
-      properties:
-        name:
-          description: >-
-            Server mode name in Trackmania, or one of campaign, arcade,
-            hot_seat, and split_screen when captured in Turbo.
-          type: [string, 'null']
-        warmupActive:
-          description: Whether the game mode was in its warmup phase when captured.
-          type: boolean
-        startTime:
-          description: Mode start time on the game clock in milliseconds, or null when unavailable.
-          allOf:
-            - $ref: '#/components/schemas/NullableNonNegativeInteger'
-        endTime:
-          description: Mode end time on the game clock in milliseconds, or null when unavailable.
-          allOf:
-            - $ref: '#/components/schemas/NullableNonNegativeInteger'
-        timeLimitMs:
-          description: Difference between mode end and start times in milliseconds, or null when no positive limit is exposed.
-          allOf:
-            - $ref: '#/components/schemas/NullableNonNegativeInteger'
-        settings:
-          description: Generic behavior and scoring settings exposed by the mode rules.
-          allOf:
-            - $ref: '#/components/schemas/ModeSettings'
-    ModeSettings:
-      type: object
-      additionalProperties: false
-      required:
-        - lapCountOverride
-        - pointsLimit
-        - spawnDelayDurationMs
-        - respawnBehavior
-        - checkpointBehavior
-        - giveUpBehavior
-        - giveUpRespawnAfter
-        - giveUpSkipAfterFinish
-        - usesTeams
-      properties:
-        lapCountOverride:
-          description: Mode-level lap count override, or null when none is exposed.
-          allOf:
-            - $ref: '#/components/schemas/NullableNonNegativeInteger'
-        pointsLimit:
-          description: Points required by the mode's score limit, or null when unavailable.
-          allOf:
-            - $ref: '#/components/schemas/NullableNonNegativeInteger'
-        spawnDelayDurationMs:
-          description: Delay in milliseconds imposed by the mode before a player can spawn, or null when unavailable.
-          allOf:
-            - $ref: '#/components/schemas/NullableNonNegativeInteger'
-        respawnBehavior:
-          description: Mode rule that determines what happens when a player requests a respawn, or null when unavailable in Turbo.
-          type: [string, 'null']
-          enum: [do_nothing, give_up_before_first_checkpoint, always_give_up, always_respawn, custom, null]
-        checkpointBehavior:
-          description: Mode rule that determines how checkpoint progression is handled, or null when unavailable in Turbo.
-          type: [string, 'null']
-          enum: [default, infinite_laps, custom, null]
-        giveUpBehavior:
-          description: Mode rule that determines what happens when a player gives up, or null when unavailable in Turbo.
-          type: [string, 'null']
-          enum: [do_nothing, give_up, custom, null]
-        giveUpRespawnAfter:
-          description: Whether the mode respawns a player after processing a give-up request, or null when unavailable in Turbo.
-          type: [boolean, 'null']
-        giveUpSkipAfterFinish:
-          description: Whether the mode ignores give-up requests after the player crosses the finish line, or null when unavailable in Turbo.
-          type: [boolean, 'null']
-        usesTeams:
-          description: Whether the mode enables clans, multiple clans, or forced clans, or null when unavailable in Turbo.
-          type: [boolean, 'null']
-    Map:
-      type: object
-      additionalProperties: false
-      required:
-        - uid
-        - name
-        - authorLogin
-        - authorName
-        - mapType
-        - mapStyle
-        - environment
-        - laps
-        - isLapRace
-        - checkpointsPerLap
-        - waypointsToFinish
-        - mlFeedLapCount
-        - medalTimesMs
-      properties:
-        uid:
-          description: Stable unique identifier assigned to the Trackmania map.
-          type: string
-        name:
-          description: Display name of the map with Trackmania formatting codes removed.
-          type: string
-        authorLogin:
-          description: Trackmania login of the map author.
-          type: string
-        authorName:
-          description: Display name of the map author with Trackmania formatting codes removed.
-          type: string
-        mapType:
-          description: Map type reported by Trackmania, with formatting codes removed.
-          type: string
-        mapStyle:
-          description: Map style reported by Trackmania, with formatting codes removed.
-          type: string
-        environment:
-          description: Map environment or vehicle family, such as Canyon, Valley, Lagoon, or Stadium.
-          type: string
-        laps:
-          description: Accurate lap count reported by MLFeed in Trackmania or by the map objective in Turbo, or null when unavailable.
-          allOf:
-            - $ref: '#/components/schemas/NullableNonNegativeInteger'
-        isLapRace:
-          description: Whether the map objective is configured as a lap race.
-          type: boolean
-        checkpointsPerLap:
-          description: Number of checkpoints in one lap reported by MLFeed, or null when unavailable.
-          allOf:
-            - $ref: '#/components/schemas/NullableNonNegativeInteger'
-        waypointsToFinish:
-          description: Total number of checkpoint or finish waypoints required to complete the race, or null when unavailable.
-          allOf:
-            - $ref: '#/components/schemas/NullableNonNegativeInteger'
-        mlFeedLapCount:
-          description: Accurate lap count supplied directly by MLFeed, or null in Turbo and when unavailable.
-          allOf:
-            - $ref: '#/components/schemas/NullableNonNegativeInteger'
-        medalTimesMs:
-          description: Map medal target times measured in milliseconds.
-          allOf:
-            - $ref: '#/components/schemas/MedalTimes'
-    MedalTimes:
-      type: object
-      additionalProperties: false
-      required: [author, gold, silver, bronze]
-      properties:
-        author:
-          description: Author medal target time in milliseconds.
-          type: integer
-          minimum: 0
-        gold:
-          description: Gold medal target time in milliseconds.
-          type: integer
-          minimum: 0
-        silver:
-          description: Silver medal target time in milliseconds.
-          type: integer
-          minimum: 0
-        bronze:
-          description: Bronze medal target time in milliseconds.
-          type: integer
-          minimum: 0
-    Player:
-      type: object
-      additionalProperties: false
-      required:
-        - participantKey
-        - playerIndex
-        - terminalIndex
-        - login
-        - accountId
-        - name
-        - finishPosition
-        - events
-      properties:
-        participantKey:
-          description: Best available stable player key, chosen from account ID, login, or a local fallback identifier.
-          type: string
-          minLength: 1
-        playerIndex:
-          description: Zero-based index of the player in the playground player list when capture began.
-          type: integer
-          minimum: 0
-        terminalIndex:
-          description: Zero-based split-screen terminal controlling the player, or -1 when no controlling terminal was found.
-          type: integer
-          minimum: -1
-        login:
-          description: Trackmania login associated with the player, or an empty string when unavailable.
-          type: string
-        accountId:
-          description: Web services account identifier for the player, or null when unavailable.
-          type: [string, 'null']
-        name:
-          description: Player display name with Trackmania formatting codes removed.
-          type: string
-        finishPosition:
-          description: One-based finishing position among captured finishers, or null when the player did not finish.
-          allOf:
-            - $ref: '#/components/schemas/NullableNonNegativeInteger'
-        events:
-          description: Chronologically ordered race events captured for the player.
-          type: array
-          minItems: 2
-          items:
-            $ref: '#/components/schemas/RaceEvent'
-    RaceEvent:
-      description: A timestamped milestone or terminal action in a player's race.
+    Event:
       oneOf:
-        - $ref: '#/components/schemas/BasicRaceEvent'
-        - $ref: '#/components/schemas/LapRaceEvent'
-        - $ref: '#/components/schemas/CheckpointRaceEvent'
-        - $ref: '#/components/schemas/RespawnRaceEvent'
+        - $ref: '#/components/schemas/StartEvent'
+        - $ref: '#/components/schemas/FirstThrottleEvent'
+        - $ref: '#/components/schemas/PlayerCheckpointEvent'
+        - $ref: '#/components/schemas/EndEvent'
       discriminator:
         propertyName: type
         mapping:
-          start: '#/components/schemas/LapRaceEvent'
-          lap: '#/components/schemas/LapRaceEvent'
-          first_throttle: '#/components/schemas/BasicRaceEvent'
-          quit: '#/components/schemas/BasicRaceEvent'
-          restart: '#/components/schemas/BasicRaceEvent'
-          dnf: '#/components/schemas/BasicRaceEvent'
-          checkpoint: '#/components/schemas/CheckpointRaceEvent'
-          finish: '#/components/schemas/CheckpointRaceEvent'
-          respawn: '#/components/schemas/RespawnRaceEvent'
-    BasicRaceEvent:
+          start: '#/components/schemas/StartEvent'
+          first_throttle: '#/components/schemas/FirstThrottleEvent'
+          checkpoint: '#/components/schemas/PlayerCheckpointEvent'
+          lap: '#/components/schemas/PlayerCheckpointEvent'
+          respawn: '#/components/schemas/PlayerCheckpointEvent'
+          finish: '#/components/schemas/PlayerCheckpointEvent'
+          end: '#/components/schemas/EndEvent'
+    BaseEvent:
       type: object
-      additionalProperties: false
-      required: [type, atUtc, durationMs]
+      additionalProperties: true
+      required:
+        - schemaVersion
+        - type
+        - eventId
+        - sequence
+        - occurredAt
+        - durationMs
+        - game
+        - source
       properties:
-        type:
-          description: Kind of non-checkpoint event recorded for the player.
+        schemaVersion:
           type: string
-          enum: [first_throttle, quit, restart, dnf]
-        atUtc:
-          description: UTC timestamp when the event occurred.
+          pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+          examples: ['1.0.0']
+        type:
+          type: string
+        eventId:
+          type: string
+          format: uuid
+          description: Globally unique UUID v4, retained across retries.
+        sequence:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Contiguous capture order within the game.
+        occurredAt:
           type: string
           format: date-time
+          description: RFC 3339 UTC timestamp with millisecond precision.
         durationMs:
-          description: Player race time in milliseconds at which the event occurred.
           type: integer
+          format: int64
           minimum: 0
-    LapRaceEvent:
+          description: In-game race timer when the event occurred.
+        game:
+          $ref: '#/components/schemas/Game'
+        source:
+          $ref: '#/components/schemas/Source'
+    Source:
       type: object
-      additionalProperties: false
-      required: [type, atUtc, durationMs, lapNumber]
+      additionalProperties: true
+      required:
+        - pluginName
+        - pluginVersion
+        - game
       properties:
-        type:
-          description: Whether this event starts the race or a subsequent lap.
+        pluginName:
           type: string
-          enum: [start, lap]
-        atUtc:
-          description: UTC timestamp when the lap started.
+          enum: [Chugmania Webhooks]
+          description: Identifies Chugmania Webhooks as the plugin that produced the event.
+        pluginVersion:
           type: string
-          format: date-time
-        durationMs:
-          description: Player race time in milliseconds when the lap started.
-          type: integer
-          minimum: 0
-        lapNumber:
-          description: One-based number of the lap that started with this event.
+          pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+        game:
+          type: string
+          enum: [turbo, next]
+          description: >-
+            Possible values are `turbo` for Trackmania Turbo and `next` for
+            Trackmania Next.
+    Game:
+      type: object
+      additionalProperties: true
+      required: [gameId, totalPlayers]
+      properties:
+        gameId:
+          type: string
+          format: uuid
+          description: UUID v4 shared by all captured events in one round.
+        totalPlayers:
           type: integer
           minimum: 1
-    CheckpointRaceEvent:
+          description: >-
+            Number of players in the round, constant within the game and equal
+            to start.players.length when start is emitted.
+    Player:
       type: object
-      additionalProperties: false
-      required: [type, atUtc, durationMs, checkpoint, theoreticalDurationMs]
+      additionalProperties: true
+      required: [playerIndex]
       properties:
-        type:
-          description: Whether the player reached an intermediate checkpoint or the finish.
-          type: string
-          enum: [checkpoint, finish]
-        atUtc:
-          description: UTC timestamp when the checkpoint or finish was reached.
-          type: string
-          format: date-time
-        durationMs:
-          description: Player race time in milliseconds when the checkpoint or finish was reached, including respawn losses.
+        playerIndex:
           type: integer
           minimum: 0
-        checkpoint:
-          description: Checkpoint sequence position reached by this event.
-          allOf:
-            - $ref: '#/components/schemas/CheckpointReference'
-        theoreticalDurationMs:
-          description: Race time in milliseconds with cumulative respawn losses removed, or null when loss data is unavailable.
-          allOf:
-            - $ref: '#/components/schemas/NullableNonNegativeInteger'
-    RespawnRaceEvent:
-      type: object
-      additionalProperties: false
-      required: [type, atUtc, durationMs, respawn]
-      properties:
-        type:
-          description: Identifies the event as a player respawn request.
+        name:
           type: string
-          const: respawn
-        atUtc:
-          description: UTC timestamp when the respawn occurred.
+        login:
           type: string
-          format: date-time
-        durationMs:
-          description: Player race time in milliseconds at which the respawn occurred.
-          type: integer
-          minimum: 0
-        respawn:
-          description: Checkpoint context associated with the respawn.
-          allOf:
-            - $ref: '#/components/schemas/RespawnReference'
-    CheckpointReference:
+          description: Game login. Available in both games when exposed by the runtime.
+        localId:
+          type: string
+          description: >-
+            Decimal engine-local ID for the player's login. Available in
+            Trackmania Next; omitted when the runtime does not expose it.
+        accountId:
+          type: string
+          description: >-
+            Ubisoft/Nadeo WebServices account ID. Available in Trackmania Next;
+            omitted when the runtime does not expose it.
+    PlayerEvent:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          additionalProperties: true
+          required: [player]
+          properties:
+            player:
+              $ref: '#/components/schemas/Player'
+              description: Full snapshot of the player associated with the event.
+    Checkpoint:
       type: object
-      additionalProperties: false
-      required: [index, lapIndex]
-      properties:
-        index:
-          description: One-based checkpoint sequence index across the whole race; lap lines are excluded.
-          type: integer
-          minimum: 1
-        lapIndex:
-          description: One-based checkpoint sequence index within the current lap.
-          type: integer
-          minimum: 1
-    RespawnReference:
-      type: object
-      additionalProperties: false
-      required: [checkpointIndex]
+      additionalProperties: true
+      required: [checkpointIndex, checkpointLapIndex, lapNumber]
       properties:
         checkpointIndex:
-          description: Checkpoint sequence index from which the player respawned, or null when unavailable for an older respawn.
-          allOf:
-            - $ref: '#/components/schemas/NullableNonNegativeInteger'
-    NullableNonNegativeInteger:
-      description: A non-negative integer value, or null when the source does not provide it.
-      type: [integer, 'null']
-      minimum: 0
+          type: integer
+          minimum: 0
+          description: Global checkpoint position across laps.
+        checkpointLapIndex:
+          type: integer
+          minimum: 0
+          description: >-
+            Checkpoint position within the lap. Intermediate checkpoints are
+            1..map.checkpointsPerLap, lap events use 0 for the start of the new
+            lap, and finish events use map.checkpointsPerLap + 1 for the end of
+            the final lap.
+        lapNumber:
+          type: integer
+          minimum: 1
+          description: One-based current lap.
+        theoreticalDurationMs:
+          type: integer
+          format: int64
+          minimum: 0
+          description: >-
+            Optional Trackmania Next checkpoint time with respawn losses
+            removed, sourced from MLFeed LastTheoreticalCpTime.
+        lostMs:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Optional Trackmania Next dependency value for time lost on respawn, sent unchanged.
+    MedalTimes:
+      type: object
+      additionalProperties: true
+      properties:
+        author:
+          type: integer
+          format: int64
+          minimum: 0
+        gold:
+          type: integer
+          format: int64
+          minimum: 0
+        silver:
+          type: integer
+          format: int64
+          minimum: 0
+        bronze:
+          type: integer
+          format: int64
+          minimum: 0
+    Map:
+      type: object
+      additionalProperties: true
+      required: [name, isLaps]
+      properties:
+        name:
+          type: string
+        uid:
+          type: string
+        author:
+          type: string
+        environment:
+          type: string
+        type:
+          type: string
+        medalTimesMs:
+          $ref: '#/components/schemas/MedalTimes'
+        isLaps:
+          type: boolean
+        totalLaps:
+          type: integer
+          minimum: 1
+        checkpointsPerLap:
+          type: integer
+          minimum: 0
+          description: Intermediate checkpoints only; excludes start and finish.
+    Mode:
+      type: object
+      additionalProperties: true
+      required: [name]
+      properties:
+        name:
+          type: string
+          enum:
+            [campaign, arcade, hot-seat, split-screen, secret, solo, unknown]
+          description: >-
+            Normalized local mode. Turbo emits campaign, arcade, hot-seat,
+            split-screen, secret, or unknown. Next emits campaign, solo, or
+            split-screen. Unknown is used when the game does not expose enough
+            information to identify the local mode positively.
+        type:
+          type: string
+          enum:
+            - time-attack
+            - rounds
+            - laps
+            - cup
+            - royal-time-attack
+            - platform
+            - team
+            - stunts
+            - unknown
+            - split-screen-classic-fun
+            - split-screen-classic-pro
+            - split-screen-smash-fun
+            - split-screen-smash-pro
+            - split-screen-mono-screen-fun
+            - split-screen-mono-screen-pro
+            - split-screen-stunt-fun
+            - split-screen-stunt-pro
+            - split-screen-bonus-fun
+            - split-screen-bonus-pro
+            - arcade-smash
+            - arcade-stunt
+            - hot-seat-smash
+            - hot-seat-stunt
+          description: >-
+            Turbo secret variant when name is secret, or normalized Trackmania
+            Next rule family. Split-screen values are time-attack, rounds, laps,
+            cup, royal-time-attack, platform, or unknown. Solo may additionally
+            emit team or stunts. The field is omitted when a meaningful solo
+            rule family cannot be resolved.
+    StartEvent:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          additionalProperties: true
+          required: [type, players, map, mode]
+          properties:
+            type:
+              type: string
+              enum: [start]
+              description: The start event is emitted when a fully captured round begins.
+            players:
+              type: array
+              minItems: 1
+              items:
+                $ref: '#/components/schemas/Player'
+              description: Ordered so players[i].playerIndex equals i.
+            map:
+              $ref: '#/components/schemas/Map'
+            mode:
+              $ref: '#/components/schemas/Mode'
+    FirstThrottleEvent:
+      allOf:
+        - $ref: '#/components/schemas/PlayerEvent'
+        - type: object
+          additionalProperties: true
+          required: [type]
+          properties:
+            type:
+              type: string
+              enum: [first_throttle]
+              description: The first_throttle event is emitted on the player's first throttle input of the round.
+    PlayerCheckpointEvent:
+      allOf:
+        - $ref: '#/components/schemas/PlayerEvent'
+        - type: object
+          additionalProperties: true
+          required: [type, checkpoint]
+          properties:
+            type:
+              type: string
+              enum: [checkpoint, lap, respawn, finish]
+              description: >-
+                Possible values are `checkpoint` when the player validates an
+                intermediate checkpoint, `lap` when the player starts a new lap,
+                `respawn` when a respawn is detected, and `finish` when the player
+                finishes the round.
+            checkpoint:
+              $ref: '#/components/schemas/Checkpoint'
+    EndEvent:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          additionalProperties: true
+          required: [type, endReason]
+          properties:
+            type:
+              type: string
+              enum: [end]
+              description: The end event is emitted when capture of the round ends.
+            endReason:
+              type: string
+              enum: [completed, restarted, aborted, unknown]
+              description: >-
+                Possible values are `completed` when the round finished normally,
+                `restarted` when a restart ended it, `aborted` when capture ended
+                before completion (including Trackmania Turbo Give up), and
+                `unknown` when no more specific reason is available. Trackmania
+                Next uses completed for a captured finish, restarted for a stable
+                replacement spawn, and aborted for other exits.
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      required: [code]
+      properties:
+        code:
+          type: string
+        message:
+          type: string

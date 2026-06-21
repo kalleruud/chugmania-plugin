@@ -109,8 +109,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          TRACKMANIA_ARTIFACT="${{ steps.plugin.outputs.slug }}-trackmania-${{ steps.plugin.outputs.tag }}.op"
-          TURBO_ARTIFACT="${{ steps.plugin.outputs.slug }}-turbo-${{ steps.plugin.outputs.tag }}.op"
+          TRACKMANIA_ARTIFACT="chugmania-webhooks-next.op"
+          TURBO_ARTIFACT="chugmania-webhooks-turbo.op"
           bash scripts/build-op.sh all dist
 
           echo "trackmania_artifact=dist/$TRACKMANIA_ARTIFACT" >> "$GITHUB_OUTPUT"
