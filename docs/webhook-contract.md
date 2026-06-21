@@ -53,10 +53,10 @@ models instead of repeating their fields at the event root.
 
 ### Game
 
-| Field          | Type             | Description                          | Rules                                                       |
-| -------------- | ---------------- | ------------------------------------ | ----------------------------------------------------------- |
-| `gameId`       | UUID string      | Identity of the captured round       | Required UUID v4, shared by all events in the round         |
-| `totalPlayers` | positive integer | Number of players in the round       | Required and constant; equals `start.players.length`        |
+| Field          | Type             | Description                    | Rules                                                |
+| -------------- | ---------------- | ------------------------------ | ---------------------------------------------------- |
+| `gameId`       | UUID string      | Identity of the captured round | Required UUID v4, shared by all events in the round  |
+| `totalPlayers` | positive integer | Number of players in the round | Required and constant; equals `start.players.length` |
 
 ### Player
 
@@ -87,12 +87,12 @@ models instead of repeating their fields at the event root.
 
 ### MedalTimes
 
-| Field    | Type                 | Description              | Rules    |
-| -------- | -------------------- | ------------------------ | -------- |
-| `author` | non-negative integer | Author medal time in ms  | Optional |
-| `gold`   | non-negative integer | Gold medal time in ms    | Optional |
-| `silver` | non-negative integer | Silver medal time in ms  | Optional |
-| `bronze` | non-negative integer | Bronze medal time in ms  | Optional |
+| Field    | Type                 | Description             | Rules    |
+| -------- | -------------------- | ----------------------- | -------- |
+| `author` | non-negative integer | Author medal time in ms | Optional |
+| `gold`   | non-negative integer | Gold medal time in ms   | Optional |
+| `silver` | non-negative integer | Silver medal time in ms | Optional |
+| `bronze` | non-negative integer | Bronze medal time in ms | Optional |
 
 ### Mode
 
@@ -107,13 +107,13 @@ models instead of repeating their fields at the event root.
 Checkpoint fields describe a player's checkpoint position. Events include them
 through a nested `checkpoint` object.
 
-| Field                       | Type                 | Description                               | Rules                                           |
-| --------------------------- | -------------------- | ----------------------------------------- | ----------------------------------------------- |
-| `checkpointIndex`           | non-negative integer | Global checkpoint position across laps    | `0` at the start line; otherwise positive       |
-| `checkpointLapIndex`        | non-negative integer | Checkpoint position within the current lap | `0` at the start line; otherwise positive       |
-| `lapNumber`                 | positive integer     | Current lap                               | Required and one-based                          |
-| `theoreticalDurationMs`     | non-negative integer | Dependency-provided theoretical race time | Optional, Next-only dependency value, unchanged |
-| `lostMs`                    | non-negative integer | Dependency-provided time lost on respawn  | Optional, Next-only dependency value, unchanged |
+| Field                   | Type                 | Description                                | Rules                                           |
+| ----------------------- | -------------------- | ------------------------------------------ | ----------------------------------------------- |
+| `checkpointIndex`       | non-negative integer | Global checkpoint position across laps     | `0` at the start line; otherwise positive       |
+| `checkpointLapIndex`    | non-negative integer | Checkpoint position within the current lap | `0` at the start line; otherwise positive       |
+| `lapNumber`             | positive integer     | Current lap                                | Required and one-based                          |
+| `theoreticalDurationMs` | non-negative integer | Dependency-provided theoretical race time  | Optional, Next-only dependency value, unchanged |
+| `lostMs`                | non-negative integer | Dependency-provided time lost on respawn   | Optional, Next-only dependency value, unchanged |
 
 ## Events
 
@@ -143,11 +143,11 @@ games. For Trackmania Next, `source.game` is `trackmaniaNext`.
 
 Emitted exactly once when a fully captured round begins.
 
-| Additional field | Type             | Description                        | Rules                               |
-| ---------------- | ---------------- | ---------------------------------- | ----------------------------------- |
-| `players`        | Player[]         | Players participating in the round | Required; ordered and length equals `game.totalPlayers` |
-| `map`            | Map              | Map played during the round        | Required                            |
-| `mode`           | Mode             | Game mode used during the round    | Required                            |
+| Additional field | Type     | Description                        | Rules                                                   |
+| ---------------- | -------- | ---------------------------------- | ------------------------------------------------------- |
+| `players`        | Player[] | Players participating in the round | Required; ordered and length equals `game.totalPlayers` |
+| `map`            | Map      | Map played during the round        | Required                                                |
+| `mode`           | Mode     | Game mode used during the round    | Required                                                |
 
 ```json
 {
@@ -189,9 +189,9 @@ Emitted exactly once when a fully captured round begins.
 Emitted when the player first applies throttle during the game. It is emitted
 at most once per player per game and never re-armed.
 
-| Additional field | Type             | Description                         | Rules                                                 |
-| ---------------- | ---------------- | ----------------------------------- | ----------------------------------------------------- |
-| `player`         | Player           | Full snapshot of the event's player | Required; matches `start.players[player.playerIndex]` |
+| Additional field | Type   | Description                         | Rules                                                 |
+| ---------------- | ------ | ----------------------------------- | ----------------------------------------------------- |
+| `player`         | Player | Full snapshot of the event's player | Required; matches `start.players[player.playerIndex]` |
 
 ```json
 {
@@ -221,12 +221,12 @@ at most once per player per game and never re-armed.
 
 These event types share one contract:
 
-| Event type   | Emitted when                                              | Rules                                                        |
-| ------------ | --------------------------------------------------------- | ------------------------------------------------------------ |
-| `checkpoint` | A player validates an intermediate checkpoint             | Both indices are positive; start and finish are not numbered |
-| `lap`        | A player starts a new lap after crossing the finish line   | `checkpointLapIndex` is `0`; not emitted on the final finish |
-| `respawn`    | A respawn action is detected for a player                  | Indices identify the destination and are both `0` at start   |
-| `finish`     | A player finishes the round                               | At most once; `durationMs` is final and finish is not numbered |
+| Event type   | Emitted when                                             | Rules                                                          |
+| ------------ | -------------------------------------------------------- | -------------------------------------------------------------- |
+| `checkpoint` | A player validates an intermediate checkpoint            | Both indices are positive; start and finish are not numbered   |
+| `lap`        | A player starts a new lap after crossing the finish line | `checkpointLapIndex` is `0`; not emitted on the final finish   |
+| `respawn`    | A respawn action is detected for a player                | Indices identify the destination and are both `0` at start     |
+| `finish`     | A player finishes the round                              | At most once; `durationMs` is final and finish is not numbered |
 
 | Additional field | Type       | Description                         | Rules                                                 |
 | ---------------- | ---------- | ----------------------------------- | ----------------------------------------------------- |

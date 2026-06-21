@@ -53,14 +53,11 @@ for game in "${targets[@]}"; do
     exit 1
   fi
 
-  name="$(read_meta_value "$manifest" name)"
-  version="$(read_meta_value "$manifest" version)"
-  if [[ -z "$name" || -z "$version" ]]; then
-    echo "Error: Could not read plugin name or version from $manifest" >&2
-    exit 1
+  if [[ "$game" == "trackmania" ]]; then
+    artifact="$output_directory/chugmania-webhooks-next.op"
+  else
+    artifact="$output_directory/chugmania-webhooks-turbo.op"
   fi
-  slug="$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')"
-  artifact="$output_directory/$slug-$game-v$version.op"
   staging="$staging_root/$game"
 
   mkdir -p "$staging"

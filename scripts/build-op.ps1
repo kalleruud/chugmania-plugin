@@ -49,14 +49,12 @@ foreach ($game in $targets) {
     }
 
     $metadata = Get-Content -LiteralPath $manifestPath -Raw
-    $name = Get-MetaValue $metadata "name"
-    $version = Get-MetaValue $metadata "version"
-    $slug = ($name.ToLowerInvariant() -replace '[^a-z0-9]+', '-').Trim('-')
-    if ([string]::IsNullOrWhiteSpace($slug)) {
-        throw "Plugin name does not produce a valid artifact slug"
+    $artifactName = if ($game -eq "trackmania") {
+        "chugmania-webhooks-next.op"
+    } else {
+        "chugmania-webhooks-turbo.op"
     }
-
-    $artifactPath = Join-Path $outputDirectoryPath "$slug-$game-v$version.op"
+    $artifactPath = Join-Path $outputDirectoryPath $artifactName
     $stagingPath = Join-Path $outputDirectoryPath ".build-$game-$([guid]::NewGuid())"
     $temporaryZip = Join-Path $outputDirectoryPath "$([guid]::NewGuid()).zip"
     try {
