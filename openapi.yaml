@@ -92,20 +92,17 @@ components:
       oneOf:
         - $ref: "#/components/schemas/StartEvent"
         - $ref: "#/components/schemas/FirstThrottleEvent"
-        - $ref: "#/components/schemas/CheckpointEvent"
-        - $ref: "#/components/schemas/LapEvent"
-        - $ref: "#/components/schemas/RespawnEvent"
-        - $ref: "#/components/schemas/FinishEvent"
+        - $ref: "#/components/schemas/PlayerCheckpointEvent"
         - $ref: "#/components/schemas/EndEvent"
       discriminator:
         propertyName: type
         mapping:
           start: "#/components/schemas/StartEvent"
           first_throttle: "#/components/schemas/FirstThrottleEvent"
-          checkpoint: "#/components/schemas/CheckpointEvent"
-          lap: "#/components/schemas/LapEvent"
-          respawn: "#/components/schemas/RespawnEvent"
-          finish: "#/components/schemas/FinishEvent"
+          checkpoint: "#/components/schemas/PlayerCheckpointEvent"
+          lap: "#/components/schemas/PlayerCheckpointEvent"
+          respawn: "#/components/schemas/PlayerCheckpointEvent"
+          finish: "#/components/schemas/PlayerCheckpointEvent"
           end: "#/components/schemas/EndEvent"
     BaseEvent:
       type: object
@@ -118,6 +115,7 @@ components:
         - occurredAt
         - durationMs
         - gameId
+        - totalPlayers
         - source
       properties:
         schemaVersion:
@@ -148,6 +146,10 @@ components:
           type: string
           format: uuid
           description: UUID v4 shared by all captured events in one round.
+        totalPlayers:
+          type: integer
+          minimum: 1
+          description: Number of players in the round, constant within the game and equal to start.players.length when start is emitted.
         source:
           $ref: "#/components/schemas/Source"
     Source:
@@ -192,14 +194,38 @@ components:
         - $ref: "#/components/schemas/BaseEvent"
         - type: object
           additionalProperties: true
-          required: [player, totalPlayers]
+          required: [player]
           properties:
             player:
               $ref: "#/components/schemas/Player"
               description: Full snapshot of the player associated with the event.
-            totalPlayers:
-              type: integer
-              minimum: 1
+    Checkpoint:
+      type: object
+      additionalProperties: true
+      required: [checkpointIndex, checkpointLapIndex, lapNumber]
+      properties:
+        checkpointIndex:
+          type: integer
+          minimum: 0
+          description: Global checkpoint position across laps.
+        checkpointLapIndex:
+          type: integer
+          minimum: 0
+          description: Checkpoint position within the current lap.
+        lapNumber:
+          type: integer
+          minimum: 1
+          description: One-based current lap.
+        theoreticalDurationMs:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Optional Trackmania Next dependency value, sent unchanged.
+        lostMs:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Optional Trackmania Next dependency value for time lost on respawn, sent unchanged.
     MedalTimes:
       type: object
       additionalProperties: true
@@ -271,7 +297,7 @@ components:
         - $ref: "#/components/schemas/BaseEvent"
         - type: object
           additionalProperties: true
-          required: [type, players, totalPlayers, map, mode]
+          required: [type, players, map, mode]
           properties:
             type:
               type: string
@@ -283,10 +309,6 @@ components:
               items:
                 $ref: "#/components/schemas/Player"
               description: Ordered so players[i].playerIndex equals i.
-            totalPlayers:
-              type: integer
-              minimum: 1
-              description: Equal to players.length.
             map:
               $ref: "#/components/schemas/Map"
             mode:
@@ -302,87 +324,23 @@ components:
               type: string
               enum: [first_throttle]
               description: The first_throttle event is emitted on the player's first throttle input of the round.
-    CheckpointEvent:
+    PlayerCheckpointEvent:
       allOf:
         - $ref: "#/components/schemas/PlayerEvent"
         - type: object
           additionalProperties: true
-          required: [type, checkpointIndex, checkpointLapIndex, lapNumber]
+          required: [type, checkpoint]
           properties:
             type:
               type: string
-              enum: [checkpoint]
-              description: The checkpoint event is emitted when the player reaches an intermediate checkpoint.
-            checkpointIndex:
-              type: integer
-              minimum: 1
-            checkpointLapIndex:
-              type: integer
-              minimum: 1
-            lapNumber:
-              type: integer
-              minimum: 1
-            theoreticalDurationMs:
-              type: integer
-              format: int64
-              minimum: 0
-              description: Optional Trackmania Next dependency value, sent unchanged.
-    LapEvent:
-      allOf:
-        - $ref: "#/components/schemas/PlayerEvent"
-        - type: object
-          additionalProperties: true
-          required: [type, checkpointIndex, checkpointLapIndex, lapNumber]
-          properties:
-            type:
-              type: string
-              enum: [lap]
-              description: The lap event is emitted when the player starts a new lap.
-            checkpointIndex:
-              type: integer
-              minimum: 0
-            checkpointLapIndex:
-              type: integer
-              const: 0
-            lapNumber:
-              type: integer
-              minimum: 1
-    RespawnEvent:
-      allOf:
-        - $ref: "#/components/schemas/PlayerEvent"
-        - type: object
-          additionalProperties: true
-          required: [type, checkpointIndex, checkpointLapIndex, lapNumber]
-          properties:
-            type:
-              type: string
-              enum: [respawn]
-              description: The respawn event is emitted when the player respawns.
-            checkpointIndex:
-              type: integer
-              minimum: 0
-            checkpointLapIndex:
-              type: integer
-              minimum: 0
-            lapNumber:
-              type: integer
-              minimum: 1
-            lostMs:
-              type: integer
-              format: int64
-              minimum: 0
-              description: Optional Trackmania Next dependency value, sent unchanged.
-    FinishEvent:
-      allOf:
-        - $ref: "#/components/schemas/PlayerEvent"
-        - type: object
-          additionalProperties: true
-          required: [type]
-          properties:
-            type:
-              type: string
-              enum: [finish]
-              description: The finish event is emitted when the player finishes the round.
+              enum: [checkpoint, lap, respawn, finish]
+              description: >-
+                Possible values are `checkpoint` when the player validates an
+                intermediate checkpoint, `lap` when the player starts a new lap,
+                `respawn` when a respawn is detected, and `finish` when the player
+                finishes the round.
+            checkpoint:
+              $ref: "#/components/schemas/Checkpoint"
     EndEvent:
       allOf:
         - $ref: "#/components/schemas/BaseEvent"
