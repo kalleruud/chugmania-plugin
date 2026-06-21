@@ -61,16 +61,16 @@ Trackmania Next. The `source.game` value is `trackmaniaTurbo` for Turbo and
 
 Every event contains:
 
-| Field           | Type                 | Description                            | Rules                                                    |
-| --------------- | -------------------- | -------------------------------------- | -------------------------------------------------------- |
-| `schemaVersion` | string               | Version of the webhook payload schema  | Required SemVer; initially `1.0.0`                       |
-| `type`          | string               | Kind of event represented              | Required event discriminator                             |
-| `eventId`       | UUID string          | Unique identity of the captured event  | Globally unique UUID v4; immutable across retries        |
-| `sequence`      | non-negative integer | Event position within the round        | Contiguous capture order within `gameId`                 |
-| `occurredAt`    | RFC 3339 string      | Wall-clock time of capture             | UTC with millisecond precision; immutable across retries |
-| `durationMs`    | non-negative integer | Race-clock time of capture             | In-game race timer when the event occurred               |
-| `gameId`        | UUID string          | Identity used to correlate round events | UUID v4 shared by all events in one round               |
-| `source`        | Source               | Metadata describing the event producer | Required producer metadata                               |
+| Field           | Type                 | Description                             | Rules                                                    |
+| --------------- | -------------------- | --------------------------------------- | -------------------------------------------------------- |
+| `schemaVersion` | string               | Version of the webhook payload schema   | Required SemVer; initially `1.0.0`                       |
+| `type`          | string               | Kind of event represented               | Required event discriminator                             |
+| `eventId`       | UUID string          | Unique identity of the captured event   | Globally unique UUID v4; immutable across retries        |
+| `sequence`      | non-negative integer | Event position within the round         | Contiguous capture order within `gameId`                 |
+| `occurredAt`    | RFC 3339 string      | Wall-clock time of capture              | UTC with millisecond precision; immutable across retries |
+| `durationMs`    | non-negative integer | Race-clock time of capture              | In-game race timer when the event occurred               |
+| `gameId`        | UUID string          | Identity used to correlate round events | UUID v4 shared by all events in one round                |
+| `source`        | Source               | Metadata describing the event producer  | Required producer metadata                               |
 
 `start.sequence` is `0` for complete captures. When capture begins mid-round,
 the first captured event also uses sequence `0`, even though no start event was
@@ -88,13 +88,13 @@ emitted.
 
 ### Player
 
-| Field         | Type                 | Description                         | Rules                                        |
-| ------------- | -------------------- | ----------------------------------- | -------------------------------------------- |
+| Field         | Type                 | Description                          | Rules                                        |
+| ------------- | -------------------- | ------------------------------------ | -------------------------------------------- |
 | `playerIndex` | non-negative integer | Position of the player in the roster | Required, zero-based, stable within the game |
-| `name`        | string               | Display name of the player          | Optional                                     |
-| `login`       | string               | Login identifier of the player      | Optional                                     |
-| `localId`     | string               | Local identifier of the player      | Optional                                     |
-| `accountId`   | string               | Account identifier of the player    | Optional                                     |
+| `name`        | string               | Display name of the player           | Optional                                     |
+| `login`       | string               | Login identifier of the player       | Optional                                     |
+| `localId`     | string               | Local identifier of the player       | Optional                                     |
+| `accountId`   | string               | Account identifier of the player     | Optional                                     |
 
 `start.players` is ordered by contiguous index, so
 `players[i].playerIndex == i`. Its length equals `totalPlayers`.
@@ -103,14 +103,14 @@ emitted.
 
 Every `first_throttle`, `checkpoint`, `lap`, `respawn`, and `finish` event adds:
 
-| Field          | Type                 | Description                           | Rules                                           |
-| -------------- | -------------------- | ------------------------------------- | ----------------------------------------------- |
+| Field          | Type                 | Description                          | Rules                                           |
+| -------------- | -------------------- | ------------------------------------ | ----------------------------------------------- |
 | `playerIndex`  | non-negative integer | Position of the player in the roster | Required; joins to `start.players[playerIndex]` |
-| `totalPlayers` | positive integer     | Number of players in the round        | Required and constant within the game           |
-| `name`         | string               | Display name of the player            | Optional                                        |
-| `login`        | string               | Login identifier of the player        | Optional                                        |
-| `localId`      | string               | Local identifier of the player        | Optional                                        |
-| `accountId`    | string               | Account identifier of the player      | Optional                                        |
+| `totalPlayers` | positive integer     | Number of players in the round       | Required and constant within the game           |
+| `name`         | string               | Display name of the player           | Optional                                        |
+| `login`        | string               | Login identifier of the player       | Optional                                        |
+| `localId`      | string               | Local identifier of the player       | Optional                                        |
+| `accountId`    | string               | Account identifier of the player     | Optional                                        |
 
 ## Start Models
 
@@ -147,12 +147,12 @@ All medal properties are optional non-negative integer millisecond times:
 
 Emitted exactly once when a fully captured round begins.
 
-| Additional field | Type             | Description                          | Rules                               |
-| ---------------- | ---------------- | ------------------------------------ | ----------------------------------- |
-| `players`        | Player[]         | Players participating in the round  | Required, ordered contiguous roster |
-| `totalPlayers`   | positive integer | Number of participating players     | Required; equals `players.length`   |
-| `map`            | Map              | Map played during the round          | Required                            |
-| `mode`           | Mode             | Game mode used during the round      | Required                            |
+| Additional field | Type             | Description                        | Rules                               |
+| ---------------- | ---------------- | ---------------------------------- | ----------------------------------- |
+| `players`        | Player[]         | Players participating in the round | Required, ordered contiguous roster |
+| `totalPlayers`   | positive integer | Number of participating players    | Required; equals `players.length`   |
+| `map`            | Map              | Map played during the round        | Required                            |
+| `mode`           | Mode             | Game mode used during the round    | Required                            |
 
 ### `first_throttle`
 
@@ -161,12 +161,12 @@ player per game and is never re-armed.
 
 ### `checkpoint`
 
-| Additional field        | Type                 | Description                              | Rules                                            |
-| ----------------------- | -------------------- | ---------------------------------------- | ------------------------------------------------ |
-| `checkpointIndex`       | positive integer     | Overall checkpoint reached by the player | Global intermediate-checkpoint index across laps |
-| `checkpointLapIndex`    | positive integer     | Checkpoint reached within the current lap | Intermediate-checkpoint index within the lap    |
+| Additional field        | Type                 | Description                               | Rules                                            |
+| ----------------------- | -------------------- | ----------------------------------------- | ------------------------------------------------ |
+| `checkpointIndex`       | positive integer     | Overall checkpoint reached by the player  | Global intermediate-checkpoint index across laps |
+| `checkpointLapIndex`    | positive integer     | Checkpoint reached within the current lap | Intermediate-checkpoint index within the lap     |
 | `lapNumber`             | positive integer     | Lap containing the checkpoint             | One-based current lap                            |
-| `theoreticalDurationMs` | non-negative integer | Dependency-provided theoretical race time | Optional, Next-only dependency value, unchanged |
+| `theoreticalDurationMs` | non-negative integer | Dependency-provided theoretical race time | Optional, Next-only dependency value, unchanged  |
 
 Start and finish crossings are excluded from checkpoint numbering.
 
@@ -201,8 +201,8 @@ finish time. It is emitted at most once per player per game.
 
 Contains common fields and `endReason`. It contains no player fields.
 
-| Additional field | Type | Description                    | Rules                                             |
-| ---------------- | ---- | ------------------------------ | ------------------------------------------------- |
+| Additional field | Type | Description                     | Rules                                             |
+| ---------------- | ---- | ------------------------------- | ------------------------------------------------- |
 | `endReason`      | enum | Reason the captured round ended | `completed`, `restarted`, `aborted`, or `unknown` |
 
 ## Responses
@@ -212,10 +212,10 @@ success responses are `200 OK` and `204 No Content`.
 
 Errors use this forward-compatible shape:
 
-| Field     | Type   | Description                         | Rules                          |
-| --------- | ------ | ----------------------------------- | ------------------------------ |
-| `code`    | string | Identifier for the response error   | Required machine-readable code |
-| `message` | string | Explanation of the response error   | Optional human-readable detail |
+| Field     | Type   | Description                       | Rules                          |
+| --------- | ------ | --------------------------------- | ------------------------------ |
+| `code`    | string | Identifier for the response error | Required machine-readable code |
+| `message` | string | Explanation of the response error | Optional human-readable detail |
 
 `503 Service Unavailable` with `code: "NO_ACTIVE_SESSION"` means the event was
 valid but arrived outside an active receiver session. It is retryable and may
