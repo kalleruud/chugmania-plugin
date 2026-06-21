@@ -376,7 +376,8 @@ components:
               description: >-
                 Possible values are `completed` when the round finished normally,
                 `restarted` when a restart ended it, `aborted` when capture ended
-                before completion, and `unknown` when no more specific reason is available.
+                before completion (including Trackmania Turbo Give up), and
+                `unknown` when no more specific reason is available.
     ErrorResponse:
       type: object
       additionalProperties: true

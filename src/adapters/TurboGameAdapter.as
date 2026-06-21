@@ -6,6 +6,7 @@ class TurboGameAdapter : GameAdapter
     string activeSessionKey;
     bool startArmed;
     bool roundCompleted;
+    string pendingEndReason;
 
     GameObservation@ Observe()
     {
@@ -38,6 +39,7 @@ class TurboGameAdapter : GameAdapter
             activeSessionKey = "";
             startArmed = false;
             roundCompleted = false;
+            pendingEndReason = "";
         }
         @observation.map = ReadTurboMap(app.Challenge);
         @observation.mode = ReadTurboMode();
@@ -49,9 +51,15 @@ class TurboGameAdapter : GameAdapter
             auto tmPlayer = cast<CTrackManiaPlayer>(playground.Players[i]);
             if (tmPlayer is null || tmPlayer.EnableOnlineMode || tmPlayer.AutoPilotEnabled) continue;
             if (tmPlayer.RaceState == CTrackManiaPlayer::ERaceState::BeforeStart) {
+                if (activeSessionKey.Length > 0) {
+                    pendingEndReason = roundCompleted ? "completed" : "restarted";
+                }
                 startArmed = true;
                 activeSessionKey = "";
-                roundCompleted = false;
+                continue;
+            }
+            if (tmPlayer.RaceState == CTrackManiaPlayer::ERaceState::Eliminated) {
+                if (activeSessionKey.Length > 0) pendingEndReason = "aborted";
                 continue;
             }
             bool racing = tmPlayer.RaceState == CTrackManiaPlayer::ERaceState::Running ||
@@ -62,6 +70,8 @@ class TurboGameAdapter : GameAdapter
                 if (!startArmed) continue;
                 activeSessionKey = candidateSessionKey;
                 startArmed = false;
+                roundCompleted = false;
+                pendingEndReason = "";
             }
             if (candidateSessionKey != activeSessionKey) continue;
             PlayerSnapshot@ player = PlayerSnapshot();
@@ -88,7 +98,10 @@ class TurboGameAdapter : GameAdapter
             observation.sessionKey = activeSessionKey;
             LogTurboState("active", "Turbo capture detected an active local round with " + observation.players.Length + " player(s).");
         } else {
-            observation.endReason = roundCompleted ? "completed" : "unknown";
+            observation.endReason = pendingEndReason.Length > 0
+                ? pendingEndReason
+                : (roundCompleted ? "completed" : "unknown");
+            pendingEndReason = "";
             LogTurboState("players", "Turbo capture armed and waiting for the race timer to start.");
         }
         return observation;

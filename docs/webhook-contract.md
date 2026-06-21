@@ -278,6 +278,9 @@ player fields.
 | ---------------- | ---- | ------------------------------- | ------------------------------------------------- |
 | `endReason`      | enum | Reason the captured round ended | `completed`, `restarted`, `aborted`, or `unknown` |
 
+In Trackmania Turbo, choosing **Give up** transitions the active player to the
+game's eliminated state and is reported as `aborted`.
+
 ```json
 {
   "schemaVersion": "1.0.0",

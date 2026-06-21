@@ -116,7 +116,7 @@ class RoundTracker
 
     void Enqueue(CapturedEvent@ event)
     {
-        print("[emit] " + event.sequence + " " + event.eventType);
+        print("[emit] " + event.sequence + " " + event.eventType + " " + event.durationMs + "ms");
         delivery.Enqueue(event.eventId, event.eventType, SerializeEvent(event));
     }
 
