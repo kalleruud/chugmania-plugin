@@ -13,7 +13,6 @@ class NextGameAdapter : GameAdapter
         observation.local = app.Network !is null && app.Network.PlaygroundClientScriptAPI !is null &&
             app.Network.PlaygroundClientScriptAPI.IsServerOrSolo;
         @observation.map = ReadNextMap(app);
-        @observation.mode = ReadNextMode(playground);
         auto race = MLFeed::GetRaceData_V4();
         for (uint i = 0; i < playground.Players.Length; i++) {
             auto smPlayer = cast<CSmPlayer>(playground.Players[i]);
@@ -40,6 +39,7 @@ class NextGameAdapter : GameAdapter
             if (i == 0 && state.durationMs + 100 < previousDuration) sessionNumber++;
             observation.playerStates.InsertLast(state);
         }
+        @observation.mode = ReadNextMode(playground, observation.players.Length);
         if (!observation.playerStates.IsEmpty()) previousDuration = observation.playerStates[0].durationMs;
         observation.active = observation.local && !observation.playerStates.IsEmpty();
         observation.sessionKey = app.RootMap.IdName + ":" + sessionNumber;
@@ -69,10 +69,12 @@ MapSnapshot@ ReadNextMap(CTrackMania@ app)
     return map;
 }
 
-ModeSnapshot@ ReadNextMode(CGameManiaPlanetPlayground@ playground)
+ModeSnapshot@ ReadNextMode(CGameManiaPlanetPlayground@ playground, uint observedPlayerCount)
 {
     ModeSnapshot@ mode = ModeSnapshot();
-    mode.name = playground.GameTerminals.Length > 1 ? "split-screen" : "solo";
+    mode.name = playground.GameTerminals.Length > 1 || observedPlayerCount > 1
+        ? "split-screen"
+        : "solo";
     return mode;
 }
 #endif

@@ -42,7 +42,6 @@ class TurboGameAdapter : GameAdapter
             pendingEndReason = "";
         }
         @observation.map = ReadTurboMap(app);
-        @observation.mode = ReadTurboMode(app, playground);
         auto uiConfig = app.PlaygroundScript.UIManager.LocalPlayerConfig;
         bool playingSequence = uiConfig !is null &&
             (uiConfig.UISequence == CGamePlaygroundUIConfig::EUISequence::Playing ||
@@ -105,6 +104,7 @@ class TurboGameAdapter : GameAdapter
             roundCompleted = roundCompleted || state.finished;
             observation.playerStates.InsertLast(state);
         }
+        @observation.mode = ReadTurboMode(app, playground, observation.players.Length);
         observation.active = observation.local && !observation.playerStates.IsEmpty();
         if (observation.active) {
             observation.sessionKey = activeSessionKey;
@@ -149,13 +149,18 @@ MapSnapshot@ ReadTurboMap(CGameManiaPlanet@ app)
     return map;
 }
 
-ModeSnapshot@ ReadTurboMode(CGameManiaPlanet@ app, CGamePlayground@ playground)
+ModeSnapshot@ ReadTurboMode(CGameManiaPlanet@ app, CGamePlayground@ playground, uint observedPlayerCount)
 {
     ModeSnapshot@ mode = ModeSnapshot();
     auto multiLocal = cast<CTrackManiaRaceMultiLocal>(playground);
     uint localPlayerCount = multiLocal is null ? 1 : multiLocal.MultiLocalPlayerInfos.Length;
     uint terminalCount = playground.GameTerminals.Length;
-    string localMode = TurboLocalModeName(multiLocal !is null, localPlayerCount, terminalCount);
+    string localMode = TurboLocalModeName(
+        multiLocal !is null,
+        localPlayerCount,
+        terminalCount,
+        observedPlayerCount
+    );
 
     auto network = cast<CTrackManiaNetwork>(app.Network);
     CTrackManiaRaceRules@ rules;
@@ -170,10 +175,15 @@ ModeSnapshot@ ReadTurboMode(CGameManiaPlanet@ app, CGamePlayground@ playground)
     return mode;
 }
 
-string TurboLocalModeName(bool isMultiLocal, uint localPlayerCount, uint terminalCount)
+string TurboLocalModeName(
+    bool isMultiLocal,
+    uint localPlayerCount,
+    uint terminalCount,
+    uint observedPlayerCount
+)
 {
+    if (terminalCount > 1 || observedPlayerCount > 1) return "split-screen";
     if (!isMultiLocal) return "campaign";
-    if (terminalCount > 1) return "split-screen";
     if (localPlayerCount > 1) return "hot-seat";
     return "arcade";
 }
