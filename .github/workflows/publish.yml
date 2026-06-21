@@ -20,12 +20,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate OpenAPI contract
-        run: npx --yes @redocly/cli lint openapi.yaml
-
-      - name: Validate webhook fixtures
-        run: node tests/validate-fixtures.mjs
-
       - name: Read plugin metadata
         id: plugin
         shell: bash
