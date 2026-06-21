@@ -1,9 +1,6 @@
 [Setting name="Endpoint URL" description="Webhook destination. Capture is disabled while empty." category="Webhook"]
 string Setting_EndpointUrl = "";
 
-[Setting name="Authentication token" description="Optional bearer token. The value is never logged." category="Webhook" password]
-string Setting_AuthenticationToken = "";
-
 [Setting name="Maximum retry count" description="Retries after the initial request." category="Webhook" min=0 max=10]
 uint Setting_MaximumRetryCount = 3;
 
@@ -32,15 +29,13 @@ void Update(float dt)
 
 void LogConfigurationState()
 {
-    int state = Setting_EndpointUrl.Length == 0 ? 0 : (Setting_AuthenticationToken.Length == 0 ? 1 : 2);
+    int state = Setting_EndpointUrl.Length == 0 ? 0 : 1;
     if (state == g_configurationState) return;
     g_configurationState = state;
     if (state == 0) {
         warn("[config] capture disabled: endpoint URL is empty");
-    } else if (state == 1) {
-        print("[config] capture enabled without authentication; waiting for a supported local round");
     } else {
-        print("[config] capture enabled; waiting for a supported local round");
+        print("[config] capture enabled with Openplanet authentication; waiting for a supported local round");
     }
 }
 
