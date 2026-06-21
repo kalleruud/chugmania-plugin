@@ -17,7 +17,7 @@ Trackmania modes. The detailed webhook payload model is defined in
 
 In Trackmania Turbo hot seat, each player's continuously timed attempt is a
 separate round and game. The full configured roster is retained, while
-player-scoped events identify the active player by index.
+player-scoped events include a full snapshot of the active player.
 
 ## Supported Games and Modes
 

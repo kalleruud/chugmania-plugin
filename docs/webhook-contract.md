@@ -65,14 +65,10 @@ emitted.
 
 Every `first_throttle`, `checkpoint`, `lap`, `respawn`, and `finish` event adds:
 
-| Field          | Type                 | Description                          | Rules                                           |
-| -------------- | -------------------- | ------------------------------------ | ----------------------------------------------- |
-| `playerIndex`  | non-negative integer | Position of the player in the roster | Required; joins to `start.players[playerIndex]` |
-| `totalPlayers` | positive integer     | Number of players in the round       | Required and constant within the game           |
-| `name`         | string               | Display name of the player           | Optional                                        |
-| `login`        | string               | Login identifier of the player       | Optional                                        |
-| `localId`      | string               | Local identifier of the player       | Optional                                        |
-| `accountId`    | string               | Account identifier of the player     | Optional                                        |
+| Field          | Type             | Description                         | Rules                                                 |
+| -------------- | ---------------- | ----------------------------------- | ----------------------------------------------------- |
+| `player`       | Player           | Full snapshot of the event's player | Required; matches `start.players[player.playerIndex]` |
+| `totalPlayers` | positive integer | Number of players in the round      | Required and constant within the game                 |
 
 ## Start Models
 

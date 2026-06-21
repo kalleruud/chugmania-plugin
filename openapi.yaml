@@ -192,22 +192,14 @@ components:
         - $ref: "#/components/schemas/BaseEvent"
         - type: object
           additionalProperties: true
-          required: [playerIndex, totalPlayers]
+          required: [player, totalPlayers]
           properties:
-            playerIndex:
-              type: integer
-              minimum: 0
+            player:
+              $ref: "#/components/schemas/Player"
+              description: Full snapshot of the player associated with the event.
             totalPlayers:
               type: integer
               minimum: 1
-            name:
-              type: string
-            login:
-              type: string
-            localId:
-              type: string
-            accountId:
-              type: string
     MedalTimes:
       type: object
       additionalProperties: true
