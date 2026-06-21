@@ -3,6 +3,7 @@ name = "Chugmania Webhooks"
 author = "DJ Balle"
 category = "Utilities"
 version = "1.0.0"
+siteid = 889
 
 [game]
 supported_games = [ "Trackmania" ]
