@@ -334,11 +334,36 @@ components:
             to identify the local mode positively.
         type:
           type: string
+          enum:
+            - time-attack
+            - rounds
+            - laps
+            - cup
+            - royal-time-attack
+            - platform
+            - team
+            - stunts
+            - unknown
+            - split-screen-classic-fun
+            - split-screen-classic-pro
+            - split-screen-smash-fun
+            - split-screen-smash-pro
+            - split-screen-mono-screen-fun
+            - split-screen-mono-screen-pro
+            - split-screen-stunt-fun
+            - split-screen-stunt-pro
+            - split-screen-bonus-fun
+            - split-screen-bonus-pro
+            - arcade-smash
+            - arcade-stunt
+            - hot-seat-smash
+            - hot-seat-stunt
           description: >-
             Turbo secret variant when name is secret, or normalized Trackmania
             Next rule family. Split-screen values are time-attack, rounds, laps,
             cup, royal-time-attack, platform, or unknown. Solo may additionally
-            emit team, stunts, or script.
+            emit team or stunts. The field is omitted when a meaningful solo
+            rule family cannot be resolved.
     StartEvent:
       allOf:
         - $ref: '#/components/schemas/BaseEvent'

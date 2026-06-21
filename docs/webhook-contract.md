@@ -133,7 +133,8 @@ enum nor a recognizable script name. Its values are `time-attack`, `rounds`,
 `laps`, `cup`, `royal-time-attack`, and `platform`.
 
 Next solo play uses the same standard rule-family values and may additionally
-emit `team`, `stunts`, or `script` when exposed by the active game script.
+emit `team` or `stunts` when exposed by the active game script. The optional
+`mode.type` field is omitted when no meaningful rule family can be resolved.
 
 ### Checkpoint
 

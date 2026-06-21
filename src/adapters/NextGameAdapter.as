@@ -150,6 +150,6 @@ string NextLegacyModeType(CTrackManiaNetworkServerInfo::EGameMode_Script gameMod
     if (splitScreen) return "unknown";
     if (gameMode == CTrackManiaNetworkServerInfo::EGameMode_Script::Team) return "team";
     if (gameMode == CTrackManiaNetworkServerInfo::EGameMode_Script::Stunts) return "stunts";
-    return "script";
+    return "";
 }
 #endif

@@ -59,6 +59,7 @@ for (const event of events) {
         'unknown',
       ].includes(event.mode.name)
     )
+    assert.notEqual(event.mode.type, 'script')
     if (event.mode.name === 'secret') assert.ok(event.mode.type)
   } else if (event.type === 'end') {
     assert.ok(
