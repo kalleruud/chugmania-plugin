@@ -49,6 +49,7 @@ class NextGameAdapter : GameAdapter
             PlayerObservation@ state = PlayerObservation();
             @state.player = player;
             state.durationMs = uint(raceTime);
+            state.throttle = ReadNextPlayerThrottle(app, smPlayer);
             state.checkpointDurationMs = Math::Max(0, feedPlayer.LastCpTime);
             state.checkpointIndex = Math::Max(0, feedPlayer.CpCount);
             state.checkpointLapIndex = race.CPCount == 0 ? state.checkpointIndex : state.checkpointIndex % race.CPCount;
@@ -69,12 +70,19 @@ class NextGameAdapter : GameAdapter
             if (roundActive) roundActive = false;
             observation.endReason = "unknown";
         }
-        auto vehicle = VehicleState::ViewingPlayerState();
-        if (vehicle !is null && !observation.playerStates.IsEmpty()) {
-            observation.playerStates[0].throttle = vehicle.InputGasPedal;
-        }
         return observation;
     }
+}
+
+float ReadNextPlayerThrottle(CTrackMania@ app, CSmPlayer@ player)
+{
+    if (app.GameScene !is null) {
+        auto vehicle = VehicleState::GetVis(app.GameScene, player);
+        if (vehicle !is null && vehicle.AsyncState !is null) return vehicle.AsyncState.InputGasPedal;
+    }
+    if (app.CurrentPlayground.GameTerminals.Length != 1) return 0;
+    auto viewedVehicle = VehicleState::ViewingPlayerState();
+    return viewedVehicle is null ? 0 : viewedVehicle.InputGasPedal;
 }
 
 MapSnapshot@ ReadNextMap(CTrackMania@ app)
