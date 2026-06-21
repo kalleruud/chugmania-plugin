@@ -1,0 +1,388 @@
+openapi: 3.1.0
+info:
+  title: Chugmania Webhooks
+  version: 1.0.0
+  description: Webhook contract emitted by the Trackmania Turbo and Trackmania Next plugins.
+servers:
+  - url: https://example.invalid
+    description: Replaced by the exact endpoint URL configured in the plugin.
+paths:
+  /:
+    post:
+      operationId: receiveTrackmaniaEvent
+      summary: Receive one Trackmania race event
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '200':
+          description: Event accepted. The plugin ignores the response body.
+        '204':
+          description: Event accepted with no response body.
+        '3XX':
+          description: Permanent delivery failure. The plugin does not follow redirects.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '408':
+          description: Request timeout. The plugin retries the event.
+          headers:
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests. The plugin retries the event.
+          headers:
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '4XX':
+          description: Permanent delivery failure, except for the separately documented 408 and 429 responses.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable. NO_ACTIVE_SESSION means no receiver session can currently register the event.
+          headers:
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                noActiveSession:
+                  value:
+                    code: NO_ACTIVE_SESSION
+                    message: No active receiver session can register this event.
+        '5XX':
+          description: Temporary receiver failure. The plugin retries the event.
+          headers:
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  headers:
+    RetryAfter:
+      description: Delay as integer seconds or an HTTP date.
+      schema:
+        type: string
+  schemas:
+    Event:
+      oneOf:
+        - $ref: '#/components/schemas/StartEvent'
+        - $ref: '#/components/schemas/FirstThrottleEvent'
+        - $ref: '#/components/schemas/CheckpointEvent'
+        - $ref: '#/components/schemas/LapEvent'
+        - $ref: '#/components/schemas/RespawnEvent'
+        - $ref: '#/components/schemas/FinishEvent'
+        - $ref: '#/components/schemas/EndEvent'
+      discriminator:
+        propertyName: type
+        mapping:
+          start: '#/components/schemas/StartEvent'
+          first_throttle: '#/components/schemas/FirstThrottleEvent'
+          checkpoint: '#/components/schemas/CheckpointEvent'
+          lap: '#/components/schemas/LapEvent'
+          respawn: '#/components/schemas/RespawnEvent'
+          finish: '#/components/schemas/FinishEvent'
+          end: '#/components/schemas/EndEvent'
+    BaseEvent:
+      type: object
+      required:
+        - schemaVersion
+        - type
+        - eventId
+        - sequence
+        - occurredAt
+        - durationMs
+        - gameId
+        - source
+      properties:
+        schemaVersion:
+          type: string
+          pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+          examples: ['1.0.0']
+        type:
+          type: string
+        eventId:
+          type: string
+          format: uuid
+          description: Globally unique UUID v4, retained across retries.
+        sequence:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Contiguous capture order within the game.
+        occurredAt:
+          type: string
+          format: date-time
+          description: RFC 3339 UTC timestamp with millisecond precision.
+        durationMs:
+          type: integer
+          format: int64
+          minimum: 0
+          description: In-game race timer when the event occurred.
+        gameId:
+          type: string
+          format: uuid
+          description: UUID v4 shared by all captured events in one round.
+        source:
+          $ref: '#/components/schemas/Source'
+    Source:
+      type: object
+      required:
+        - pluginName
+        - pluginVersion
+        - game
+      properties:
+        pluginName:
+          type: string
+          enum: [Chugmania Webhooks]
+        pluginVersion:
+          type: string
+          pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+        game:
+          type: string
+          enum: [trackmaniaTurbo, trackmaniaNext]
+    Player:
+      type: object
+      required: [playerIndex]
+      properties:
+        playerIndex:
+          type: integer
+          minimum: 0
+        name:
+          type: string
+        login:
+          type: string
+        localId:
+          type: string
+        accountId:
+          type: string
+    PlayerEvent:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          required: [playerIndex, totalPlayers]
+          properties:
+            playerIndex:
+              type: integer
+              minimum: 0
+            totalPlayers:
+              type: integer
+              minimum: 1
+            name:
+              type: string
+            login:
+              type: string
+            localId:
+              type: string
+            accountId:
+              type: string
+    MedalTimes:
+      type: object
+      properties:
+        author:
+          type: integer
+          format: int64
+          minimum: 0
+        gold:
+          type: integer
+          format: int64
+          minimum: 0
+        silver:
+          type: integer
+          format: int64
+          minimum: 0
+        bronze:
+          type: integer
+          format: int64
+          minimum: 0
+    Map:
+      type: object
+      required: [name, isLaps]
+      properties:
+        name:
+          type: string
+        uid:
+          type: string
+        author:
+          type: string
+        environment:
+          type: string
+        type:
+          type: string
+        medalTimesMs:
+          $ref: '#/components/schemas/MedalTimes'
+        isLaps:
+          type: boolean
+        totalLaps:
+          type: integer
+          minimum: 1
+        checkpointsPerLap:
+          type: integer
+          minimum: 0
+          description: Intermediate checkpoints only; excludes start and finish.
+    ModeSetting:
+      oneOf:
+        - type: string
+        - type: number
+        - type: boolean
+    Mode:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        settings:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ModeSetting'
+    StartEvent:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          required: [type, players, totalPlayers, map, mode]
+          properties:
+            type:
+              type: string
+              enum: [start]
+            players:
+              type: array
+              minItems: 1
+              items:
+                $ref: '#/components/schemas/Player'
+              description: Ordered so players[i].playerIndex equals i.
+            totalPlayers:
+              type: integer
+              minimum: 1
+              description: Equal to players.length.
+            map:
+              $ref: '#/components/schemas/Map'
+            mode:
+              $ref: '#/components/schemas/Mode'
+    FirstThrottleEvent:
+      allOf:
+        - $ref: '#/components/schemas/PlayerEvent'
+        - type: object
+          required: [type]
+          properties:
+            type:
+              type: string
+              enum: [first_throttle]
+    CheckpointEvent:
+      allOf:
+        - $ref: '#/components/schemas/PlayerEvent'
+        - type: object
+          required: [type, checkpointIndex, checkpointLapIndex, lapNumber]
+          properties:
+            type:
+              type: string
+              enum: [checkpoint]
+            checkpointIndex:
+              type: integer
+              minimum: 1
+            checkpointLapIndex:
+              type: integer
+              minimum: 1
+            lapNumber:
+              type: integer
+              minimum: 1
+            theoreticalDurationMs:
+              type: integer
+              format: int64
+              minimum: 0
+              description: Optional Trackmania Next dependency value, sent unchanged.
+    LapEvent:
+      allOf:
+        - $ref: '#/components/schemas/PlayerEvent'
+        - type: object
+          required: [type, checkpointIndex, checkpointLapIndex, lapNumber]
+          properties:
+            type:
+              type: string
+              enum: [lap]
+            checkpointIndex:
+              type: integer
+              minimum: 0
+            checkpointLapIndex:
+              type: integer
+              const: 0
+            lapNumber:
+              type: integer
+              minimum: 1
+    RespawnEvent:
+      allOf:
+        - $ref: '#/components/schemas/PlayerEvent'
+        - type: object
+          required: [type, checkpointIndex, checkpointLapIndex, lapNumber]
+          properties:
+            type:
+              type: string
+              enum: [respawn]
+            checkpointIndex:
+              type: integer
+              minimum: 0
+            checkpointLapIndex:
+              type: integer
+              minimum: 0
+            lapNumber:
+              type: integer
+              minimum: 1
+            lostMs:
+              type: integer
+              format: int64
+              minimum: 0
+              description: Optional Trackmania Next dependency value, sent unchanged.
+    FinishEvent:
+      allOf:
+        - $ref: '#/components/schemas/PlayerEvent'
+        - type: object
+          required: [type]
+          properties:
+            type:
+              type: string
+              enum: [finish]
+    EndEvent:
+      allOf:
+        - $ref: '#/components/schemas/BaseEvent'
+        - type: object
+          required: [type, endReason]
+          properties:
+            type:
+              type: string
+              enum: [end]
+            endReason:
+              type: string
+              enum: [completed, restarted, aborted, unknown]
+    ErrorResponse:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
