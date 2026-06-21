@@ -340,9 +340,15 @@ components:
         type:
           type: string
           description: >-
-            Specific secret variant when name is secret.
+            Turbo secret variant when name is secret, or normalized Trackmania
+            Next rule family. Split-screen values are time-attack, rounds, laps,
+            cup, royal-time-attack, platform, or unknown. Solo may additionally
+            emit team, stunts, or script.
         settings:
           type: object
+          description: >-
+            Primitive settings exposed by the active game mode. Trackmania Next
+            includes only settings applicable to the reported rule family.
           patternProperties:
             '.*':
               $ref: '#/components/schemas/ModeSetting'

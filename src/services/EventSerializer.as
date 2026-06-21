@@ -34,6 +34,7 @@ Json::Value@ SerializeMode(ModeSnapshot@ mode)
     Json::Value@ json = Json::Object();
     json["name"] = mode.name;
     if (mode.modeType.Length > 0) json["type"] = mode.modeType;
+    if (mode.settings !is null && mode.settings.GetKeys().Length > 0) json["settings"] = mode.settings;
     return json;
 }
 

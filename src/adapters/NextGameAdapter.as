@@ -61,7 +61,7 @@ class NextGameAdapter : GameAdapter
             observation.playerStates.InsertLast(state);
         }
         bool splitScreen = playground.GameTerminals.Length > 1 || observation.players.Length > 1;
-        @observation.mode = ReadNextMode(splitScreen);
+        @observation.mode = ReadNextMode(app, splitScreen);
         observation.active = observation.local && !observation.playerStates.IsEmpty();
         if (observation.active) {
             observation.sessionKey = app.RootMap.IdName + ":" + activeSpawnIndex;
@@ -95,10 +95,111 @@ MapSnapshot@ ReadNextMap(CTrackMania@ app)
     return map;
 }
 
-ModeSnapshot@ ReadNextMode(bool splitScreen)
+ModeSnapshot@ ReadNextMode(CTrackMania@ app, bool splitScreen)
 {
     ModeSnapshot@ mode = ModeSnapshot();
     mode.name = splitScreen ? "split-screen" : "solo";
+    auto network = cast<CTrackManiaNetwork>(app.Network);
+    if (network is null) return mode;
+    auto serverInfo = cast<CTrackManiaNetworkServerInfo>(network.ServerInfo);
+    if (serverInfo is null) return mode;
+
+    mode.modeType = NextModeType(app, serverInfo, splitScreen);
+    @mode.settings = NextModeSettings(serverInfo, mode.modeType);
     return mode;
+}
+
+string NextModeType(CTrackMania@ app, CTrackManiaNetworkServerInfo@ serverInfo, bool splitScreen)
+{
+    string scriptMode = NextScriptModeType(NextModeScriptName(app, serverInfo));
+    if (scriptMode.Length > 0) return scriptMode;
+    return NextLegacyModeType(serverInfo.CurGameMode_Script, splitScreen);
+}
+
+string NextModeScriptName(CTrackMania@ app, CTrackManiaNetworkServerInfo@ serverInfo)
+{
+    string activeScript;
+    if (app.PlaygroundScript !is null) activeScript = string(app.PlaygroundScript.ServerModeName);
+    return (activeScript + " " + string(serverInfo.CurGameModeStr) + " " + string(serverInfo.CurScriptRelName)).ToLower();
+}
+
+string NextScriptModeType(const string &in scriptName)
+{
+    if (scriptName.Contains("tm_royaltimeattack_")) return "royal-time-attack";
+    if (scriptName.Contains("tm_timeattack_")) return "time-attack";
+    if (scriptName.Contains("tm_platform_")) return "platform";
+    if (scriptName.Contains("tm_rounds_")) return "rounds";
+    if (scriptName.Contains("tm_laps_")) return "laps";
+    if (scriptName.Contains("tm_cup_")) return "cup";
+    return "";
+}
+
+string NextLegacyModeType(CTrackManiaNetworkServerInfo::EGameMode_Script gameMode, bool splitScreen)
+{
+    if (gameMode == CTrackManiaNetworkServerInfo::EGameMode_Script::TimeAttack) return "time-attack";
+    if (gameMode == CTrackManiaNetworkServerInfo::EGameMode_Script::Rounds) return "rounds";
+    if (gameMode == CTrackManiaNetworkServerInfo::EGameMode_Script::Laps) return "laps";
+    if (gameMode == CTrackManiaNetworkServerInfo::EGameMode_Script::Cup) return "cup";
+    if (splitScreen) return "unknown";
+    if (gameMode == CTrackManiaNetworkServerInfo::EGameMode_Script::Team) return "team";
+    if (gameMode == CTrackManiaNetworkServerInfo::EGameMode_Script::Stunts) return "stunts";
+    return "script";
+}
+
+Json::Value@ NextModeSettings(CTrackManiaNetworkServerInfo@ serverInfo, const string &in modeType)
+{
+    Json::Value@ settings = Json::Object();
+    if (modeType == "time-attack") {
+        AddNextTimeAttackSettings(settings, serverInfo);
+    } else if (modeType == "rounds") {
+        AddNextRoundsSettings(settings, serverInfo);
+    } else if (modeType == "team") {
+        AddNextTeamSettings(settings, serverInfo);
+    } else if (modeType == "laps") {
+        AddNextLapsSettings(settings, serverInfo);
+    } else if (modeType == "cup") {
+        AddNextCupSettings(settings, serverInfo);
+    } else if (modeType == "royal-time-attack" || modeType == "platform") {
+        settings["timeLimitMs"] = serverInfo.CurTimeAttackLimit;
+    }
+    return settings;
+}
+
+void AddNextTimeAttackSettings(Json::Value@ settings, CTrackManiaNetworkServerInfo@ serverInfo)
+{
+    settings["timeLimitMs"] = serverInfo.CurTimeAttackLimit;
+    settings["synchronizedStartPeriodMs"] = serverInfo.CurTimeAttackSynchStartPeriod;
+}
+
+void AddNextRoundsSettings(Json::Value@ settings, CTrackManiaNetworkServerInfo@ serverInfo)
+{
+    settings["pointsLimit"] = serverInfo.CurRoundUseNewRules
+        ? serverInfo.CurRoundPointsLimitNewRules
+        : serverInfo.CurRoundPointsLimit;
+    settings["forcedLaps"] = serverInfo.CurRoundForcedLaps;
+    settings["useNewRules"] = serverInfo.CurRoundUseNewRules;
+}
+
+void AddNextTeamSettings(Json::Value@ settings, CTrackManiaNetworkServerInfo@ serverInfo)
+{
+    settings["pointsLimit"] = serverInfo.CurTeamUseNewRules
+        ? serverInfo.CurTeamPointsLimitNewRules
+        : serverInfo.CurTeamPointsLimit;
+    settings["maxPoints"] = serverInfo.CurTeamMaxPoints;
+    settings["useNewRules"] = serverInfo.CurTeamUseNewRules;
+}
+
+void AddNextLapsSettings(Json::Value@ settings, CTrackManiaNetworkServerInfo@ serverInfo)
+{
+    settings["lapCount"] = serverInfo.CurLapsNbLaps;
+    settings["timeLimitMs"] = serverInfo.CurLapsTimeLimit;
+}
+
+void AddNextCupSettings(Json::Value@ settings, CTrackManiaNetworkServerInfo@ serverInfo)
+{
+    settings["pointsLimit"] = serverInfo.CurEswcCupPointsLimit;
+    settings["roundsPerMap"] = serverInfo.CurEswcCupRoundsPerChallenge;
+    settings["winnerCount"] = serverInfo.CurEswcCupNbWinners;
+    settings["warmupDurationMs"] = serverInfo.CurEswcCupWarmUpDuration;
 }
 #endif

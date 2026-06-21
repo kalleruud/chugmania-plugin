@@ -109,11 +109,11 @@ other identifiers because its runtime does not expose equivalent values.
 
 ### Mode
 
-| Field      | Type   | Description                         | Rules                                                       |
-| ---------- | ------ | ----------------------------------- | ----------------------------------------------------------- |
-| `name`     | enum   | Normalized local game mode          | Required; see mode values below                             |
-| `type`     | string | Specific secret mode variant        | Required when `name` is `secret`; otherwise omitted         |
-| `settings` | object | Available configuration of the mode | Optional available primitive settings, using camelCase keys |
+| Field      | Type   | Description                         | Rules                                            |
+| ---------- | ------ | ----------------------------------- | ------------------------------------------------ |
+| `name`     | enum   | Normalized local game mode          | Required; see mode values below                  |
+| `type`     | string | Specific mode or rule family        | Turbo secret variant, or Next rule family        |
+| `settings` | object | Available configuration of the mode | Optional primitive settings using camelCase keys |
 
 Turbo emits `campaign`, `arcade`, `hot-seat`, `split-screen`, `secret`, or
 `unknown` as `mode.name`. Next emits `solo` or `split-screen`. `unknown` is the
@@ -127,6 +127,22 @@ Turbo secret modes identify the activated rule set in `mode.type`:
 | Split screen  | `split-screen-classic-fun`, `split-screen-classic-pro`, `split-screen-smash-fun`, `split-screen-smash-pro`, `split-screen-mono-screen-fun`, `split-screen-mono-screen-pro`, `split-screen-stunt-fun`, `split-screen-stunt-pro`, `split-screen-bonus-fun`, `split-screen-bonus-pro` |
 | Arcade        | `arcade-smash`, `arcade-stunt`                                                                                                                                                                                                                                                     |
 | Hot seat      | `hot-seat-smash`, `hot-seat-stunt`                                                                                                                                                                                                                                                 |
+
+Next split-screen play emits one of the six selectable local rule families as
+`mode.type`. `unknown` is used if the game exposes neither a recognized rule
+enum nor a recognizable script name. Settings are scoped to that rule family:
+
+| `mode.type`         | `mode.settings` fields                                           |
+| ------------------- | ---------------------------------------------------------------- |
+| `time-attack`       | `timeLimitMs`, `synchronizedStartPeriodMs`                       |
+| `rounds`            | `pointsLimit`, `forcedLaps`, `useNewRules`                       |
+| `laps`              | `lapCount`, `timeLimitMs`                                        |
+| `cup`               | `pointsLimit`, `roundsPerMap`, `winnerCount`, `warmupDurationMs` |
+| `royal-time-attack` | `timeLimitMs`                                                    |
+| `platform`          | `timeLimitMs`                                                    |
+
+Next solo play uses the same standard rule-family values and may additionally
+emit `team`, `stunts`, or `script` when exposed by the active game script.
 
 ### Checkpoint
 

@@ -31,6 +31,7 @@ class ModeSnapshot
 {
     string name;
     string modeType;
+    Json::Value@ settings;
 }
 
 class PlayerObservation
