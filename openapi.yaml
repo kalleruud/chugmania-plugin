@@ -321,8 +321,14 @@ components:
       properties:
         name:
           type: string
+          enum: [campaign, arcade, hot-seat, split-screen, secret, solo]
+          description: >-
+            Normalized local mode. Turbo emits campaign, arcade, hot-seat,
+            split-screen, or secret. Next emits solo or split-screen.
         type:
           type: string
+          description: >-
+            Specific secret variant when name is secret.
         settings:
           type: object
           patternProperties:

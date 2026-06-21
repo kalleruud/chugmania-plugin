@@ -42,7 +42,7 @@ class TurboGameAdapter : GameAdapter
             pendingEndReason = "";
         }
         @observation.map = ReadTurboMap(app);
-        @observation.mode = ReadTurboMode();
+        @observation.mode = ReadTurboMode(app, playground);
         auto uiConfig = app.PlaygroundScript.UIManager.LocalPlayerConfig;
         bool playingSequence = uiConfig !is null &&
             (uiConfig.UISequence == CGamePlaygroundUIConfig::EUISequence::Playing ||
@@ -149,10 +149,56 @@ MapSnapshot@ ReadTurboMap(CGameManiaPlanet@ app)
     return map;
 }
 
-ModeSnapshot@ ReadTurboMode()
+ModeSnapshot@ ReadTurboMode(CGameManiaPlanet@ app, CGamePlayground@ playground)
 {
     ModeSnapshot@ mode = ModeSnapshot();
-    mode.name = "Local play";
+    auto multiLocal = cast<CTrackManiaRaceMultiLocal>(playground);
+    uint localPlayerCount = multiLocal is null ? 1 : multiLocal.MultiLocalPlayerInfos.Length;
+    uint terminalCount = playground.GameTerminals.Length;
+    string localMode = TurboLocalModeName(multiLocal !is null, localPlayerCount, terminalCount);
+
+    auto network = cast<CTrackManiaNetwork>(app.Network);
+    CTrackManiaRaceRules@ rules;
+    if (network !is null) @rules = network.TmRaceRules;
+    string secretType = TurboSecretModeType(rules, localMode);
+    if (secretType.Length > 0) {
+        mode.name = "secret";
+        mode.modeType = secretType;
+    } else {
+        mode.name = localMode;
+    }
     return mode;
+}
+
+string TurboLocalModeName(bool isMultiLocal, uint localPlayerCount, uint terminalCount)
+{
+    if (!isMultiLocal) return "campaign";
+    if (terminalCount > 1) return "split-screen";
+    if (localPlayerCount > 1) return "hot-seat";
+    return "arcade";
+}
+
+string TurboSecretModeType(CTrackManiaRaceRules@ rules, const string &in localMode)
+{
+    if (rules is null) return "";
+
+    string variant;
+    if (rules.EnableBonusEvents) {
+        variant = "bonus";
+    } else if (rules.UiStuntsMode) {
+        variant = "stunt";
+    } else if (rules.EnableCheckpointBonus) {
+        variant = "smash";
+    } else if (rules.EnableUniqueCamera) {
+        variant = "mono-screen";
+    } else if (localMode == "split-screen" && rules.EnableCollisions) {
+        variant = "classic";
+    } else {
+        return "";
+    }
+
+    string type = localMode + "-" + variant;
+    if (localMode == "split-screen") type += rules.EnableScaleCar ? "-fun" : "-pro";
+    return type;
 }
 #endif

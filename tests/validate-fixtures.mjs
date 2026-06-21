@@ -45,6 +45,17 @@ for (const event of events) {
   if (event.type === 'start') {
     assert.equal(event.players.length, event.game.totalPlayers)
     assert.ok(event.map && event.mode)
+    assert.ok(
+      [
+        'campaign',
+        'arcade',
+        'hot-seat',
+        'split-screen',
+        'secret',
+        'solo',
+      ].includes(event.mode.name)
+    )
+    if (event.mode.name === 'secret') assert.ok(event.mode.type)
   } else if (event.type === 'end') {
     assert.ok(
       ['completed', 'restarted', 'aborted', 'unknown'].includes(event.endReason)

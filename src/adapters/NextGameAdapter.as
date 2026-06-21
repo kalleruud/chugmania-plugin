@@ -72,7 +72,7 @@ MapSnapshot@ ReadNextMap(CTrackMania@ app)
 ModeSnapshot@ ReadNextMode(CGameManiaPlanetPlayground@ playground)
 {
     ModeSnapshot@ mode = ModeSnapshot();
-    mode.name = "Local play";
+    mode.name = playground.GameTerminals.Length > 1 ? "split-screen" : "solo";
     return mode;
 }
 #endif

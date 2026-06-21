@@ -22,7 +22,7 @@
       "totalLaps": 2,
       "checkpointsPerLap": 3
     },
-    "mode": { "name": "Local play" }
+    "mode": { "name": "campaign" }
   },
   {
     "schemaVersion": "1.0.0",

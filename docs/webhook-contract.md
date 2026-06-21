@@ -108,9 +108,20 @@ models instead of repeating their fields at the event root.
 
 | Field      | Type   | Description                         | Rules                                                       |
 | ---------- | ------ | ----------------------------------- | ----------------------------------------------------------- |
-| `name`     | string | Display name of the game mode       | Required                                                    |
-| `type`     | string | Game-reported mode type             | Optional                                                    |
+| `name`     | enum   | Normalized local game mode          | Required; see mode values below                             |
+| `type`     | string | Specific secret mode variant        | Required when `name` is `secret`; otherwise omitted         |
 | `settings` | object | Available configuration of the mode | Optional available primitive settings, using camelCase keys |
+
+Turbo emits `campaign`, `arcade`, `hot-seat`, `split-screen`, or `secret` as
+`mode.name`. Next emits `solo` or `split-screen`.
+
+Turbo secret modes identify the activated rule set in `mode.type`:
+
+| Secret family | `mode.type` values                                                                                                                                                                                                                                                                 |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Split screen  | `split-screen-classic-fun`, `split-screen-classic-pro`, `split-screen-smash-fun`, `split-screen-smash-pro`, `split-screen-mono-screen-fun`, `split-screen-mono-screen-pro`, `split-screen-stunt-fun`, `split-screen-stunt-pro`, `split-screen-bonus-fun`, `split-screen-bonus-pro` |
+| Arcade        | `arcade-smash`, `arcade-stunt`                                                                                                                                                                                                                                                     |
+| Hot seat      | `hot-seat-smash`, `hot-seat-stunt`                                                                                                                                                                                                                                                 |
 
 ### Checkpoint
 
@@ -197,7 +208,7 @@ Emitted exactly once when a fully captured round begins.
     "checkpointsPerLap": 5
   },
   "mode": {
-    "name": "Time Attack"
+    "name": "campaign"
   }
 }
 ```
