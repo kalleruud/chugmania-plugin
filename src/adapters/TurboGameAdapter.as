@@ -41,7 +41,7 @@ class TurboGameAdapter : GameAdapter
             roundCompleted = false;
             pendingEndReason = "";
         }
-        @observation.map = ReadTurboMap(app.Challenge);
+        @observation.map = ReadTurboMap(app);
         @observation.mode = ReadTurboMode();
         auto uiConfig = app.PlaygroundScript.UIManager.LocalPlayerConfig;
         bool playingSequence = uiConfig !is null &&
@@ -86,7 +86,12 @@ class TurboGameAdapter : GameAdapter
                 : 0;
             state.throttle = tmPlayer.InputGasPedal;
             state.respawnCount = tmPlayer.NbRespawns;
-            state.lapNumber = tmPlayer.CurLapIndex + 1;
+            state.finished = tmPlayer.RaceState == CTrackManiaPlayer::ERaceState::Finished;
+            state.lapNumber = tmPlayer.CurLapIndex == 0 ? 1 : tmPlayer.CurLapIndex;
+            if (state.finished && state.lapNumber > 1) state.lapNumber--;
+            if (observation.map.totalLaps > 0 && state.lapNumber > observation.map.totalLaps) {
+                state.lapNumber = observation.map.totalLaps;
+            }
             if (tmPlayer.CurRace !is null) {
                 state.checkpointIndex = tmPlayer.CurRace.Checkpoints.Length;
                 if (tmPlayer.CurCheckpointRaceTime > 0) {
@@ -94,7 +99,6 @@ class TurboGameAdapter : GameAdapter
                 }
             }
             if (tmPlayer.CurLap !is null) state.checkpointLapIndex = tmPlayer.CurLap.Checkpoints.Length;
-            state.finished = tmPlayer.RaceState == CTrackManiaPlayer::ERaceState::Finished;
             if (state.finished && tmPlayer.CurRace !is null && tmPlayer.CurRace.Time >= 0) {
                 state.finishDurationMs = tmPlayer.CurRace.Time;
             }
@@ -123,18 +127,25 @@ class TurboGameAdapter : GameAdapter
     }
 }
 
-MapSnapshot@ ReadTurboMap(CGameCtnChallenge@ challenge)
+MapSnapshot@ ReadTurboMap(CGameManiaPlanet@ app)
 {
     MapSnapshot@ map = MapSnapshot();
+    auto challenge = app.Challenge;
     map.name = challenge.MapName;
     map.uid = challenge.IdName;
     map.author = challenge.AuthorNickName;
     map.mapType = challenge.MapType;
     map.isLaps = challenge.TMObjective_IsLapRace;
+    map.totalLaps = challenge.TMObjective_NbLaps;
     map.authorTime = challenge.TMObjective_AuthorTime;
     map.goldTime = challenge.TMObjective_GoldTime;
     map.silverTime = challenge.TMObjective_SilverTime;
     map.bronzeTime = challenge.TMObjective_BronzeTime;
+    auto network = cast<CTrackManiaNetwork>(app.Network);
+    if (network !is null && network.TmRaceRules !is null) {
+        map.checkpointsPerLap = network.TmRaceRules.MapCheckpointPos.Length;
+        if (map.totalLaps == 0) map.totalLaps = network.TmRaceRules.MapNbLaps;
+    }
     return map;
 }
 
