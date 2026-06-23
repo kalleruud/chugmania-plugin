@@ -1,259 +1,349 @@
-<!DOCTYPE html>
+<!doctype html>
 <html prefix="og: http://ogp.me/ns#" lang="en">
-	<head>
-		<meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
 
-		<title>Authentication API - Openplanet</title>
+    <title>Authentication API - Openplanet</title>
 
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-		<link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
-		<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
-		<link rel="manifest" href="/manifest.json">
-		<link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5">
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/img/apple-touch-icon.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/img/favicon-32x32.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/img/favicon-16x16.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5" />
 
-		
-		<meta name="theme-color" content="#ff3399">
-		<meta property="og:title" content="Authentication API - Openplanet">
-		<meta property="og:type" content="website">
-		<meta property="og:image" content="https://openplanet.dev/img/logo_icon.png">
-		<meta property="og:url" content="https://openplanet.dev/docs/reference/auth">
-		<meta property="og:description" content="Guide on using Openplanet&#039;s authentication API.">
+    <meta name="theme-color" content="#ff3399" />
+    <meta property="og:title" content="Authentication API - Openplanet" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:image"
+      content="https://openplanet.dev/img/logo_icon.png" />
+    <meta
+      property="og:url"
+      content="https://openplanet.dev/docs/reference/auth" />
+    <meta
+      property="og:description"
+      content="Guide on using Openplanet&#039;s authentication API." />
 
-		<link rel="search" type="application/opensearchdescription+xml" href="/opensearch/plugins" title="Openplanet Plugin Search"/>
-		<link rel="search" type="application/opensearchdescription+xml" href="/opensearch/api" title="Openplanet Developer API Search"/>
+    <link
+      rel="search"
+      type="application/opensearchdescription+xml"
+      href="/opensearch/plugins"
+      title="Openplanet Plugin Search" />
+    <link
+      rel="search"
+      type="application/opensearchdescription+xml"
+      href="/opensearch/api"
+      title="Openplanet Developer API Search" />
 
-		<link rel="stylesheet" href="/style.css?1776265006">
-		<link rel="stylesheet" href="/css/fork-awesome.min.css">
-		<link rel="stylesheet" href="/css/agate.min.css?1769265621">
+    <link rel="stylesheet" href="/style.css?1776265006" />
+    <link rel="stylesheet" href="/css/fork-awesome.min.css" />
+    <link rel="stylesheet" href="/css/agate.min.css?1769265621" />
+  </head>
 
-			</head>
+  <body class="has-navbar-fixed-top">
+    <nav class="navbar is-fixed-top">
+      <div class="container">
+        <div class="navbar-brand">
+          <a href="/" class="navbar-item">
+            <span class="icon has-agenda gay"
+              ><i class="fa fa-heartbeat"></i
+            ></span>
+            <span>open<b>planet</b></span>
+          </a>
 
-	<body class="has-navbar-fixed-top">
-		<nav class="navbar is-fixed-top">
-			<div class="container">
-				<div class="navbar-brand">
-					<a href="/" class="navbar-item">
-												<span class="icon has-agenda gay"><i class="fa fa-heartbeat"></i></span>
-						<span>open<b>planet</b></span>
-					</a>
+          <a class="navbar-burger" data-target="navMenu"
+            ><span></span><span></span><span></span
+          ></a>
+        </div>
 
-					<a class="navbar-burger" data-target="navMenu"><span></span><span></span><span></span></a>
-				</div>
+        <div class="navbar-menu" id="navMenu">
+          <div class="navbar-start">
+            <a href="/plugins" class="navbar-item">
+              <span class="icon"><i class="fa fa-code-fork"></i></span>
+              <span>Plugins</span>
+            </a>
+            <a href="/files" class="navbar-item">
+              <span class="icon"><i class="fa fa-file-o"></i></span>
+              <span>Files</span>
+            </a>
+            <a href="/docs" class="navbar-item">
+              <span class="icon"><i class="fa fa-book"></i></span>
+              <span>Documentation</span>
+            </a>
+            <a href="/news" class="navbar-item">
+              <span class="icon"><i class="fa fa-newspaper-o"></i></span>
+              <span>News</span>
+            </a>
+            <div class="navbar-item">
+              <a
+                href="/download"
+                class="button is-secondary is-small is-outlined">
+                <span class="icon"><i class="fa fa-download"></i></span>
+                <span>Download Openplanet</span>
+              </a>
+            </div>
+          </div>
 
-				<div class="navbar-menu" id="navMenu">
-					<div class="navbar-start">
-															<a href="/plugins" class="navbar-item">
-																					<span class="icon"><i class="fa fa-code-fork"></i></span>
-																				<span>Plugins</span>
-									</a>
-																		<a href="/files" class="navbar-item">
-																					<span class="icon"><i class="fa fa-file-o"></i></span>
-																				<span>Files</span>
-									</a>
-																		<a href="/docs" class="navbar-item">
-																					<span class="icon"><i class="fa fa-book"></i></span>
-																				<span>Documentation</span>
-									</a>
-																		<a href="/news" class="navbar-item">
-																					<span class="icon"><i class="fa fa-newspaper-o"></i></span>
-																				<span>News</span>
-									</a>
-																		<div class="navbar-item">
-										<a href="/download" class="button is-secondary is-small is-outlined">
-																							<span class="icon"><i class="fa fa-download"></i></span>
-																						<span>Download Openplanet</span>
-										</a>
-									</div>
-														</div>
+          <div class="navbar-end">
+            <div class="navbar-item">
+              <a href="/user/login" class="button is-small">
+                <span class="icon"><i class="fa fa-lock"></i></span>
+                <span>Login</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
 
-					<div class="navbar-end">
-													<div class="navbar-item">
-								<a href="/user/login" class="button is-small">
-									<span class="icon"><i class="fa fa-lock"></i></span>
-									<span>Login</span>
-								</a>
-							</div>
-											</div>
-				</div>
-			</div>
-		</nav>
+    <section class="hero is-secondary is-bold">
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <h1 class="title">Documentation</h1>
+        </div>
+      </div>
+    </section>
 
-		
-		
-<section class="hero is-secondary is-bold">
-	<div class="hero-body">
-		<div class="container has-text-centered">
-			<h1 class="title">Documentation</h1>
-		</div>
-	</div>
-</section>
+    <section class="section">
+      <div class="container">
+        <div class="columns">
+          <div class="column is-narrow">
+            <aside class="menu">
+              <p class="menu-label">Documentation</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs">
+                    <span class="icon"><i class="fa fa-home"></i></span>
+                    <span>Home</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/help">
+                    <span class="icon"><i class="fa fa-bug"></i></span>
+                    <span>Troubleshooting</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/tutorials/installation">
+                    <span class="icon"
+                      ><i class="fa fa-cloud-download"></i
+                    ></span>
+                    <span>Installing Openplanet</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/tutorials/signature-modes">
+                    <span class="icon"><i class="fa fa-lock"></i></span>
+                    <span>Signature Modes</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/school-mode">
+                    <span class="icon"><i class="fa fa-university"></i></span>
+                    <span>School Mode</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">Plugin development</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/getting-started">
+                    <span class="icon"><i class="fa fa-info-circle"></i></span>
+                    <span>Getting started</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/info-toml">
+                    <span class="icon"><i class="fa fa-info"></i></span>
+                    <span>info.toml</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/plugin-callbacks">
+                    <span class="icon"><i class="fa fa-exchange"></i></span>
+                    <span>Callback functions</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/icons">
+                    <span class="icon"><i class="fa fa-flag"></i></span>
+                    <span>Icons</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/settings">
+                    <span class="icon"><i class="fa fa-cogs"></i></span>
+                    <span>Settings</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/imports">
+                    <span class="icon"
+                      ><i class="fa fa-arrow-circle-down"></i
+                    ></span>
+                    <span>Script imports</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/preprocessor">
+                    <span class="icon"><i class="fa fa-code"></i></span>
+                    <span>Preprocessor</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/auth" class="is-active">
+                    <span class="icon"><i class="fa fa-lock"></i></span>
+                    <span>Authentication</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">Dependencies</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/reference/nadeoservices">
+                    <span class="icon"><i class="fa fa-ticket"></i></span>
+                    <span>NadeoServices</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/vehiclestate">
+                    <span class="icon"><i class="fa fa-car"></i></span>
+                    <span>VehicleState</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/camera">
+                    <span class="icon"><i class="fa fa-camera"></i></span>
+                    <span>Camera</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/controls">
+                    <span class="icon"><i class="fa fa-check-square"></i></span>
+                    <span>Controls</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">API Reference</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/api">
+                    <span class="icon"><i class="fa fa-heartbeat"></i></span>
+                    <span>Openplanet API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://next.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Trackmania API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://mp4.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Maniaplanet API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://turbo.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Turbo API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://webservices.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-ticket"></i></span>
+                    <span>Web Services API</span>
+                  </a>
+                </li>
+              </ul>
+            </aside>
+          </div>
 
-<section class="section">
-	<div class="container">
-		<div class="columns">
-			<div class="column is-narrow">
-				<aside class="menu">
-					<p class="menu-label">Documentation</p><ul class="menu-list">	<li>
-		<a href="/docs">
-			<span class="icon"><i class="fa fa-home"></i></span>
-			<span>Home</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/help">
-			<span class="icon"><i class="fa fa-bug"></i></span>
-			<span>Troubleshooting</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/tutorials/installation">
-			<span class="icon"><i class="fa fa-cloud-download"></i></span>
-			<span>Installing Openplanet</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/tutorials/signature-modes">
-			<span class="icon"><i class="fa fa-lock"></i></span>
-			<span>Signature Modes</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/school-mode">
-			<span class="icon"><i class="fa fa-university"></i></span>
-			<span>School Mode</span>
-		</a>
-	</li>
-	</ul><p class="menu-label">Plugin development</p><ul class="menu-list">	<li>
-		<a href="/docs/getting-started">
-			<span class="icon"><i class="fa fa-info-circle"></i></span>
-			<span>Getting started</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/info-toml">
-			<span class="icon"><i class="fa fa-info"></i></span>
-			<span>info.toml</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/plugin-callbacks">
-			<span class="icon"><i class="fa fa-exchange"></i></span>
-			<span>Callback functions</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/icons">
-			<span class="icon"><i class="fa fa-flag"></i></span>
-			<span>Icons</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/settings">
-			<span class="icon"><i class="fa fa-cogs"></i></span>
-			<span>Settings</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/imports">
-			<span class="icon"><i class="fa fa-arrow-circle-down"></i></span>
-			<span>Script imports</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/preprocessor">
-			<span class="icon"><i class="fa fa-code"></i></span>
-			<span>Preprocessor</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/auth" class="is-active">
-			<span class="icon"><i class="fa fa-lock"></i></span>
-			<span>Authentication</span>
-		</a>
-	</li>
-	</ul><p class="menu-label">Dependencies</p><ul class="menu-list">	<li>
-		<a href="/docs/reference/nadeoservices">
-			<span class="icon"><i class="fa fa-ticket"></i></span>
-			<span>NadeoServices</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/vehiclestate">
-			<span class="icon"><i class="fa fa-car"></i></span>
-			<span>VehicleState</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/camera">
-			<span class="icon"><i class="fa fa-camera"></i></span>
-			<span>Camera</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/controls">
-			<span class="icon"><i class="fa fa-check-square"></i></span>
-			<span>Controls</span>
-		</a>
-	</li>
-	</ul><p class="menu-label">API Reference</p><ul class="menu-list">	<li>
-		<a href="/docs/api">
-			<span class="icon"><i class="fa fa-heartbeat"></i></span>
-			<span>Openplanet API</span>
-		</a>
-	</li>
-		<li>
-		<a href="https://next.openplanet.dev/" target="_blank">
-			<span class="icon"><i class="fa fa-gamepad"></i></span>
-			<span>Trackmania API</span>
-		</a>
-	</li>
-		<li>
-		<a href="https://mp4.openplanet.dev/" target="_blank">
-			<span class="icon"><i class="fa fa-gamepad"></i></span>
-			<span>Maniaplanet API</span>
-		</a>
-	</li>
-		<li>
-		<a href="https://turbo.openplanet.dev/" target="_blank">
-			<span class="icon"><i class="fa fa-gamepad"></i></span>
-			<span>Turbo API</span>
-		</a>
-	</li>
-		<li>
-		<a href="https://webservices.openplanet.dev/" target="_blank">
-			<span class="icon"><i class="fa fa-ticket"></i></span>
-			<span>Web Services API</span>
-		</a>
-	</li>
-	</ul>				</aside>
-			</div>
-
-			<div class="column">
-				<div class="content">
-	<h1>Authentication API</h1>
-<p>The authentication API allows a plugin to communicate with your own server securely, allowing you to verify who is talking to your server really is who they say they are.</p>
-<p>For example, imagine a scenario where Bob is using your plugin. You want Bob to be able to send messages to your server, to let you know of something that Bob did. So you make your plugin make an HTTP request to your server with the information you want to handle. But how do you know that this request really is from Bob, and not Alice pretending to be Bob? This is where the authentication API comes in.</p>
-<p>Openplanet's authentication API is built on top of Nadeo's own authentication that happens when you connect to a game server. This authentication has been abstracted to be as straight forward as possible for someone to use while still being secure.</p>
-<h2>Initial setup</h2>
-<p>In order to use authentication, you must first have a plugin created on the website already. If you haven't created a plugin on the website yet, <a href="/plugins/admin/new" target="_self" rel="">click here to do so</a>.</p>
-<p>You must then also turn on authentication in your plugin admin settings from the <strong>Authentication</strong> tab.</p>
-<p>You also have to include a <code>siteid</code> in your <code>info.toml</code> file manually, as this is needed for the authentication API to know which plugin on the website you are requesting a token for. You can find the site ID associated to your plugin on the public page of your plugin (the "Numeric ID") but also as part of the URL of your plugin admin page. The <code>siteid</code> should be added to the <code>[meta]</code> section, like this:</p>
-<pre><code class="language-toml">[meta]
+          <div class="column">
+            <div class="content">
+              <h1>Authentication API</h1>
+              <p>
+                The authentication API allows a plugin to communicate with your
+                own server securely, allowing you to verify who is talking to
+                your server really is who they say they are.
+              </p>
+              <p>
+                For example, imagine a scenario where Bob is using your plugin.
+                You want Bob to be able to send messages to your server, to let
+                you know of something that Bob did. So you make your plugin make
+                an HTTP request to your server with the information you want to
+                handle. But how do you know that this request really is from
+                Bob, and not Alice pretending to be Bob? This is where the
+                authentication API comes in.
+              </p>
+              <p>
+                Openplanet's authentication API is built on top of Nadeo's own
+                authentication that happens when you connect to a game server.
+                This authentication has been abstracted to be as straight
+                forward as possible for someone to use while still being secure.
+              </p>
+              <h2>Initial setup</h2>
+              <p>
+                In order to use authentication, you must first have a plugin
+                created on the website already. If you haven't created a plugin
+                on the website yet,
+                <a href="/plugins/admin/new" target="_self" rel=""
+                  >click here to do so</a
+                >.
+              </p>
+              <p>
+                You must then also turn on authentication in your plugin admin
+                settings from the <strong>Authentication</strong> tab.
+              </p>
+              <p>
+                You also have to include a <code>siteid</code> in your
+                <code>info.toml</code> file manually, as this is needed for the
+                authentication API to know which plugin on the website you are
+                requesting a token for. You can find the site ID associated to
+                your plugin on the public page of your plugin (the "Numeric ID")
+                but also as part of the URL of your plugin admin page. The
+                <code>siteid</code> should be added to the
+                <code>[meta]</code> section, like this:
+              </p>
+              <pre><code class="language-toml">[meta]
 name = "Shoutbox"
 author = "Miss"
 siteid = 201</code></pre>
-<h2>There's 2 parts</h2>
-<p>In order for authentication to work, there's 2 parts to it:</p>
-<ol>
-<li>The client side part (your plugin)</li>
-<li>The server side part (your server)</li>
-</ol>
-<p>You need for both of these to be implemented correctly in order to have a secure authentication.</p>
-<h2>On the client</h2>
-<p>You must do a couple things on the client, but the most important is to call <a href="/docs/api/Auth/GetToken" target="_self" rel=""><code>Auth::GetToken</code></a>. This function will asynchronously talk to Nadeo's and Openplanet's backend to create an intermediate Openplanet authentication token:</p>
-<pre><code class="language-asc">// Start the task to get the token from Openplanet
+              <h2>There's 2 parts</h2>
+              <p>In order for authentication to work, there's 2 parts to it:</p>
+              <ol>
+                <li>The client side part (your plugin)</li>
+                <li>The server side part (your server)</li>
+              </ol>
+              <p>
+                You need for both of these to be implemented correctly in order
+                to have a secure authentication.
+              </p>
+              <h2>On the client</h2>
+              <p>
+                You must do a couple things on the client, but the most
+                important is to call
+                <a href="/docs/api/Auth/GetToken" target="_self" rel=""
+                  ><code>Auth::GetToken</code></a
+                >. This function will asynchronously talk to Nadeo's and
+                Openplanet's backend to create an intermediate Openplanet
+                authentication token:
+              </p>
+              <pre><code class="language-asc">// Start the task to get the token from Openplanet
 auto tokenTask = Auth::GetToken();
 
 // Wait until the task has finished
@@ -263,78 +353,196 @@ while (!tokenTask.Finished()) {
 
 // Get the token
 string token = tokenTask.Token();</code></pre>
-<p>At this point, you must send the token to your server. This can be in any way you are communicating with your server, but note that these intermediate tokens are very short lived and expire after a very short time. (At the time of writing the expiration time is set to 5 minutes, but this may change in the future. The point is that you should not keep this token around, in most scenarios you should only need it for maybe a few seconds during authentication.)</p>
-<p>When your server receives the token, it should validate that the token is actually valid. You do this by making an HTTP POST request to:</p>
-<pre><code class="language-text">https://openplanet.dev/api/auth/validate</code></pre>
-<p>The body of the request should be of content type <code>application/x-www-form-urlencoded</code>, and contain the <code>token</code> passed by the user, and <code>secret</code> as shown to you on the <strong>Authentication</strong> tab of the plugin admin site. For example:</p>
-<pre><code class="language-text">token=the_token_from_the_user&amp;secret=your_unique_plugin_secret</code></pre>
-<p>If something went wrong, you'll receive an error json response like this:</p>
-<pre><code class="language-json">{
+              <p>
+                At this point, you must send the token to your server. This can
+                be in any way you are communicating with your server, but note
+                that these intermediate tokens are very short lived and expire
+                after a very short time. (At the time of writing the expiration
+                time is set to 5 minutes, but this may change in the future. The
+                point is that you should not keep this token around, in most
+                scenarios you should only need it for maybe a few seconds during
+                authentication.)
+              </p>
+              <p>
+                When your server receives the token, it should validate that the
+                token is actually valid. You do this by making an HTTP POST
+                request to:
+              </p>
+              <pre><code class="language-text">https://openplanet.dev/api/auth/validate</code></pre>
+              <p>
+                The body of the request should be of content type
+                <code>application/x-www-form-urlencoded</code>, and contain the
+                <code>token</code> passed by the user, and
+                <code>secret</code> as shown to you on the
+                <strong>Authentication</strong> tab of the plugin admin site.
+                For example:
+              </p>
+              <pre><code class="language-text">token=the_token_from_the_user&amp;secret=your_unique_plugin_secret</code></pre>
+              <p>
+                If something went wrong, you'll receive an error json response
+                like this:
+              </p>
+              <pre><code class="language-json">{
   "error": "a description of the encountered error"
 }</code></pre>
-<p>When an error is received, do not trust the user, and reject their authentication. You can't trust who they say they are at this time.</p>
-<p>If everything went well, you will get a json response that looks like this:</p>
-<pre><code class="language-json">{
+              <p>
+                When an error is received, do not trust the user, and reject
+                their authentication. You can't trust who they say they are at
+                this time.
+              </p>
+              <p>
+                If everything went well, you will get a json response that looks
+                like this:
+              </p>
+              <pre><code class="language-json">{
   "account_id": "7398eeb6-9b4e-44b8-a7a1-a2149955ac70",
   "display_name": "Miss-tm",
   "token_time": 1729446589
 }</code></pre>
-<p>If you receive this information, it means that the user has successfully proven who they are, and you can trust that the request containing this token really came from them. <code>token_time</code> is provided as the timestamp at which the user's intermediary token was generated.</p>
-<h2>Persistency</h2>
-<p>As a result of Openplanet's intermediary tokens being so short-lived, you may want to exchange this token with a token of your own, so that you don't have to call any of Openplanet's architecture anymore to authenticate them in the future. This is not strictly necessary, but <strong>it is highly recommended</strong> if you need to keep a persistent authentication. This way you don't unnecessarily stress the Openplanet API. (We may disable a plugin's access to authentication should they abuse our resources.)</p>
-<h2>Examples</h2>
-<p>We have developed a feature-complete example plugin to demonstrate the authentication API, which can be used as a reference: <a href="https://openplanet.dev/plugin/shoutbox" target="_self" rel="">the Shoutbox plugin</a>. It's available to install through the plugin manager, and will authenticate your game account into a small "chatroom".</p>
-<p>You can find <a href="https://github.com/openplanet-nl/shoutbox" target="_self" rel="">the source code for the plugin on Github</a>, as well as <a href="https://github.com/openplanet-nl/shoutbox-server" target="_self" rel="">the source code for its backend</a>.</p></div>
+              <p>
+                If you receive this information, it means that the user has
+                successfully proven who they are, and you can trust that the
+                request containing this token really came from them.
+                <code>token_time</code> is provided as the timestamp at which
+                the user's intermediary token was generated.
+              </p>
+              <h2>Persistency</h2>
+              <p>
+                As a result of Openplanet's intermediary tokens being so
+                short-lived, you may want to exchange this token with a token of
+                your own, so that you don't have to call any of Openplanet's
+                architecture anymore to authenticate them in the future. This is
+                not strictly necessary, but
+                <strong>it is highly recommended</strong> if you need to keep a
+                persistent authentication. This way you don't unnecessarily
+                stress the Openplanet API. (We may disable a plugin's access to
+                authentication should they abuse our resources.)
+              </p>
+              <h2>Examples</h2>
+              <p>
+                We have developed a feature-complete example plugin to
+                demonstrate the authentication API, which can be used as a
+                reference:
+                <a
+                  href="https://openplanet.dev/plugin/shoutbox"
+                  target="_self"
+                  rel=""
+                  >the Shoutbox plugin</a
+                >. It's available to install through the plugin manager, and
+                will authenticate your game account into a small "chatroom".
+              </p>
+              <p>
+                You can find
+                <a
+                  href="https://github.com/openplanet-nl/shoutbox"
+                  target="_self"
+                  rel=""
+                  >the source code for the plugin on Github</a
+                >, as well as
+                <a
+                  href="https://github.com/openplanet-nl/shoutbox-server"
+                  target="_self"
+                  rel=""
+                  >the source code for its backend</a
+                >.
+              </p>
+            </div>
 
-<div class="block">
-	<br>
-		<p><small>Page updated <span title="Mon, 21 Oct 2024 13:39:44 +0200">2 years ago</span> by <span class="has-text-team">Miss</span><span class="verified" title="Trusted developer"><img src="/img/verified.svg" alt="(Trusted developer)" /></span></small></p>
+            <div class="block">
+              <br />
+              <p>
+                <small
+                  >Page updated
+                  <span title="Mon, 21 Oct 2024 13:39:44 +0200"
+                    >2 years ago</span
+                  >
+                  by <span class="has-text-team">Miss</span
+                  ><span class="verified" title="Trusted developer"
+                    ><img
+                      src="/img/verified.svg"
+                      alt="(Trusted developer)" /></span
+                ></small>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-</div>
-			</div>
-		</div>
-	</div>
-</section>
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          Openplanet -
+          <a href="/link/discord" target="_blank" rel="me noopener noreferrer"
+            ><i class="fa fa-discord"></i> Discord</a
+          >
+          -
+          <a href="/link/github" target="_blank" rel="me noopener noreferrer"
+            ><i class="fa fa-github"></i> GitHub</a
+          >
+          -
+          <a
+            href="https://mastodon.gamedev.place/@openplanet"
+            rel="me noopener noreferrer"
+            ><i class="fa fa-mastodon"></i> Mastodon</a
+          >
+          - <a href="/docs/plugin-tos">Plugin terms of service</a> -
+          <a href="/privacy">Privacy Policy</a> - <a href="/credits">Credits</a>
+          <br />
+          Transparency -
+          <a href="/users/trusted"
+            ><i class="fa fa-user"></i> Trusted Developer List</a
+          >
+          -
+          <a href="/plugins/signs"
+            ><i class="fa fa-gavel"></i> Plugin Signature Feed</a
+          >
+        </p>
+        <p>
+          &copy;
+          <a
+            href="https://codecat.nl/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Melissa 'Miss' Geels</a
+          >
+          &amp; contributors 2016 - 2026 /
+          <a
+            href="https://meow.social/@codecat"
+            target="_blank"
+            rel="me noopener noreferrer"
+            >@codecat@meow.social</a
+          >
+        </p>
+        <a href="/cf/tr/blog" rel="nofollow" class="cftr">Blog</a
+        ><!-- pls ignore.. -->
+      </div>
+    </footer>
 
-		<footer class="footer">
-			<div class="content has-text-centered">
-				<p>
-					Openplanet
-					- <a href="/link/discord" target="_blank" rel="me noopener noreferrer"><i class="fa fa-discord"></i> Discord</a>
-					- <a href="/link/github" target="_blank" rel="me noopener noreferrer"><i class="fa fa-github"></i> GitHub</a>
-					- <a href="https://mastodon.gamedev.place/@openplanet" rel="me noopener noreferrer"><i class="fa fa-mastodon"></i> Mastodon</a>
-					- <a href="/docs/plugin-tos">Plugin terms of service</a>
-					- <a href="/privacy">Privacy Policy</a>
-					- <a href="/credits">Credits</a>
-					<br>
-					Transparency
-					- <a href="/users/trusted"><i class="fa fa-user"></i> Trusted Developer List</a>
-					- <a href="/plugins/signs"><i class="fa fa-gavel"></i> Plugin Signature Feed</a>
-				</p>
-				<p>
-					&copy; <a href="https://codecat.nl/" target="_blank" rel="noopener noreferrer">Melissa 'Miss' Geels</a> &amp; contributors 2016 - 2026 / <a href="https://meow.social/@codecat" target="_blank" rel="me noopener noreferrer">@codecat@meow.social</a>
-				</p>
-								<a href="/cf/tr/blog" rel="nofollow" class="cftr">Blog</a><!-- pls ignore.. -->
-			</div>
-		</footer>
+    <div class="image-modal modal" id="modal">
+      <div class="modal-background" id="modal-background"></div>
+      <div class="modal-content has-text-centered">
+        <div class="notification">
+          <div class="op-modal-img">
+            <img id="modal-image" />
+            <div class="op-modal-button op-modal-prev" id="modal-prev">
+              <i class="fa fa-arrow-left"></i>
+            </div>
+            <div class="op-modal-button op-modal-next" id="modal-next">
+              <i class="fa fa-arrow-right"></i>
+            </div>
+            <div class="op-modal-info" id="modal-info"><span></span></div>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close is-large" id="modal-close"></button>
+    </div>
 
-		<div class="image-modal modal" id="modal">
-			<div class="modal-background" id="modal-background"></div>
-			<div class="modal-content has-text-centered">
-				<div class="notification">
-					<div class="op-modal-img">
-						<img id="modal-image">
-						<div class="op-modal-button op-modal-prev" id="modal-prev"><i class="fa fa-arrow-left"></i></div>
-						<div class="op-modal-button op-modal-next" id="modal-next"><i class="fa fa-arrow-right"></i></div>
-						<div class="op-modal-info" id="modal-info"><span></span></div>
-					</div>
-				</div>
-			</div>
-			<button class="modal-close is-large" id="modal-close"></button>
-		</div>
-
-		<script src="/js/highlight.min.js"></script>
-		<script src="/js/script.js"></script>
-		<script data-goatcounter="https://openplanet.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-	</body>
+    <script src="/js/highlight.min.js"></script>
+    <script src="/js/script.js"></script>
+    <script
+      data-goatcounter="https://openplanet.goatcounter.com/count"
+      async
+      src="//gc.zgo.at/count.js"></script>
+  </body>
 </html>

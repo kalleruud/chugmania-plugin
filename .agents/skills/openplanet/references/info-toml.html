@@ -1,442 +1,689 @@
-<!DOCTYPE html>
+<!doctype html>
 <html prefix="og: http://ogp.me/ns#" lang="en">
-	<head>
-		<meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
 
-		<title>info.toml reference - Openplanet</title>
+    <title>info.toml reference - Openplanet</title>
 
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-		<link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
-		<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
-		<link rel="manifest" href="/manifest.json">
-		<link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5">
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/img/apple-touch-icon.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/img/favicon-32x32.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/img/favicon-16x16.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5" />
 
-		
-		<meta name="theme-color" content="#ff3399">
-		<meta property="og:title" content="info.toml reference - Openplanet">
-		<meta property="og:type" content="website">
-		<meta property="og:image" content="https://openplanet.dev/img/logo_icon.png">
-		<meta property="og:url" content="https://openplanet.dev/docs/reference/info-toml">
-		<meta property="og:description" content="Reference for a plugin&#039;s info.toml file.">
+    <meta name="theme-color" content="#ff3399" />
+    <meta property="og:title" content="info.toml reference - Openplanet" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:image"
+      content="https://openplanet.dev/img/logo_icon.png" />
+    <meta
+      property="og:url"
+      content="https://openplanet.dev/docs/reference/info-toml" />
+    <meta
+      property="og:description"
+      content="Reference for a plugin&#039;s info.toml file." />
 
-		<link rel="search" type="application/opensearchdescription+xml" href="/opensearch/plugins" title="Openplanet Plugin Search"/>
-		<link rel="search" type="application/opensearchdescription+xml" href="/opensearch/api" title="Openplanet Developer API Search"/>
+    <link
+      rel="search"
+      type="application/opensearchdescription+xml"
+      href="/opensearch/plugins"
+      title="Openplanet Plugin Search" />
+    <link
+      rel="search"
+      type="application/opensearchdescription+xml"
+      href="/opensearch/api"
+      title="Openplanet Developer API Search" />
 
-		<link rel="stylesheet" href="/style.css?1776265006">
-		<link rel="stylesheet" href="/css/fork-awesome.min.css">
-		<link rel="stylesheet" href="/css/agate.min.css?1769265621">
+    <link rel="stylesheet" href="/style.css?1776265006" />
+    <link rel="stylesheet" href="/css/fork-awesome.min.css" />
+    <link rel="stylesheet" href="/css/agate.min.css?1769265621" />
+  </head>
 
-			</head>
+  <body class="has-navbar-fixed-top">
+    <nav class="navbar is-fixed-top">
+      <div class="container">
+        <div class="navbar-brand">
+          <a href="/" class="navbar-item">
+            <span class="icon has-agenda gay"
+              ><i class="fa fa-heartbeat"></i
+            ></span>
+            <span>open<b>planet</b></span>
+          </a>
 
-	<body class="has-navbar-fixed-top">
-		<nav class="navbar is-fixed-top">
-			<div class="container">
-				<div class="navbar-brand">
-					<a href="/" class="navbar-item">
-												<span class="icon has-agenda gay"><i class="fa fa-heartbeat"></i></span>
-						<span>open<b>planet</b></span>
-					</a>
+          <a class="navbar-burger" data-target="navMenu"
+            ><span></span><span></span><span></span
+          ></a>
+        </div>
 
-					<a class="navbar-burger" data-target="navMenu"><span></span><span></span><span></span></a>
-				</div>
+        <div class="navbar-menu" id="navMenu">
+          <div class="navbar-start">
+            <a href="/plugins" class="navbar-item">
+              <span class="icon"><i class="fa fa-code-fork"></i></span>
+              <span>Plugins</span>
+            </a>
+            <a href="/files" class="navbar-item">
+              <span class="icon"><i class="fa fa-file-o"></i></span>
+              <span>Files</span>
+            </a>
+            <a href="/docs" class="navbar-item">
+              <span class="icon"><i class="fa fa-book"></i></span>
+              <span>Documentation</span>
+            </a>
+            <a href="/news" class="navbar-item">
+              <span class="icon"><i class="fa fa-newspaper-o"></i></span>
+              <span>News</span>
+            </a>
+            <div class="navbar-item">
+              <a
+                href="/download"
+                class="button is-secondary is-small is-outlined">
+                <span class="icon"><i class="fa fa-download"></i></span>
+                <span>Download Openplanet</span>
+              </a>
+            </div>
+          </div>
 
-				<div class="navbar-menu" id="navMenu">
-					<div class="navbar-start">
-															<a href="/plugins" class="navbar-item">
-																					<span class="icon"><i class="fa fa-code-fork"></i></span>
-																				<span>Plugins</span>
-									</a>
-																		<a href="/files" class="navbar-item">
-																					<span class="icon"><i class="fa fa-file-o"></i></span>
-																				<span>Files</span>
-									</a>
-																		<a href="/docs" class="navbar-item">
-																					<span class="icon"><i class="fa fa-book"></i></span>
-																				<span>Documentation</span>
-									</a>
-																		<a href="/news" class="navbar-item">
-																					<span class="icon"><i class="fa fa-newspaper-o"></i></span>
-																				<span>News</span>
-									</a>
-																		<div class="navbar-item">
-										<a href="/download" class="button is-secondary is-small is-outlined">
-																							<span class="icon"><i class="fa fa-download"></i></span>
-																						<span>Download Openplanet</span>
-										</a>
-									</div>
-														</div>
+          <div class="navbar-end">
+            <div class="navbar-item">
+              <a href="/user/login" class="button is-small">
+                <span class="icon"><i class="fa fa-lock"></i></span>
+                <span>Login</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
 
-					<div class="navbar-end">
-													<div class="navbar-item">
-								<a href="/user/login" class="button is-small">
-									<span class="icon"><i class="fa fa-lock"></i></span>
-									<span>Login</span>
-								</a>
-							</div>
-											</div>
-				</div>
-			</div>
-		</nav>
+    <section class="hero is-secondary is-bold">
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <h1 class="title">Documentation</h1>
+        </div>
+      </div>
+    </section>
 
-		
-		
-<section class="hero is-secondary is-bold">
-	<div class="hero-body">
-		<div class="container has-text-centered">
-			<h1 class="title">Documentation</h1>
-		</div>
-	</div>
-</section>
+    <section class="section">
+      <div class="container">
+        <div class="columns">
+          <div class="column is-narrow">
+            <aside class="menu">
+              <p class="menu-label">Documentation</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs">
+                    <span class="icon"><i class="fa fa-home"></i></span>
+                    <span>Home</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/help">
+                    <span class="icon"><i class="fa fa-bug"></i></span>
+                    <span>Troubleshooting</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/tutorials/installation">
+                    <span class="icon"
+                      ><i class="fa fa-cloud-download"></i
+                    ></span>
+                    <span>Installing Openplanet</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/tutorials/signature-modes">
+                    <span class="icon"><i class="fa fa-lock"></i></span>
+                    <span>Signature Modes</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/school-mode">
+                    <span class="icon"><i class="fa fa-university"></i></span>
+                    <span>School Mode</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">Plugin development</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/getting-started">
+                    <span class="icon"><i class="fa fa-info-circle"></i></span>
+                    <span>Getting started</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/info-toml" class="is-active">
+                    <span class="icon"><i class="fa fa-info"></i></span>
+                    <span>info.toml</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/plugin-callbacks">
+                    <span class="icon"><i class="fa fa-exchange"></i></span>
+                    <span>Callback functions</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/icons">
+                    <span class="icon"><i class="fa fa-flag"></i></span>
+                    <span>Icons</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/settings">
+                    <span class="icon"><i class="fa fa-cogs"></i></span>
+                    <span>Settings</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/imports">
+                    <span class="icon"
+                      ><i class="fa fa-arrow-circle-down"></i
+                    ></span>
+                    <span>Script imports</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/preprocessor">
+                    <span class="icon"><i class="fa fa-code"></i></span>
+                    <span>Preprocessor</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/auth">
+                    <span class="icon"><i class="fa fa-lock"></i></span>
+                    <span>Authentication</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">Dependencies</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/reference/nadeoservices">
+                    <span class="icon"><i class="fa fa-ticket"></i></span>
+                    <span>NadeoServices</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/vehiclestate">
+                    <span class="icon"><i class="fa fa-car"></i></span>
+                    <span>VehicleState</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/camera">
+                    <span class="icon"><i class="fa fa-camera"></i></span>
+                    <span>Camera</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/controls">
+                    <span class="icon"><i class="fa fa-check-square"></i></span>
+                    <span>Controls</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">API Reference</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/api">
+                    <span class="icon"><i class="fa fa-heartbeat"></i></span>
+                    <span>Openplanet API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://next.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Trackmania API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://mp4.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Maniaplanet API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://turbo.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Turbo API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://webservices.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-ticket"></i></span>
+                    <span>Web Services API</span>
+                  </a>
+                </li>
+              </ul>
+            </aside>
+          </div>
 
-<section class="section">
-	<div class="container">
-		<div class="columns">
-			<div class="column is-narrow">
-				<aside class="menu">
-					<p class="menu-label">Documentation</p><ul class="menu-list">	<li>
-		<a href="/docs">
-			<span class="icon"><i class="fa fa-home"></i></span>
-			<span>Home</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/help">
-			<span class="icon"><i class="fa fa-bug"></i></span>
-			<span>Troubleshooting</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/tutorials/installation">
-			<span class="icon"><i class="fa fa-cloud-download"></i></span>
-			<span>Installing Openplanet</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/tutorials/signature-modes">
-			<span class="icon"><i class="fa fa-lock"></i></span>
-			<span>Signature Modes</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/school-mode">
-			<span class="icon"><i class="fa fa-university"></i></span>
-			<span>School Mode</span>
-		</a>
-	</li>
-	</ul><p class="menu-label">Plugin development</p><ul class="menu-list">	<li>
-		<a href="/docs/getting-started">
-			<span class="icon"><i class="fa fa-info-circle"></i></span>
-			<span>Getting started</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/info-toml" class="is-active">
-			<span class="icon"><i class="fa fa-info"></i></span>
-			<span>info.toml</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/plugin-callbacks">
-			<span class="icon"><i class="fa fa-exchange"></i></span>
-			<span>Callback functions</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/icons">
-			<span class="icon"><i class="fa fa-flag"></i></span>
-			<span>Icons</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/settings">
-			<span class="icon"><i class="fa fa-cogs"></i></span>
-			<span>Settings</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/imports">
-			<span class="icon"><i class="fa fa-arrow-circle-down"></i></span>
-			<span>Script imports</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/preprocessor">
-			<span class="icon"><i class="fa fa-code"></i></span>
-			<span>Preprocessor</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/auth">
-			<span class="icon"><i class="fa fa-lock"></i></span>
-			<span>Authentication</span>
-		</a>
-	</li>
-	</ul><p class="menu-label">Dependencies</p><ul class="menu-list">	<li>
-		<a href="/docs/reference/nadeoservices">
-			<span class="icon"><i class="fa fa-ticket"></i></span>
-			<span>NadeoServices</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/vehiclestate">
-			<span class="icon"><i class="fa fa-car"></i></span>
-			<span>VehicleState</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/camera">
-			<span class="icon"><i class="fa fa-camera"></i></span>
-			<span>Camera</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/controls">
-			<span class="icon"><i class="fa fa-check-square"></i></span>
-			<span>Controls</span>
-		</a>
-	</li>
-	</ul><p class="menu-label">API Reference</p><ul class="menu-list">	<li>
-		<a href="/docs/api">
-			<span class="icon"><i class="fa fa-heartbeat"></i></span>
-			<span>Openplanet API</span>
-		</a>
-	</li>
-		<li>
-		<a href="https://next.openplanet.dev/" target="_blank">
-			<span class="icon"><i class="fa fa-gamepad"></i></span>
-			<span>Trackmania API</span>
-		</a>
-	</li>
-		<li>
-		<a href="https://mp4.openplanet.dev/" target="_blank">
-			<span class="icon"><i class="fa fa-gamepad"></i></span>
-			<span>Maniaplanet API</span>
-		</a>
-	</li>
-		<li>
-		<a href="https://turbo.openplanet.dev/" target="_blank">
-			<span class="icon"><i class="fa fa-gamepad"></i></span>
-			<span>Turbo API</span>
-		</a>
-	</li>
-		<li>
-		<a href="https://webservices.openplanet.dev/" target="_blank">
-			<span class="icon"><i class="fa fa-ticket"></i></span>
-			<span>Web Services API</span>
-		</a>
-	</li>
-	</ul>				</aside>
-			</div>
+          <div class="column">
+            <div class="content">
+              <h1>info.toml reference</h1>
+              <p>
+                The <code>info.toml</code> file specifies important metadata for
+                a plugin. It has a number of possible options you can set. The
+                format of this file is
+                <a href="https://toml.io/en/" target="_self" rel="">toml</a>.
+              </p>
+              <h2>Meta table</h2>
+              <p>
+                The required <code>[meta]</code> table contains basic metadata
+                information about the plugin.
+              </p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Key</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>version</code></td>
+                    <td>String</td>
+                    <td>Yes</td>
+                    <td>
+                      The version of the plugin. Openplanet will read this as
+                      <code>1.0</code> when not provided, but it is required for
+                      successful submission on the website.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>name</code></td>
+                    <td>String</td>
+                    <td>Recommended</td>
+                    <td>
+                      The name of the plugin. When not provided, this defaults
+                      to the identifier of the plugin.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>author</code></td>
+                    <td>String</td>
+                    <td>Recommended</td>
+                    <td>The author of the plugin.</td>
+                  </tr>
+                  <tr>
+                    <td><code>category</code></td>
+                    <td>String</td>
+                    <td>Recommended</td>
+                    <td>
+                      The category of the plugin. When not provided, this
+                      defaults to <code>Uncategorized</code>. It's recommended
+                      to use category names that other plugins are also using,
+                      so that they can be grouped together in a nice way.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>blocks</code></td>
+                    <td>String array</td>
+                    <td></td>
+                    <td>
+                      A list of plugin identifiers to block from loading if this
+                      plugin is loaded. You shouldn't include this if you don't
+                      need to block any plugins. This is useful when a plugin
+                      needs to block an older version of a plugin with a
+                      different identifier.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>perms</code></td>
+                    <td>String</td>
+                    <td></td>
+                    <td>
+                      (Deprecated) Permissions required to run this plugin. This
+                      is mostly an older value that should be avoided. You
+                      should use
+                      <a href="/docs/api/Permissions" target="_self" rel=""
+                        >the Permissions API</a
+                      >
+                      instead. Possible values for this setting are
+                      <code>free</code>, <code>paid</code>, and
+                      <code>full</code>.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>siteid</code></td>
+                    <td>Integer</td>
+                    <td></td>
+                    <td>
+                      The ID for this plugin on the Openplanet website. This is
+                      used to check for updates and authenticate with the
+                      <code>Auth</code> API. Unless you're using the
+                      <code>Auth</code> API, you don't have to manually add this
+                      to your file, as the review process will do this
+                      automatically for you.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>essential</code></td>
+                    <td>Boolean</td>
+                    <td></td>
+                    <td>
+                      Whether this plugin is essential. Setting this to true
+                      means it can't be disabled by users. Note that you should
+                      only set this to true if you have a good reason for it.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <h2>Game table</h2>
+              <p>
+                The optional <code>[game]</code> table contains game-specific
+                options for the plugin.
+              </p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Key</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>min_version</code></td>
+                    <td>String</td>
+                    <td>
+                      The minimum version of the game that is required to use
+                      this plugin. The format must be either a date or full date
+                      &amp; time. For example, <code>2022-02-03</code> will
+                      match any game build from February 3rd, 2022. A specific
+                      time may also be provided in 24 hour format, for example:
+                      <code>2022-02-03 18:03</code> will only match game builds
+                      made on or after 6:03 PM UTC, builds made before that time
+                      are not matched.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>max_version</code></td>
+                    <td>String</td>
+                    <td>
+                      The maximum version of the game that is required to use
+                      this plugin. See <code>min_version</code> for format.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>supported_games</code></td>
+                    <td>String array</td>
+                    <td>
+                      List of game identifiers that this plugin supports. When
+                      this list is empty, all games are supported. If this list
+                      is not empty, the plugin will only build on games
+                      contained within the list. You should only set this if you
+                      have a good reason for it. Available from 1.29.10 and up.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <h2>Script table</h2>
+              <p>
+                The optional <code>[script]</code> table configures the script
+                runtime for the plugin.
+              </p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Key</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>timeout</code></td>
+                    <td>Integer</td>
+                    <td>
+                      The timeout time for callback execution in milliseconds.
+                      Set this to 0 to disable the timeout, which will also
+                      remove the overhead of keeping track of execution time.
+                      When disabled, the plugin can potentially cause infinite
+                      loops when coded incorrectly. It's recommended to set this
+                      to 0 only if you need a bit more performance and if you're
+                      certain you're not causing infinite loops. Sometimes
+                      loading big fonts or textures can cause script timeouts as
+                      well, in which case this value can be increased or set to
+                      0.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>imports</code></td>
+                    <td>String array</td>
+                    <td>
+                      Script filenames to include into the plugin module,
+                      located in Openplanet's <code>Scripts</code> folder. You
+                      can find a list of scripts shipped with Openplanet
+                      <a href="/docs/reference/imports" target="_self" rel=""
+                        >here</a
+                      >.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>exports</code></td>
+                    <td>String array</td>
+                    <td>
+                      List of files to export to dependent plugins. These
+                      exported scripts will be compiled into dependent plugins,
+                      but not this plugin. See also
+                      <a
+                        href="/docs/tutorials/plugin-dependencies"
+                        target="_self"
+                        rel=""
+                        >the plugin dependencies tutorial</a
+                      >.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>shared_exports</code></td>
+                    <td>String array</td>
+                    <td>
+                      List of files to export to dependent plugins. This is the
+                      same as <code>exports</code>, except these scripts are
+                      also compiled into this plugin. See also
+                      <a
+                        href="/docs/tutorials/plugin-dependencies"
+                        target="_self"
+                        rel=""
+                        >the plugin dependencies tutorial</a
+                      >.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>dependencies</code></td>
+                    <td>String array</td>
+                    <td>
+                      List of plugin identifiers to depend on. These plugins are
+                      <strong>required</strong> dependencies, meaning if they
+                      are not installed, the plugin won't load. See also
+                      <a
+                        href="/docs/tutorials/plugin-dependencies"
+                        target="_self"
+                        rel=""
+                        >the plugin dependencies tutorial</a
+                      >.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>export_dependencies</code></td>
+                    <td>String array</td>
+                    <td>
+                      List of plugin identifiers that are being depended on and
+                      should also be exported to any plugin depending on this
+                      plugin. For example, A depends on B depends on C, where
+                      B's exports contains types from C.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>optional_dependencies</code></td>
+                    <td>String array</td>
+                    <td>
+                      List of plugin identifiers to depend on. These plugins are
+                      <strong>optional</strong> dependencies, meaning if they
+                      are not installed, the plugin will still load, but without
+                      including exported scripts or the
+                      <code>DEPENDENCY_x</code> define. See also
+                      <a
+                        href="/docs/tutorials/plugin-dependencies"
+                        target="_self"
+                        rel=""
+                        >the plugin dependencies tutorial</a
+                      >.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>defines</code></td>
+                    <td>String array</td>
+                    <td>
+                      A list of preprocessor options to have defined during
+                      compilation. This can be useful during development. See
+                      also
+                      <a
+                        href="/docs/reference/preprocessor"
+                        target="_self"
+                        rel=""
+                        >the preprocessor</a
+                      >.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>module</code></td>
+                    <td>String</td>
+                    <td>
+                      Forces a specific module name. When this is not provided,
+                      the plugin identifier is used as the module name. This is
+                      only important when you intend to export functions to
+                      dependent plugins.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>controls_other_plugins</code></td>
+                    <td>Boolean</td>
+                    <td>
+                      Set this to true to avoid emitting "Plugin A is being
+                      disabled by B" user warning notifications. Note that you
+                      should only set this to true if you have a good reason for
+                      it and absolutely have to avoid these notifications.
+                      Available from 1.29.10 and up.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-			<div class="column">
-				<div class="content">
-	<h1>info.toml reference</h1>
-<p>The <code>info.toml</code> file specifies important metadata for a plugin. It has a number of possible options you can set. The format of this file is <a href="https://toml.io/en/" target="_self" rel="">toml</a>.</p>
-<h2>Meta table</h2>
-<p>The required <code>[meta]</code> table contains basic metadata information about the plugin.</p>
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>version</code></td>
-<td>String</td>
-<td>Yes</td>
-<td>The version of the plugin. Openplanet will read this as <code>1.0</code> when not provided, but it is required for successful submission on the website.</td>
-</tr>
-<tr>
-<td><code>name</code></td>
-<td>String</td>
-<td>Recommended</td>
-<td>The name of the plugin. When not provided, this defaults to the identifier of the plugin.</td>
-</tr>
-<tr>
-<td><code>author</code></td>
-<td>String</td>
-<td>Recommended</td>
-<td>The author of the plugin.</td>
-</tr>
-<tr>
-<td><code>category</code></td>
-<td>String</td>
-<td>Recommended</td>
-<td>The category of the plugin. When not provided, this defaults to <code>Uncategorized</code>. It's recommended to use category names that other plugins are also using, so that they can be grouped together in a nice way.</td>
-</tr>
-<tr>
-<td><code>blocks</code></td>
-<td>String array</td>
-<td></td>
-<td>A list of plugin identifiers to block from loading if this plugin is loaded. You shouldn't include this if you don't need to block any plugins. This is useful when a plugin needs to block an older version of a plugin with a different identifier.</td>
-</tr>
-<tr>
-<td><code>perms</code></td>
-<td>String</td>
-<td></td>
-<td>(Deprecated) Permissions required to run this plugin. This is mostly an older value that should be avoided. You should use <a href="/docs/api/Permissions" target="_self" rel="">the Permissions API</a> instead. Possible values for this setting are <code>free</code>, <code>paid</code>, and <code>full</code>.</td>
-</tr>
-<tr>
-<td><code>siteid</code></td>
-<td>Integer</td>
-<td></td>
-<td>The ID for this plugin on the Openplanet website. This is used to check for updates and authenticate with the <code>Auth</code> API. Unless you're using the <code>Auth</code> API, you don't have to manually add this to your file, as the review process will do this automatically for you.</td>
-</tr>
-<tr>
-<td><code>essential</code></td>
-<td>Boolean</td>
-<td></td>
-<td>Whether this plugin is essential. Setting this to true means it can't be disabled by users. Note that you should only set this to true if you have a good reason for it.</td>
-</tr>
-</tbody>
-</table>
-<h2>Game table</h2>
-<p>The optional <code>[game]</code> table contains game-specific options for the plugin.</p>
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>min_version</code></td>
-<td>String</td>
-<td>The minimum version of the game that is required to use this plugin. The format must be either a date or full date &amp; time. For example, <code>2022-02-03</code> will match any game build from February 3rd, 2022. A specific time may also be provided in 24 hour format, for example: <code>2022-02-03 18:03</code> will only match game builds made on or after 6:03 PM UTC, builds made before that time are not matched.</td>
-</tr>
-<tr>
-<td><code>max_version</code></td>
-<td>String</td>
-<td>The maximum version of the game that is required to use this plugin. See <code>min_version</code> for format.</td>
-</tr>
-<tr>
-<td><code>supported_games</code></td>
-<td>String array</td>
-<td>List of game identifiers that this plugin supports. When this list is empty, all games are supported. If this list is not empty, the plugin will only build on games contained within the list. You should only set this if you have a good reason for it. Available from 1.29.10 and up.</td>
-</tr>
-</tbody>
-</table>
-<h2>Script table</h2>
-<p>The optional <code>[script]</code> table configures the script runtime for the plugin.</p>
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>timeout</code></td>
-<td>Integer</td>
-<td>The timeout time for callback execution in milliseconds. Set this to 0 to disable the timeout, which will also remove the overhead of keeping track of execution time. When disabled, the plugin can potentially cause infinite loops when coded incorrectly. It's recommended to set this to 0 only if you need a bit more performance and if you're certain you're not causing infinite loops. Sometimes loading big fonts or textures can cause script timeouts as well, in which case this value can be increased or set to 0.</td>
-</tr>
-<tr>
-<td><code>imports</code></td>
-<td>String array</td>
-<td>Script filenames to include into the plugin module, located in Openplanet's <code>Scripts</code> folder. You can find a list of scripts shipped with Openplanet <a href="/docs/reference/imports" target="_self" rel="">here</a>.</td>
-</tr>
-<tr>
-<td><code>exports</code></td>
-<td>String array</td>
-<td>List of files to export to dependent plugins. These exported scripts will be compiled into dependent plugins, but not this plugin. See also <a href="/docs/tutorials/plugin-dependencies" target="_self" rel="">the plugin dependencies tutorial</a>.</td>
-</tr>
-<tr>
-<td><code>shared_exports</code></td>
-<td>String array</td>
-<td>List of files to export to dependent plugins. This is the same as <code>exports</code>, except these scripts are also compiled into this plugin. See also <a href="/docs/tutorials/plugin-dependencies" target="_self" rel="">the plugin dependencies tutorial</a>.</td>
-</tr>
-<tr>
-<td><code>dependencies</code></td>
-<td>String array</td>
-<td>List of plugin identifiers to depend on. These plugins are <strong>required</strong> dependencies, meaning if they are not installed, the plugin won't load. See also <a href="/docs/tutorials/plugin-dependencies" target="_self" rel="">the plugin dependencies tutorial</a>.</td>
-</tr>
-<tr>
-<td><code>export_dependencies</code></td>
-<td>String array</td>
-<td>List of plugin identifiers that are being depended on and should also be exported to any plugin depending on this plugin. For example, A depends on B depends on C, where B's exports contains types from C.</td>
-</tr>
-<tr>
-<td><code>optional_dependencies</code></td>
-<td>String array</td>
-<td>List of plugin identifiers to depend on. These plugins are <strong>optional</strong> dependencies, meaning if they are not installed, the plugin will still load, but without including exported scripts or the <code>DEPENDENCY_x</code> define. See also <a href="/docs/tutorials/plugin-dependencies" target="_self" rel="">the plugin dependencies tutorial</a>.</td>
-</tr>
-<tr>
-<td><code>defines</code></td>
-<td>String array</td>
-<td>A list of preprocessor options to have defined during compilation. This can be useful during development. See also <a href="/docs/reference/preprocessor" target="_self" rel="">the preprocessor</a>.</td>
-</tr>
-<tr>
-<td><code>module</code></td>
-<td>String</td>
-<td>Forces a specific module name. When this is not provided, the plugin identifier is used as the module name. This is only important when you intend to export functions to dependent plugins.</td>
-</tr>
-<tr>
-<td><code>controls_other_plugins</code></td>
-<td>Boolean</td>
-<td>Set this to true to avoid emitting "Plugin A is being disabled by B" user warning notifications. Note that you should only set this to true if you have a good reason for it and absolutely have to avoid these notifications. Available from 1.29.10 and up.</td>
-</tr>
-</tbody>
-</table></div>
+            <div class="block">
+              <br />
+              <p>
+                <small
+                  >Page updated
+                  <span title="Sat, 16 May 2026 22:22:42 +0200"
+                    >1 month ago</span
+                  >
+                  by <span class="has-text-team">Miss</span
+                  ><span class="verified" title="Trusted developer"
+                    ><img
+                      src="/img/verified.svg"
+                      alt="(Trusted developer)" /></span
+                ></small>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<div class="block">
-	<br>
-		<p><small>Page updated <span title="Sat, 16 May 2026 22:22:42 +0200">1 month ago</span> by <span class="has-text-team">Miss</span><span class="verified" title="Trusted developer"><img src="/img/verified.svg" alt="(Trusted developer)" /></span></small></p>
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          Openplanet -
+          <a href="/link/discord" target="_blank" rel="me noopener noreferrer"
+            ><i class="fa fa-discord"></i> Discord</a
+          >
+          -
+          <a href="/link/github" target="_blank" rel="me noopener noreferrer"
+            ><i class="fa fa-github"></i> GitHub</a
+          >
+          -
+          <a
+            href="https://mastodon.gamedev.place/@openplanet"
+            rel="me noopener noreferrer"
+            ><i class="fa fa-mastodon"></i> Mastodon</a
+          >
+          - <a href="/docs/plugin-tos">Plugin terms of service</a> -
+          <a href="/privacy">Privacy Policy</a> - <a href="/credits">Credits</a>
+          <br />
+          Transparency -
+          <a href="/users/trusted"
+            ><i class="fa fa-user"></i> Trusted Developer List</a
+          >
+          -
+          <a href="/plugins/signs"
+            ><i class="fa fa-gavel"></i> Plugin Signature Feed</a
+          >
+        </p>
+        <p>
+          &copy;
+          <a
+            href="https://codecat.nl/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Melissa 'Miss' Geels</a
+          >
+          &amp; contributors 2016 - 2026 /
+          <a
+            href="https://meow.social/@codecat"
+            target="_blank"
+            rel="me noopener noreferrer"
+            >@codecat@meow.social</a
+          >
+        </p>
+        <a href="/cf/tr/blog" rel="nofollow" class="cftr">Blog</a
+        ><!-- pls ignore.. -->
+      </div>
+    </footer>
 
-</div>
-			</div>
-		</div>
-	</div>
-</section>
+    <div class="image-modal modal" id="modal">
+      <div class="modal-background" id="modal-background"></div>
+      <div class="modal-content has-text-centered">
+        <div class="notification">
+          <div class="op-modal-img">
+            <img id="modal-image" />
+            <div class="op-modal-button op-modal-prev" id="modal-prev">
+              <i class="fa fa-arrow-left"></i>
+            </div>
+            <div class="op-modal-button op-modal-next" id="modal-next">
+              <i class="fa fa-arrow-right"></i>
+            </div>
+            <div class="op-modal-info" id="modal-info"><span></span></div>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close is-large" id="modal-close"></button>
+    </div>
 
-		<footer class="footer">
-			<div class="content has-text-centered">
-				<p>
-					Openplanet
-					- <a href="/link/discord" target="_blank" rel="me noopener noreferrer"><i class="fa fa-discord"></i> Discord</a>
-					- <a href="/link/github" target="_blank" rel="me noopener noreferrer"><i class="fa fa-github"></i> GitHub</a>
-					- <a href="https://mastodon.gamedev.place/@openplanet" rel="me noopener noreferrer"><i class="fa fa-mastodon"></i> Mastodon</a>
-					- <a href="/docs/plugin-tos">Plugin terms of service</a>
-					- <a href="/privacy">Privacy Policy</a>
-					- <a href="/credits">Credits</a>
-					<br>
-					Transparency
-					- <a href="/users/trusted"><i class="fa fa-user"></i> Trusted Developer List</a>
-					- <a href="/plugins/signs"><i class="fa fa-gavel"></i> Plugin Signature Feed</a>
-				</p>
-				<p>
-					&copy; <a href="https://codecat.nl/" target="_blank" rel="noopener noreferrer">Melissa 'Miss' Geels</a> &amp; contributors 2016 - 2026 / <a href="https://meow.social/@codecat" target="_blank" rel="me noopener noreferrer">@codecat@meow.social</a>
-				</p>
-								<a href="/cf/tr/blog" rel="nofollow" class="cftr">Blog</a><!-- pls ignore.. -->
-			</div>
-		</footer>
-
-		<div class="image-modal modal" id="modal">
-			<div class="modal-background" id="modal-background"></div>
-			<div class="modal-content has-text-centered">
-				<div class="notification">
-					<div class="op-modal-img">
-						<img id="modal-image">
-						<div class="op-modal-button op-modal-prev" id="modal-prev"><i class="fa fa-arrow-left"></i></div>
-						<div class="op-modal-button op-modal-next" id="modal-next"><i class="fa fa-arrow-right"></i></div>
-						<div class="op-modal-info" id="modal-info"><span></span></div>
-					</div>
-				</div>
-			</div>
-			<button class="modal-close is-large" id="modal-close"></button>
-		</div>
-
-		<script src="/js/highlight.min.js"></script>
-		<script src="/js/script.js"></script>
-		<script data-goatcounter="https://openplanet.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-	</body>
+    <script src="/js/highlight.min.js"></script>
+    <script src="/js/script.js"></script>
+    <script
+      data-goatcounter="https://openplanet.goatcounter.com/count"
+      async
+      src="//gc.zgo.at/count.js"></script>
+  </body>
 </html>

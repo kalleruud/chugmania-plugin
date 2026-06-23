@@ -1,352 +1,590 @@
-<!DOCTYPE html>
+<!doctype html>
 <html prefix="og: http://ogp.me/ns#" lang="en">
-	<head>
-		<meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
 
-		<title>Plugin Dependencies - Openplanet</title>
+    <title>Plugin Dependencies - Openplanet</title>
 
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-		<link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
-		<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
-		<link rel="manifest" href="/manifest.json">
-		<link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5">
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/img/apple-touch-icon.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/img/favicon-32x32.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/img/favicon-16x16.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5" />
 
-		
-		<meta name="theme-color" content="#ff3399">
-		<meta property="og:title" content="Plugin Dependencies - Openplanet">
-		<meta property="og:type" content="website">
-		<meta property="og:image" content="https://openplanet.dev/img/logo_icon.png">
-		<meta property="og:url" content="https://openplanet.dev/docs/tutorials/plugin-dependencies">
-		<meta property="og:description" content="Overview of how plugin dependencies work.">
+    <meta name="theme-color" content="#ff3399" />
+    <meta property="og:title" content="Plugin Dependencies - Openplanet" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:image"
+      content="https://openplanet.dev/img/logo_icon.png" />
+    <meta
+      property="og:url"
+      content="https://openplanet.dev/docs/tutorials/plugin-dependencies" />
+    <meta
+      property="og:description"
+      content="Overview of how plugin dependencies work." />
 
-		<link rel="search" type="application/opensearchdescription+xml" href="/opensearch/plugins" title="Openplanet Plugin Search"/>
-		<link rel="search" type="application/opensearchdescription+xml" href="/opensearch/api" title="Openplanet Developer API Search"/>
+    <link
+      rel="search"
+      type="application/opensearchdescription+xml"
+      href="/opensearch/plugins"
+      title="Openplanet Plugin Search" />
+    <link
+      rel="search"
+      type="application/opensearchdescription+xml"
+      href="/opensearch/api"
+      title="Openplanet Developer API Search" />
 
-		<link rel="stylesheet" href="/style.css?1776265006">
-		<link rel="stylesheet" href="/css/fork-awesome.min.css">
-		<link rel="stylesheet" href="/css/agate.min.css?1769265621">
+    <link rel="stylesheet" href="/style.css?1776265006" />
+    <link rel="stylesheet" href="/css/fork-awesome.min.css" />
+    <link rel="stylesheet" href="/css/agate.min.css?1769265621" />
+  </head>
 
-			</head>
+  <body class="has-navbar-fixed-top">
+    <nav class="navbar is-fixed-top">
+      <div class="container">
+        <div class="navbar-brand">
+          <a href="/" class="navbar-item">
+            <span class="icon has-agenda gay"
+              ><i class="fa fa-heartbeat"></i
+            ></span>
+            <span>open<b>planet</b></span>
+          </a>
 
-	<body class="has-navbar-fixed-top">
-		<nav class="navbar is-fixed-top">
-			<div class="container">
-				<div class="navbar-brand">
-					<a href="/" class="navbar-item">
-												<span class="icon has-agenda gay"><i class="fa fa-heartbeat"></i></span>
-						<span>open<b>planet</b></span>
-					</a>
+          <a class="navbar-burger" data-target="navMenu"
+            ><span></span><span></span><span></span
+          ></a>
+        </div>
 
-					<a class="navbar-burger" data-target="navMenu"><span></span><span></span><span></span></a>
-				</div>
+        <div class="navbar-menu" id="navMenu">
+          <div class="navbar-start">
+            <a href="/plugins" class="navbar-item">
+              <span class="icon"><i class="fa fa-code-fork"></i></span>
+              <span>Plugins</span>
+            </a>
+            <a href="/files" class="navbar-item">
+              <span class="icon"><i class="fa fa-file-o"></i></span>
+              <span>Files</span>
+            </a>
+            <a href="/docs" class="navbar-item">
+              <span class="icon"><i class="fa fa-book"></i></span>
+              <span>Documentation</span>
+            </a>
+            <a href="/news" class="navbar-item">
+              <span class="icon"><i class="fa fa-newspaper-o"></i></span>
+              <span>News</span>
+            </a>
+            <div class="navbar-item">
+              <a
+                href="/download"
+                class="button is-secondary is-small is-outlined">
+                <span class="icon"><i class="fa fa-download"></i></span>
+                <span>Download Openplanet</span>
+              </a>
+            </div>
+          </div>
 
-				<div class="navbar-menu" id="navMenu">
-					<div class="navbar-start">
-															<a href="/plugins" class="navbar-item">
-																					<span class="icon"><i class="fa fa-code-fork"></i></span>
-																				<span>Plugins</span>
-									</a>
-																		<a href="/files" class="navbar-item">
-																					<span class="icon"><i class="fa fa-file-o"></i></span>
-																				<span>Files</span>
-									</a>
-																		<a href="/docs" class="navbar-item">
-																					<span class="icon"><i class="fa fa-book"></i></span>
-																				<span>Documentation</span>
-									</a>
-																		<a href="/news" class="navbar-item">
-																					<span class="icon"><i class="fa fa-newspaper-o"></i></span>
-																				<span>News</span>
-									</a>
-																		<div class="navbar-item">
-										<a href="/download" class="button is-secondary is-small is-outlined">
-																							<span class="icon"><i class="fa fa-download"></i></span>
-																						<span>Download Openplanet</span>
-										</a>
-									</div>
-														</div>
+          <div class="navbar-end">
+            <div class="navbar-item">
+              <a href="/user/login" class="button is-small">
+                <span class="icon"><i class="fa fa-lock"></i></span>
+                <span>Login</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
 
-					<div class="navbar-end">
-													<div class="navbar-item">
-								<a href="/user/login" class="button is-small">
-									<span class="icon"><i class="fa fa-lock"></i></span>
-									<span>Login</span>
-								</a>
-							</div>
-											</div>
-				</div>
-			</div>
-		</nav>
+    <section class="hero is-secondary is-bold">
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <h1 class="title">Documentation</h1>
+        </div>
+      </div>
+    </section>
 
-		
-		
-<section class="hero is-secondary is-bold">
-	<div class="hero-body">
-		<div class="container has-text-centered">
-			<h1 class="title">Documentation</h1>
-		</div>
-	</div>
-</section>
+    <section class="section">
+      <div class="container">
+        <div class="columns">
+          <div class="column is-narrow">
+            <aside class="menu">
+              <p class="menu-label">Documentation</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs">
+                    <span class="icon"><i class="fa fa-home"></i></span>
+                    <span>Home</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/help">
+                    <span class="icon"><i class="fa fa-bug"></i></span>
+                    <span>Troubleshooting</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/tutorials/installation">
+                    <span class="icon"
+                      ><i class="fa fa-cloud-download"></i
+                    ></span>
+                    <span>Installing Openplanet</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/tutorials/signature-modes">
+                    <span class="icon"><i class="fa fa-lock"></i></span>
+                    <span>Signature Modes</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/school-mode">
+                    <span class="icon"><i class="fa fa-university"></i></span>
+                    <span>School Mode</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">Plugin development</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/getting-started">
+                    <span class="icon"><i class="fa fa-info-circle"></i></span>
+                    <span>Getting started</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/info-toml">
+                    <span class="icon"><i class="fa fa-info"></i></span>
+                    <span>info.toml</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/plugin-callbacks">
+                    <span class="icon"><i class="fa fa-exchange"></i></span>
+                    <span>Callback functions</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/icons">
+                    <span class="icon"><i class="fa fa-flag"></i></span>
+                    <span>Icons</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/settings">
+                    <span class="icon"><i class="fa fa-cogs"></i></span>
+                    <span>Settings</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/imports">
+                    <span class="icon"
+                      ><i class="fa fa-arrow-circle-down"></i
+                    ></span>
+                    <span>Script imports</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/preprocessor">
+                    <span class="icon"><i class="fa fa-code"></i></span>
+                    <span>Preprocessor</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/auth">
+                    <span class="icon"><i class="fa fa-lock"></i></span>
+                    <span>Authentication</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">Dependencies</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/reference/nadeoservices">
+                    <span class="icon"><i class="fa fa-ticket"></i></span>
+                    <span>NadeoServices</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/vehiclestate">
+                    <span class="icon"><i class="fa fa-car"></i></span>
+                    <span>VehicleState</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/camera">
+                    <span class="icon"><i class="fa fa-camera"></i></span>
+                    <span>Camera</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/controls">
+                    <span class="icon"><i class="fa fa-check-square"></i></span>
+                    <span>Controls</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">API Reference</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/api">
+                    <span class="icon"><i class="fa fa-heartbeat"></i></span>
+                    <span>Openplanet API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://next.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Trackmania API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://mp4.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Maniaplanet API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://turbo.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Turbo API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://webservices.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-ticket"></i></span>
+                    <span>Web Services API</span>
+                  </a>
+                </li>
+              </ul>
+            </aside>
+          </div>
 
-<section class="section">
-	<div class="container">
-		<div class="columns">
-			<div class="column is-narrow">
-				<aside class="menu">
-					<p class="menu-label">Documentation</p><ul class="menu-list">	<li>
-		<a href="/docs">
-			<span class="icon"><i class="fa fa-home"></i></span>
-			<span>Home</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/help">
-			<span class="icon"><i class="fa fa-bug"></i></span>
-			<span>Troubleshooting</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/tutorials/installation">
-			<span class="icon"><i class="fa fa-cloud-download"></i></span>
-			<span>Installing Openplanet</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/tutorials/signature-modes">
-			<span class="icon"><i class="fa fa-lock"></i></span>
-			<span>Signature Modes</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/school-mode">
-			<span class="icon"><i class="fa fa-university"></i></span>
-			<span>School Mode</span>
-		</a>
-	</li>
-	</ul><p class="menu-label">Plugin development</p><ul class="menu-list">	<li>
-		<a href="/docs/getting-started">
-			<span class="icon"><i class="fa fa-info-circle"></i></span>
-			<span>Getting started</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/info-toml">
-			<span class="icon"><i class="fa fa-info"></i></span>
-			<span>info.toml</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/plugin-callbacks">
-			<span class="icon"><i class="fa fa-exchange"></i></span>
-			<span>Callback functions</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/icons">
-			<span class="icon"><i class="fa fa-flag"></i></span>
-			<span>Icons</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/settings">
-			<span class="icon"><i class="fa fa-cogs"></i></span>
-			<span>Settings</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/imports">
-			<span class="icon"><i class="fa fa-arrow-circle-down"></i></span>
-			<span>Script imports</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/preprocessor">
-			<span class="icon"><i class="fa fa-code"></i></span>
-			<span>Preprocessor</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/auth">
-			<span class="icon"><i class="fa fa-lock"></i></span>
-			<span>Authentication</span>
-		</a>
-	</li>
-	</ul><p class="menu-label">Dependencies</p><ul class="menu-list">	<li>
-		<a href="/docs/reference/nadeoservices">
-			<span class="icon"><i class="fa fa-ticket"></i></span>
-			<span>NadeoServices</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/vehiclestate">
-			<span class="icon"><i class="fa fa-car"></i></span>
-			<span>VehicleState</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/camera">
-			<span class="icon"><i class="fa fa-camera"></i></span>
-			<span>Camera</span>
-		</a>
-	</li>
-		<li>
-		<a href="/docs/reference/controls">
-			<span class="icon"><i class="fa fa-check-square"></i></span>
-			<span>Controls</span>
-		</a>
-	</li>
-	</ul><p class="menu-label">API Reference</p><ul class="menu-list">	<li>
-		<a href="/docs/api">
-			<span class="icon"><i class="fa fa-heartbeat"></i></span>
-			<span>Openplanet API</span>
-		</a>
-	</li>
-		<li>
-		<a href="https://next.openplanet.dev/" target="_blank">
-			<span class="icon"><i class="fa fa-gamepad"></i></span>
-			<span>Trackmania API</span>
-		</a>
-	</li>
-		<li>
-		<a href="https://mp4.openplanet.dev/" target="_blank">
-			<span class="icon"><i class="fa fa-gamepad"></i></span>
-			<span>Maniaplanet API</span>
-		</a>
-	</li>
-		<li>
-		<a href="https://turbo.openplanet.dev/" target="_blank">
-			<span class="icon"><i class="fa fa-gamepad"></i></span>
-			<span>Turbo API</span>
-		</a>
-	</li>
-		<li>
-		<a href="https://webservices.openplanet.dev/" target="_blank">
-			<span class="icon"><i class="fa fa-ticket"></i></span>
-			<span>Web Services API</span>
-		</a>
-	</li>
-	</ul>				</aside>
-			</div>
-
-			<div class="column">
-				<div class="content">
-	<h1>Plugin Dependencies</h1>
-<p>As of 1.21.0, Openplanet plugins can depend on other plugins. For a plugin that depends on another plugin to run, both plugins need to be installed. For example, if plugin A depends on plugin B, then both A and B need to be installed for A to successfully load.</p>
-<p>Plugins that depend on other plugins will also inherit a part of the implementation of those plugins. To be more precise, a dependent plugin will import a dependency's exports. These exported functions (and optionally shared classes) can then be used by any dependent plugins to perform actions within the context of the other plugin.</p>
-<p>For example, the built-in <code>NadeoServices</code> plugin allows dependent plugins to use the same access tokens for Nadeo's live services. When multiple plugins are depending on <code>NadeoServices</code>, only 1 access token will be created inside of the <code>NadeoServices</code> plugin itself, which the dependent plugins are then making use of. This saves resources, simplifies development because you don't have to worry about authentication, and avoids any potential rate limiting or other conflicts.</p>
-<h2>Depending on a plugin</h2>
-<p>If you're a developer and you wish to depend on another plugin, you have to add the plugin dependency to your <code>info.toml</code> file. For example, if you are integrating with the <code>NadeoServices</code> plugin, you would add a <code>dependencies</code> array to your <code>[script]</code> section:</p>
-<pre><code class="language-toml">[script]
+          <div class="column">
+            <div class="content">
+              <h1>Plugin Dependencies</h1>
+              <p>
+                As of 1.21.0, Openplanet plugins can depend on other plugins.
+                For a plugin that depends on another plugin to run, both plugins
+                need to be installed. For example, if plugin A depends on plugin
+                B, then both A and B need to be installed for A to successfully
+                load.
+              </p>
+              <p>
+                Plugins that depend on other plugins will also inherit a part of
+                the implementation of those plugins. To be more precise, a
+                dependent plugin will import a dependency's exports. These
+                exported functions (and optionally shared classes) can then be
+                used by any dependent plugins to perform actions within the
+                context of the other plugin.
+              </p>
+              <p>
+                For example, the built-in <code>NadeoServices</code> plugin
+                allows dependent plugins to use the same access tokens for
+                Nadeo's live services. When multiple plugins are depending on
+                <code>NadeoServices</code>, only 1 access token will be created
+                inside of the <code>NadeoServices</code> plugin itself, which
+                the dependent plugins are then making use of. This saves
+                resources, simplifies development because you don't have to
+                worry about authentication, and avoids any potential rate
+                limiting or other conflicts.
+              </p>
+              <h2>Depending on a plugin</h2>
+              <p>
+                If you're a developer and you wish to depend on another plugin,
+                you have to add the plugin dependency to your
+                <code>info.toml</code> file. For example, if you are integrating
+                with the <code>NadeoServices</code> plugin, you would add a
+                <code>dependencies</code> array to your
+                <code>[script]</code> section:
+              </p>
+              <pre><code class="language-toml">[script]
 dependencies = [ "NadeoServices" ]</code></pre>
-<blockquote>
-<p>In this case, it will depend on the plugin using the identifier <code>NadeoServices</code>. The identifier of a plugin is found in several ways, but the quickest is to look at the location of the plugin; it will either be the folder name, or the file base name of a <code>.op</code> file. For example, the plugin identifier <code>FooBar</code> could refer to <code>C:/Users/Username/OpenplanetNext/Plugins/FooBar.op</code> or <code>C:/Users/Username/OpenplanetNext/Plugins/FooBar/</code>.</p>
-</blockquote>
-<p>When your plugin loads, <code>Export.as</code> from <code>NadeoServices</code> is compiled into your plugin as well. This file contains functions that interact with the plugin. It's recommended you check the actual source of this file, as it often contains documentation on how to use a plugin's exported scripts.</p>
-<p>For the <code>NadeoServices</code> dependency example, you'd then simply call any of the exported functions:</p>
-<pre><code class="language-asc">void Main()
+              <blockquote>
+                <p>
+                  In this case, it will depend on the plugin using the
+                  identifier <code>NadeoServices</code>. The identifier of a
+                  plugin is found in several ways, but the quickest is to look
+                  at the location of the plugin; it will either be the folder
+                  name, or the file base name of a <code>.op</code> file. For
+                  example, the plugin identifier <code>FooBar</code> could refer
+                  to
+                  <code
+                    >C:/Users/Username/OpenplanetNext/Plugins/FooBar.op</code
+                  >
+                  or
+                  <code>C:/Users/Username/OpenplanetNext/Plugins/FooBar/</code>.
+                </p>
+              </blockquote>
+              <p>
+                When your plugin loads, <code>Export.as</code> from
+                <code>NadeoServices</code> is compiled into your plugin as well.
+                This file contains functions that interact with the plugin. It's
+                recommended you check the actual source of this file, as it
+                often contains documentation on how to use a plugin's exported
+                scripts.
+              </p>
+              <p>
+                For the <code>NadeoServices</code> dependency example, you'd
+                then simply call any of the exported functions:
+              </p>
+              <pre><code class="language-asc">void Main()
 {
   NadeoServices::AddAudience("NadeoLiveServices");
   // ...
 }</code></pre>
-<h2>Exporting to other plugins</h2>
-<p>If you want other plugin developers to be able to have a dependency on your plugin, you have to export script files. There's 2 ways to do this inside of <code>info.toml</code>. The first is <code>exports</code>, and the second is <code>shared_exports</code>.</p>
-<ul>
-<li><code>exports</code> is an array of files in your plugin that will be compiled into any dependent plugins, but NOT in the dependency plugin.</li>
-<li><code>shared_exports</code> is like <code>exports</code>, except it will be compiled into both plugins.</li>
-</ul>
-<p>Shared exports are usually only useful if you want to provide classes using <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_shared.html" target="_self" rel="">Angelscript's shared entities</a>.</p>
-<pre><code class="language-toml">[script]
+              <h2>Exporting to other plugins</h2>
+              <p>
+                If you want other plugin developers to be able to have a
+                dependency on your plugin, you have to export script files.
+                There's 2 ways to do this inside of <code>info.toml</code>. The
+                first is <code>exports</code>, and the second is
+                <code>shared_exports</code>.
+              </p>
+              <ul>
+                <li>
+                  <code>exports</code> is an array of files in your plugin that
+                  will be compiled into any dependent plugins, but NOT in the
+                  dependency plugin.
+                </li>
+                <li>
+                  <code>shared_exports</code> is like <code>exports</code>,
+                  except it will be compiled into both plugins.
+                </li>
+              </ul>
+              <p>
+                Shared exports are usually only useful if you want to provide
+                classes using
+                <a
+                  href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_shared.html"
+                  target="_self"
+                  rel=""
+                  >Angelscript's shared entities</a
+                >.
+              </p>
+              <pre><code class="language-toml">[script]
 exports = [ "src/Export.as" ]
 shared_exports = [ "src/ExportShared.as" ]</code></pre>
-<h3>Exporting functions</h3>
-<p>Function exports are using <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_global_import.html" target="_self" rel="">Angelscript's function importing</a> to create a connection between multiple script modules.</p>
-<p>This works by exporting a file containing your function definition using the <code>import .. from "..";</code> syntax. For example, if your plugin ID is <code>Foo</code>, you could write the following exported script:</p>
-<pre><code class="language-asc">namespace Foo
+              <h3>Exporting functions</h3>
+              <p>
+                Function exports are using
+                <a
+                  href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_global_import.html"
+                  target="_self"
+                  rel=""
+                  >Angelscript's function importing</a
+                >
+                to create a connection between multiple script modules.
+              </p>
+              <p>
+                This works by exporting a file containing your function
+                definition using the <code>import .. from "..";</code> syntax.
+                For example, if your plugin ID is <code>Foo</code>, you could
+                write the following exported script:
+              </p>
+              <pre><code class="language-asc">namespace Foo
 {
   import void DoSomething() from "Foo";
 }</code></pre>
-<p>Note that the exported script is not compiled with your plugin, so you have to declare the actual function in a separate file:</p>
-<pre><code class="language-asc">namespace Foo
+              <p>
+                Note that the exported script is not compiled with your plugin,
+                so you have to declare the actual function in a separate file:
+              </p>
+              <pre><code class="language-asc">namespace Foo
 {
   void DoSomething()
   {
     print("Hello, world!");
   }
 }</code></pre>
-<p>If you've worked with header files in C or C++ before, this concept should be familiar. When you change the function signature, make sure you change it in both files!</p>
-<h3>Exporting classes and other entities</h3>
-<p>If you want to export a class (via an exported function's return value or parameter for example), you have 2 ways of doing it.</p>
-<ul>
-<li>Add the class to a regular exported script. The downside about this is that you can't use the same class in your own code since exported scripts are not compiled into the dependency plugin.</li>
-<li>Make the class shared and put it in a shared exported script. This way you can use (and pass around handles to) the class.</li>
-</ul>
-<p>To make a class shared, you can simply add the <code>shared</code> keyword as described in <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_shared.html" target="_self" rel="">Angelscript's shared entities</a> page. Keep the following important rule in mind though:</p>
-<blockquote>
-<p>Shared entities have a restriction in that they cannot access non-shared entities because the non-shared entities are exclusive to the script module in which they were compiled.</p>
-</blockquote>
-<p>If you feel like breaking this restriction, consider whether a class really needs to be exported. It's likely you can solve the problem without any shared entities, purely with exported functions.</p>
-<h3>Required and optional dependencies</h3>
-<p>By default, the dependencies you list in <code>dependencies</code> are <strong>required</strong> dependencies. That means that your plugin won't compile if any of the dependencies are not installed, and will throw an error at the user.</p>
-<p>As of Openplanet 1.22.2, you can also specifiy <strong>optional</strong> dependencies by using <code>optional_dependencies</code>. This is an additional array of plugin ID's to optionally depend on. If such a plugin is not installed, then your plugin will still compile, but without any of the exported files.</p>
-<p>If an optional dependency is installed however, it will add a preprocessor definition that you can use in your scripts. The definition will have a prefix of <code>DEPENDENCY_</code> followed by the plugin ID in uppercase, with spaces, dashes, and periods replaced by underscores. For example, if you have an optional dependency on <code>Dashboard</code> and Dashboard is installed, you can check for <code>DEPENDENCY_DASHBOARD</code> in your scripts:</p>
-<pre><code class="language-asc">#if DEPENDENCY_DASHBOARD
+              <p>
+                If you've worked with header files in C or C++ before, this
+                concept should be familiar. When you change the function
+                signature, make sure you change it in both files!
+              </p>
+              <h3>Exporting classes and other entities</h3>
+              <p>
+                If you want to export a class (via an exported function's return
+                value or parameter for example), you have 2 ways of doing it.
+              </p>
+              <ul>
+                <li>
+                  Add the class to a regular exported script. The downside about
+                  this is that you can't use the same class in your own code
+                  since exported scripts are not compiled into the dependency
+                  plugin.
+                </li>
+                <li>
+                  Make the class shared and put it in a shared exported script.
+                  This way you can use (and pass around handles to) the class.
+                </li>
+              </ul>
+              <p>
+                To make a class shared, you can simply add the
+                <code>shared</code> keyword as described in
+                <a
+                  href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_shared.html"
+                  target="_self"
+                  rel=""
+                  >Angelscript's shared entities</a
+                >
+                page. Keep the following important rule in mind though:
+              </p>
+              <blockquote>
+                <p>
+                  Shared entities have a restriction in that they cannot access
+                  non-shared entities because the non-shared entities are
+                  exclusive to the script module in which they were compiled.
+                </p>
+              </blockquote>
+              <p>
+                If you feel like breaking this restriction, consider whether a
+                class really needs to be exported. It's likely you can solve the
+                problem without any shared entities, purely with exported
+                functions.
+              </p>
+              <h3>Required and optional dependencies</h3>
+              <p>
+                By default, the dependencies you list in
+                <code>dependencies</code> are
+                <strong>required</strong> dependencies. That means that your
+                plugin won't compile if any of the dependencies are not
+                installed, and will throw an error at the user.
+              </p>
+              <p>
+                As of Openplanet 1.22.2, you can also specifiy
+                <strong>optional</strong> dependencies by using
+                <code>optional_dependencies</code>. This is an additional array
+                of plugin ID's to optionally depend on. If such a plugin is not
+                installed, then your plugin will still compile, but without any
+                of the exported files.
+              </p>
+              <p>
+                If an optional dependency is installed however, it will add a
+                preprocessor definition that you can use in your scripts. The
+                definition will have a prefix of
+                <code>DEPENDENCY_</code> followed by the plugin ID in uppercase,
+                with spaces, dashes, and periods replaced by underscores. For
+                example, if you have an optional dependency on
+                <code>Dashboard</code> and Dashboard is installed, you can check
+                for <code>DEPENDENCY_DASHBOARD</code> in your scripts:
+              </p>
+              <pre><code class="language-asc">#if DEPENDENCY_DASHBOARD
   auto playerState = Dashboard::ViewingPlayerState();
   // ...
 #else
   warn("Dashboard is not installed!");
-#endif</code></pre></div>
+#endif</code></pre>
+            </div>
 
-<div class="block">
-	<br>
-		<p><small>Page updated <span title="Thu, 18 Apr 2024 20:18:58 +0200">2 years ago</span> by <span class="has-text-team">Miss</span><span class="verified" title="Trusted developer"><img src="/img/verified.svg" alt="(Trusted developer)" /></span></small></p>
+            <div class="block">
+              <br />
+              <p>
+                <small
+                  >Page updated
+                  <span title="Thu, 18 Apr 2024 20:18:58 +0200"
+                    >2 years ago</span
+                  >
+                  by <span class="has-text-team">Miss</span
+                  ><span class="verified" title="Trusted developer"
+                    ><img
+                      src="/img/verified.svg"
+                      alt="(Trusted developer)" /></span
+                ></small>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-</div>
-			</div>
-		</div>
-	</div>
-</section>
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          Openplanet -
+          <a href="/link/discord" target="_blank" rel="me noopener noreferrer"
+            ><i class="fa fa-discord"></i> Discord</a
+          >
+          -
+          <a href="/link/github" target="_blank" rel="me noopener noreferrer"
+            ><i class="fa fa-github"></i> GitHub</a
+          >
+          -
+          <a
+            href="https://mastodon.gamedev.place/@openplanet"
+            rel="me noopener noreferrer"
+            ><i class="fa fa-mastodon"></i> Mastodon</a
+          >
+          - <a href="/docs/plugin-tos">Plugin terms of service</a> -
+          <a href="/privacy">Privacy Policy</a> - <a href="/credits">Credits</a>
+          <br />
+          Transparency -
+          <a href="/users/trusted"
+            ><i class="fa fa-user"></i> Trusted Developer List</a
+          >
+          -
+          <a href="/plugins/signs"
+            ><i class="fa fa-gavel"></i> Plugin Signature Feed</a
+          >
+        </p>
+        <p>
+          &copy;
+          <a
+            href="https://codecat.nl/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Melissa 'Miss' Geels</a
+          >
+          &amp; contributors 2016 - 2026 /
+          <a
+            href="https://meow.social/@codecat"
+            target="_blank"
+            rel="me noopener noreferrer"
+            >@codecat@meow.social</a
+          >
+        </p>
+        <a href="/cf/tr/blog" rel="nofollow" class="cftr">Blog</a
+        ><!-- pls ignore.. -->
+      </div>
+    </footer>
 
-		<footer class="footer">
-			<div class="content has-text-centered">
-				<p>
-					Openplanet
-					- <a href="/link/discord" target="_blank" rel="me noopener noreferrer"><i class="fa fa-discord"></i> Discord</a>
-					- <a href="/link/github" target="_blank" rel="me noopener noreferrer"><i class="fa fa-github"></i> GitHub</a>
-					- <a href="https://mastodon.gamedev.place/@openplanet" rel="me noopener noreferrer"><i class="fa fa-mastodon"></i> Mastodon</a>
-					- <a href="/docs/plugin-tos">Plugin terms of service</a>
-					- <a href="/privacy">Privacy Policy</a>
-					- <a href="/credits">Credits</a>
-					<br>
-					Transparency
-					- <a href="/users/trusted"><i class="fa fa-user"></i> Trusted Developer List</a>
-					- <a href="/plugins/signs"><i class="fa fa-gavel"></i> Plugin Signature Feed</a>
-				</p>
-				<p>
-					&copy; <a href="https://codecat.nl/" target="_blank" rel="noopener noreferrer">Melissa 'Miss' Geels</a> &amp; contributors 2016 - 2026 / <a href="https://meow.social/@codecat" target="_blank" rel="me noopener noreferrer">@codecat@meow.social</a>
-				</p>
-								<a href="/cf/tr/blog" rel="nofollow" class="cftr">Blog</a><!-- pls ignore.. -->
-			</div>
-		</footer>
+    <div class="image-modal modal" id="modal">
+      <div class="modal-background" id="modal-background"></div>
+      <div class="modal-content has-text-centered">
+        <div class="notification">
+          <div class="op-modal-img">
+            <img id="modal-image" />
+            <div class="op-modal-button op-modal-prev" id="modal-prev">
+              <i class="fa fa-arrow-left"></i>
+            </div>
+            <div class="op-modal-button op-modal-next" id="modal-next">
+              <i class="fa fa-arrow-right"></i>
+            </div>
+            <div class="op-modal-info" id="modal-info"><span></span></div>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close is-large" id="modal-close"></button>
+    </div>
 
-		<div class="image-modal modal" id="modal">
-			<div class="modal-background" id="modal-background"></div>
-			<div class="modal-content has-text-centered">
-				<div class="notification">
-					<div class="op-modal-img">
-						<img id="modal-image">
-						<div class="op-modal-button op-modal-prev" id="modal-prev"><i class="fa fa-arrow-left"></i></div>
-						<div class="op-modal-button op-modal-next" id="modal-next"><i class="fa fa-arrow-right"></i></div>
-						<div class="op-modal-info" id="modal-info"><span></span></div>
-					</div>
-				</div>
-			</div>
-			<button class="modal-close is-large" id="modal-close"></button>
-		</div>
-
-		<script src="/js/highlight.min.js"></script>
-		<script src="/js/script.js"></script>
-		<script data-goatcounter="https://openplanet.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-	</body>
+    <script src="/js/highlight.min.js"></script>
+    <script src="/js/script.js"></script>
+    <script
+      data-goatcounter="https://openplanet.goatcounter.com/count"
+      async
+      src="//gc.zgo.at/count.js"></script>
+  </body>
 </html>
