@@ -1,0 +1,672 @@
+<!doctype html>
+<html prefix="og: http://ogp.me/ns#" lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <title>VehicleState plugin dependency - Openplanet</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/img/apple-touch-icon.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/img/favicon-32x32.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/img/favicon-16x16.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5" />
+
+    <!-- twitter sucks -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:image"
+      content="https://openplanet.dev/imgu/1645110030_be03dd51cce4444a42f86db3f16d85bc6c1cb634.png" />
+    <meta
+      name="twitter:image:alt"
+      content="VehicleState plugin dependency documentation." />
+
+    <meta name="theme-color" content="#ff3399" />
+    <meta
+      property="og:title"
+      content="VehicleState plugin dependency - Openplanet" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:image"
+      content="https://openplanet.dev/imgu/1645110030_be03dd51cce4444a42f86db3f16d85bc6c1cb634.png" />
+    <meta
+      property="og:url"
+      content="https://openplanet.dev/docs/reference/vehiclestate" />
+    <meta
+      property="og:description"
+      content="VehicleState plugin dependency documentation." />
+
+    <link
+      rel="search"
+      type="application/opensearchdescription+xml"
+      href="/opensearch/plugins"
+      title="Openplanet Plugin Search" />
+    <link
+      rel="search"
+      type="application/opensearchdescription+xml"
+      href="/opensearch/api"
+      title="Openplanet Developer API Search" />
+
+    <link rel="stylesheet" href="/style.css?1776265006" />
+    <link rel="stylesheet" href="/css/fork-awesome.min.css" />
+    <link rel="stylesheet" href="/css/agate.min.css?1769265621" />
+  </head>
+
+  <body class="has-navbar-fixed-top">
+    <nav class="navbar is-fixed-top">
+      <div class="container">
+        <div class="navbar-brand">
+          <a href="/" class="navbar-item">
+            <span class="icon has-agenda pan"
+              ><i class="fa fa-heartbeat"></i
+            ></span>
+            <span>open<b>planet</b></span>
+          </a>
+
+          <a class="navbar-burger" data-target="navMenu"
+            ><span></span><span></span><span></span
+          ></a>
+        </div>
+
+        <div class="navbar-menu" id="navMenu">
+          <div class="navbar-start">
+            <a href="/plugins" class="navbar-item">
+              <span class="icon"><i class="fa fa-code-fork"></i></span>
+              <span>Plugins</span>
+            </a>
+            <a href="/files" class="navbar-item">
+              <span class="icon"><i class="fa fa-file-o"></i></span>
+              <span>Files</span>
+            </a>
+            <a href="/docs" class="navbar-item">
+              <span class="icon"><i class="fa fa-book"></i></span>
+              <span>Documentation</span>
+            </a>
+            <a href="/news" class="navbar-item">
+              <span class="icon"><i class="fa fa-newspaper-o"></i></span>
+              <span>News</span>
+            </a>
+            <div class="navbar-item">
+              <a
+                href="/download"
+                class="button is-secondary is-small is-outlined">
+                <span class="icon"><i class="fa fa-download"></i></span>
+                <span>Download Openplanet</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="navbar-end">
+            <div class="navbar-item">
+              <a href="/user/login" class="button is-small">
+                <span class="icon"><i class="fa fa-lock"></i></span>
+                <span>Login</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <section class="hero is-secondary is-bold">
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <h1 class="title">Documentation</h1>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="columns">
+          <div class="column is-narrow">
+            <aside class="menu">
+              <p class="menu-label">Documentation</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs">
+                    <span class="icon"><i class="fa fa-home"></i></span>
+                    <span>Home</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/help">
+                    <span class="icon"><i class="fa fa-bug"></i></span>
+                    <span>Troubleshooting</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/tutorials/installation">
+                    <span class="icon"
+                      ><i class="fa fa-cloud-download"></i
+                    ></span>
+                    <span>Installing Openplanet</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/tutorials/signature-modes">
+                    <span class="icon"><i class="fa fa-lock"></i></span>
+                    <span>Signature Modes</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/school-mode">
+                    <span class="icon"><i class="fa fa-university"></i></span>
+                    <span>School Mode</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">Plugin development</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/getting-started">
+                    <span class="icon"><i class="fa fa-info-circle"></i></span>
+                    <span>Getting started</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/info-toml">
+                    <span class="icon"><i class="fa fa-info"></i></span>
+                    <span>info.toml</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/plugin-callbacks">
+                    <span class="icon"><i class="fa fa-exchange"></i></span>
+                    <span>Callback functions</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/icons">
+                    <span class="icon"><i class="fa fa-flag"></i></span>
+                    <span>Icons</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/settings">
+                    <span class="icon"><i class="fa fa-cogs"></i></span>
+                    <span>Settings</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/imports">
+                    <span class="icon"
+                      ><i class="fa fa-arrow-circle-down"></i
+                    ></span>
+                    <span>Script imports</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/preprocessor">
+                    <span class="icon"><i class="fa fa-code"></i></span>
+                    <span>Preprocessor</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/auth">
+                    <span class="icon"><i class="fa fa-lock"></i></span>
+                    <span>Authentication</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">Dependencies</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/reference/nadeoservices">
+                    <span class="icon"><i class="fa fa-ticket"></i></span>
+                    <span>NadeoServices</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/vehiclestate" class="is-active">
+                    <span class="icon"><i class="fa fa-car"></i></span>
+                    <span>VehicleState</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/camera">
+                    <span class="icon"><i class="fa fa-camera"></i></span>
+                    <span>Camera</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/controls">
+                    <span class="icon"><i class="fa fa-check-square"></i></span>
+                    <span>Controls</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">API Reference</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/api">
+                    <span class="icon"><i class="fa fa-heartbeat"></i></span>
+                    <span>Openplanet API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://next.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Trackmania API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://mp4.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Maniaplanet API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://turbo.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Turbo API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://webservices.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-ticket"></i></span>
+                    <span>Web Services API</span>
+                  </a>
+                </li>
+              </ul>
+            </aside>
+          </div>
+
+          <div class="column">
+            <div class="content">
+              <h1>VehicleState plugin dependency</h1>
+              <p>
+                The <code>VehicleState</code> plugin provides information about
+                the current vehicle state. The functionality was moved away from
+                <a href="/plugin/dashboard" target="_self" rel="">Dashboard</a>
+                into Openplanet 1.22.4 as its own dependency plugin shipped with
+                Openplanet, so that every plugin can benefit from its
+                functionality.
+              </p>
+              <h2>Debug window</h2>
+              <p>
+                In the VehicleState plugin settings, you can turn on the
+                debugging window. This lets you see the current vehicle states
+                in a UI.
+              </p>
+              <p>
+                <img
+                  src="/imgu/1645110030_be03dd51cce4444a42f86db3f16d85bc6c1cb634.png"
+                  alt=""
+                  target="_self"
+                  rel="" />
+              </p>
+              <h2>Getting started</h2>
+              <p>
+                To get started with the <code>VehicleState</code> plugin, add a
+                dependency to it in your <code>info.toml</code>:
+              </p>
+              <pre><code class="language-toml">[script]
+dependencies = [ "VehicleState" ]</code></pre>
+              <h2>API</h2>
+              <p>The API consists out of the following functions:</p>
+              <h3><code>VehicleState::GetViewingPlayer</code></h3>
+              <p>
+                Gets the currently viewed player. This can be the local player
+                or the player being spectated.
+              </p>
+              <p>
+                Returns:
+                <a
+                  href="https://next.openplanet.dev/ShootMania/CSmPlayer"
+                  target="_self"
+                  rel=""
+                  >CSmPlayer@</a
+                >
+                on Trackmania,
+                <a
+                  href="https://mp4.openplanet.dev/Game/CGamePlayer"
+                  target="_self"
+                  rel=""
+                  >CGamePlayer@</a
+                >
+                on Maniaplanet, or
+                <a
+                  href="https://turbo.openplanet.dev/Game/CGameMobil"
+                  target="_self"
+                  rel=""
+                  >CGameMobil@</a
+                >
+                on Trackmania Turbo.
+              </p>
+              <h3><code>VehicleState::ViewingPlayerState</code></h3>
+              <p>
+                Gets the CSceneVehicleVisState handle for the currently viewed
+                player. Note that this can be a valid state even if
+                GetViewingPlayer() returns null!
+              </p>
+              <p>
+                Returns:
+                <a
+                  href="https://next.openplanet.dev/Scene/CSceneVehicleVisState"
+                  target="_self"
+                  rel=""
+                  >CSceneVehicleVisState@</a
+                >
+                on Trackmania. On Maniaplanet and TrackMania Turbo, it will
+                return a wrapper containing a subset of the API for Trackmania.
+              </p>
+              <h3><code>VehicleState::GetRPM</code></h3>
+              <p>Get RPM for vehicle vis.</p>
+              <p>Parameters:</p>
+              <ul>
+                <li>
+                  <code>CSceneVehicleVisState@ vis</code> The vehicle state.
+                </li>
+              </ul>
+              <p>Returns: <code>float</code></p>
+              <h3><code>VehicleState::GetSideSpeed</code></h3>
+              <p>Get relative side speed for vehicle.</p>
+              <p>Parameters:</p>
+              <ul>
+                <li>
+                  <code>CSceneVehicleVisState@ vis</code> The vehicle state.
+                </li>
+              </ul>
+              <p>Returns: <code>float</code></p>
+              <h3><code>VehicleState::GetWheelDirt</code></h3>
+              <p>
+                Get wheel dirt amount for vehicle vis. This function only exists
+                for Trackmania!
+              </p>
+              <p>Parameters:</p>
+              <ul>
+                <li>
+                  <code>CSceneVehicleVisState@ vis</code> The vehicle state.
+                </li>
+                <li>
+                  <code>int w</code> The wheel. Use one of the following: 0 =
+                  Front Left, 1 = Front Right, 2 = Rear Left, 3 = Rear Right
+                </li>
+              </ul>
+              <p>Returns: <code>float</code></p>
+              <h3><code>VehicleState::GetWheelFalling</code></h3>
+              <p>
+                Get wheel falling state, and if in water. This function only
+                exists for Trackmania!
+              </p>
+              <p>Parameters:</p>
+              <ul>
+                <li>
+                  <code>CSceneVehicleVisState@ vis</code> The vehicle state.
+                </li>
+                <li>
+                  <code>int w</code> The wheel. Use one of the following: 0 =
+                  Front Left, 1 = Front Right, 2 = Rear Left, 3 = Rear Right
+                </li>
+              </ul>
+              <p>
+                Returns: <code>FallingState</code> (<code>FallingAir</code>,
+                <code>FallingWater</code>, <code>RestingGround</code>,
+                <code>RestingWater</code>, <code>GlidingGround</code>)
+              </p>
+              <h3><code>VehicleState::GetLastTurboLevel</code></h3>
+              <p>
+                Get the last turbo level that the vehicle touched. This will
+                return the last level even if the vehicle is not currently in
+                contact with a turbo gate/surface. This function only exists for
+                Trackmania!
+              </p>
+              <p>Parameters:</p>
+              <ul>
+                <li>
+                  <code>CSceneVehicleVisState@ vis</code> The vehicle state.
+                </li>
+              </ul>
+              <p>
+                Returns: <code>TurboLevel</code> (<code>None</code>,
+                <code>Normal</code>, <code>Super</code>,
+                <code>RouletteNormal</code>, <code>RouletteSuper</code>,
+                <code>RouletteUltra</code>)
+              </p>
+              <h3><code>VehicleState::GetReactorFinalTimer</code></h3>
+              <p>
+                Get a timer which counts from <code>0.0</code> to
+                <code>1.0</code> in the final second of reactor boost. Doesn't
+                seem to work when watching a replay. This function only exists
+                for Trackmania!
+              </p>
+              <p>Parameters:</p>
+              <ul>
+                <li>
+                  <code>CSceneVehicleVisState@ vis</code> The vehicle state.
+                </li>
+              </ul>
+              <p>Returns: <code>float</code></p>
+              <h3><code>VehicleState::GetCruiseDisplaySpeed</code></h3>
+              <p>
+                Get the current speed displayed on the back of the car if under
+                the influence of Cruise Control. If not in Cruise Control,
+                returns 0. This function only exists for Trackmania!
+              </p>
+              <p>Parameters:</p>
+              <ul>
+                <li>
+                  <code>CSceneVehicleVisState@ vis</code> The vehicle state.
+                </li>
+              </ul>
+              <p>Returns: <code>int</code></p>
+              <h3><code>VehicleState::GetVehicleType</code></h3>
+              <p>
+                Get the current vehicle type. This function only exists for
+                Trackmania!
+              </p>
+              <p>Parameters:</p>
+              <ul>
+                <li>
+                  <code>CSceneVehicleVisState@ vis</code> The vehicle state.
+                </li>
+              </ul>
+              <p>
+                Returns: <code>VehicleType</code> (<code>CharacterPilot</code>,
+                <code>CarSport</code>, <code>CarSnow</code>,
+                <code>CarRally</code>, <code>CarDesert</code>)
+              </p>
+              <h3><code>VehicleState::GetVis</code></h3>
+              <p>
+                Get vehicle vis from a given player. Not supported on Turbo.
+              </p>
+              <p>Parameters:</p>
+              <ul>
+                <li>
+                  <code>ISceneVis@ sceneVis</code> The scene visibility object.
+                  You can get this from <code>GetApp().GameScene</code>.
+                </li>
+                <li><code>CSmPlayer@ player</code> The player.</li>
+              </ul>
+              <p>
+                Returns:
+                <a
+                  href="https://next.openplanet.dev/Scene/CSceneVehicleVis"
+                  target="_self"
+                  rel=""
+                  >CSceneVehicleVis@</a
+                >
+                on Trackmania, <code>CSceneVehicleVisState@</code> on
+                Maniaplanet.
+              </p>
+              <h3><code>VehicleState::GetVisFromId</code></h3>
+              <p>
+                Get vehicle vis from a given entity ID. Only supported on
+                Trackmania.
+              </p>
+              <p>Parameters:</p>
+              <ul>
+                <li>
+                  <code>ISceneVis@ sceneVis</code> The scene visibility object.
+                  You can get this from <code>GetApp().GameScene</code>.
+                </li>
+                <li><code>uint vehicleEntityId</code> The entity ID.</li>
+              </ul>
+              <p>
+                Returns:
+                <a
+                  href="https://next.openplanet.dev/Scene/CSceneVehicleVis"
+                  target="_self"
+                  rel=""
+                  >CSceneVehicleVis@</a
+                >
+              </p>
+              <h3><code>VehicleState::GetSingularVis</code></h3>
+              <p>
+                Get the only existing vehicle vis state, if there is only one.
+                Otherwise, this returns null. Not supported on Turbo.
+              </p>
+              <p>Parameters:</p>
+              <ul>
+                <li>
+                  <code>ISceneVis@ sceneVis</code> The scene visibility object.
+                  You can get this from <code>GetApp().GameScene</code>.
+                </li>
+              </ul>
+              <p>
+                Returns:
+                <a
+                  href="https://next.openplanet.dev/Scene/CSceneVehicleVis"
+                  target="_self"
+                  rel=""
+                  >CSceneVehicleVis@</a
+                >
+                on Trackmania, <code>CSceneVehicleVisState@</code> on
+                Maniaplanet.
+              </p>
+              <h3><code>VehicleState::GetAllVis</code></h3>
+              <p>
+                Get all vehicle vis states. Mostly used for debugging. Not
+                supported on Turbo.
+              </p>
+              <p>Parameters:</p>
+              <ul>
+                <li>
+                  <code>ISceneVis@ sceneVis</code> The scene visibility object.
+                  You can get this from <code>GetApp().GameScene</code>.
+                </li>
+              </ul>
+              <p>
+                Returns:
+                <a
+                  href="https://next.openplanet.dev/Scene/CSceneVehicleVis"
+                  target="_self"
+                  rel=""
+                  >CSceneVehicleVis@[]</a
+                >
+                on Trackmania, <code>CSceneVehicleVisState@[]</code> on
+                Maniaplanet.
+              </p>
+            </div>
+
+            <div class="block">
+              <br />
+              <p>
+                <small
+                  >Page updated
+                  <span title="Mon, 21 Jul 2025 22:50:42 +0200"
+                    >11 months ago</span
+                  >
+                  by <span class="has-text-team">Miss</span
+                  ><span class="verified" title="Trusted developer"
+                    ><img
+                      src="/img/verified.svg"
+                      alt="(Trusted developer)" /></span
+                ></small>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          Openplanet -
+          <a href="/link/discord" target="_blank" rel="me noopener noreferrer"
+            ><i class="fa fa-discord"></i> Discord</a
+          >
+          -
+          <a href="/link/github" target="_blank" rel="me noopener noreferrer"
+            ><i class="fa fa-github"></i> GitHub</a
+          >
+          -
+          <a
+            href="https://mastodon.gamedev.place/@openplanet"
+            rel="me noopener noreferrer"
+            ><i class="fa fa-mastodon"></i> Mastodon</a
+          >
+          - <a href="/docs/plugin-tos">Plugin terms of service</a> -
+          <a href="/privacy">Privacy Policy</a> - <a href="/credits">Credits</a>
+          <br />
+          Transparency -
+          <a href="/users/trusted"
+            ><i class="fa fa-user"></i> Trusted Developer List</a
+          >
+          -
+          <a href="/plugins/signs"
+            ><i class="fa fa-gavel"></i> Plugin Signature Feed</a
+          >
+        </p>
+        <p>
+          &copy;
+          <a
+            href="https://codecat.nl/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Melissa 'Miss' Geels</a
+          >
+          &amp; contributors 2016 - 2026 /
+          <a
+            href="https://meow.social/@codecat"
+            target="_blank"
+            rel="me noopener noreferrer"
+            >@codecat@meow.social</a
+          >
+        </p>
+        <a href="/cf/tr/blog" rel="nofollow" class="cftr">Blog</a
+        ><!-- pls ignore.. -->
+      </div>
+    </footer>
+
+    <div class="image-modal modal" id="modal">
+      <div class="modal-background" id="modal-background"></div>
+      <div class="modal-content has-text-centered">
+        <div class="notification">
+          <div class="op-modal-img">
+            <img id="modal-image" />
+            <div class="op-modal-button op-modal-prev" id="modal-prev">
+              <i class="fa fa-arrow-left"></i>
+            </div>
+            <div class="op-modal-button op-modal-next" id="modal-next">
+              <i class="fa fa-arrow-right"></i>
+            </div>
+            <div class="op-modal-info" id="modal-info"><span></span></div>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close is-large" id="modal-close"></button>
+    </div>
+
+    <script src="/js/highlight.min.js"></script>
+    <script src="/js/script.js"></script>
+    <script
+      data-goatcounter="https://openplanet.goatcounter.com/count"
+      async
+      src="//gc.zgo.at/count.js"></script>
+  </body>
+</html>

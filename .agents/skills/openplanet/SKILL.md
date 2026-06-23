@@ -3,94 +3,43 @@ name: openplanet
 description: Build, edit, review, and package Openplanet plugins written in AngelScript for Trackmania, Maniaplanet, or Trackmania Turbo. Use when the user mentions Openplanet, Trackmania plugins, .op plugin archives, info.toml metadata, Openplanet callbacks, settings, NadeoServices, VehicleState, or AngelScript plugin code.
 ---
 
-# Openplanet Plugin Development
+# Openplanet Skill
 
-## Quick Start
+## What These Tools Are
 
-Create or edit plugins as a folder with `info.toml` at the root and one or more `.as` AngelScript files. Openplanet compiles the whole plugin folder as one script module, so avoid duplicate global names across files.
+- Trackmania is the racing game family this repo targets. Support both Trackmania Next (2020) and Trackmania Turbo; only assume ManiaPlanet when the code or user says so.
+- Openplanet is the plugin runtime, overlay, and API surface used to extend Trackmania-family games with plugins, UI, callbacks, settings, and dependency modules.
+- AngelScript is the scripting language used by Openplanet plugins. A plugin folder is compiled as one module, so globals, classes, and functions must not collide across `.as` files.
 
-```toml
-[meta]
-name = "Example Plugin"
-author = "Author"
-category = "Utilities"
-version = "1.0.0"
-```
+## Tutorial Summary
 
-```angelscript
-void Main()
-{
-    print("Hello from Openplanet");
-}
-```
+- Writing plugins: create a plugin folder with root `info.toml` plus AngelScript files, enable Developer signature mode for unsigned local work, test through the overlay, and package releases by zipping plugin contents into a `.op` archive.
+- Entry point execution: `Main()` is the first callback and is yieldable; use `sleep(ms)` or `yield()` to hand control back, and remember Openplanet runs at render-frame cadence rather than ManiaScript's fixed tick rate.
+- Menu options: `RenderMenu()` is a per-frame non-yieldable UI callback; use immediate-mode helpers like `UI::MenuItem(...)` to add overlay menu actions.
+- The app object: `GetApp()` returns `CGameCtnApp@`; cast to more specific game types when needed and null-check failed casts before using game-specific fields.
 
-During development, remind the user that unsigned plugins require Openplanet Developer signature mode. Pack distributable plugins by zipping the contents of the plugin folder, not the folder itself, then rename the `.zip` to `.op`. Plugins need website review/signing to work outside Developer Mode.
+## API Search
 
-## Workflow
+- Replace `%s` with the search term.
+- Openplanet API: `https://openplanet.dev/docs/api/search?q=%s`
+- Trackmania Next API: `https://next.openplanet.dev/search?q=%s`
+- Trackmania Turbo API: `https://turbo.openplanet.dev/search?q=%s`
+- ManiaPlanet API: `https://mp4.openplanet.dev/search?q=%s`
+- Use the API that matches the game/runtime you are editing. For in-game web requests, also consult the Web Services reference below.
+- Refresh the cached Openplanet HTML references with `bun scripts/update_op_skill.ts`.
 
-1. Inspect `info.toml` first to learn plugin metadata, supported games, dependencies, defines, and exported modules.
-2. Inspect `.as` files as one shared module; callback names are global entry points discovered by Openplanet.
-3. Use `Main()` for yieldable setup and long-running coroutines. Call `sleep(ms)` for timed waits or `yield()` to resume next render frame.
-4. Use `RenderInterface()` for normal UI, `RenderMenu()` or `RenderMenuMain()` for menu entries, `Update(float dt)` for per-frame non-UI logic, and input callbacks only when key/mouse interception is required.
-5. Access the game through `CGameCtnApp@ app = GetApp();`; cast explicitly, for example `CTrackMania@ app = cast<CTrackMania>(GetApp());`, and null-check failed casts.
-6. Prefer metadata settings (`[Setting ...]` globals and `[SettingsTab]`) over custom persistence unless behavior requires `OnSettingsSave` or `OnSettingsLoad`.
-7. Add `[script] dependencies` before using dependency APIs such as `NadeoServices` or `VehicleState`.
-8. Gate game-specific code with preprocessor defines such as `TMNEXT`, `MP4`, or `TURBO`; remember `&&` and `||` are evaluated left-to-right without grouping.
-9. Search game API classes and members with `https://next.openplanet.dev/search?q=%s` for Trackmania Next (2020), or `https://turbo.openplanet.dev/search?q=%s` for Trackmania Turbo.
+## Reference Files
 
-## Common Patterns
-
-Settings:
-
-```angelscript
-[Setting name="Enabled" description="Enable plugin behavior"]
-bool Setting_Enabled = true;
-
-[SettingsTab name="Advanced" icon="Cog"]
-void RenderAdvancedSettings()
-{
-    UI::Text("Advanced settings");
-}
-```
-
-NadeoServices dependency:
-
-```toml
-[script]
-dependencies = [ "NadeoServices" ]
-```
-
-```angelscript
-void Main()
-{
-    NadeoServices::AddAudience("NadeoLiveServices");
-    while (!NadeoServices::IsAuthenticated("NadeoLiveServices")) yield();
-
-    auto req = NadeoServices::Get(
-        "NadeoLiveServices",
-        NadeoServices::BaseURLLive() + "/api/token/club"
-    );
-    req.Start();
-    while (!req.Finished()) yield();
-}
-```
-
-VehicleState dependency:
-
-```toml
-[script]
-dependencies = [ "VehicleState" ]
-```
-
-```angelscript
-void Update(float dt)
-{
-    auto vis = VehicleState::ViewingPlayerState();
-    if (vis is null) return;
-    float rpm = VehicleState::GetRPM(vis);
-}
-```
-
-## Reference
-
-For game API search URLs, metadata keys, callbacks, settings attributes, auth flow, preprocessor defines, and dependency API notes, see [REFERENCE.md](REFERENCE.md).
+- `references/plugin-dependencies.html`: cached Openplanet docs for dependency loading, `exports`, and `shared_exports`.
+- `references/info-toml.html`: cached Openplanet docs for plugin metadata, game targeting, and script config.
+- `references/callbacks.html`: cached Openplanet docs for lifecycle, render, menu, input, and settings callbacks.
+- `references/icons.html`: cached Openplanet docs for built-in icon constants.
+- `references/settings.html`: cached Openplanet docs for `[Setting]`, supported types, defaults, and `[SettingsTab]`.
+- `references/imports.html`: cached Openplanet docs for script imports and deprecations.
+- `references/preprocessor.html`: cached Openplanet docs for `#if` flow, defines, and cross-game guards.
+- `references/authentication.html`: cached Openplanet docs for Openplanet Auth setup and token validation.
+- `references/nadeoservices.html`: cached Openplanet docs for NadeoServices setup and request helpers.
+- `references/vehiclestate.html`: cached Openplanet docs for viewed-player state and vehicle helpers.
+- `references/camera.html`: cached Openplanet docs for camera projection/query helpers.
+- `references/controls.html`: cached Openplanet docs for reusable UI helpers.
+- `references/trackmania-webservices.md`: hand-written Trackmania Web Services guide for domains, auth, and OAuth separation.

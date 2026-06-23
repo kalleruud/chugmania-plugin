@@ -1,0 +1,640 @@
+<!doctype html>
+<html prefix="og: http://ogp.me/ns#" lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Plugin settings - Openplanet</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/img/apple-touch-icon.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/img/favicon-32x32.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/img/favicon-16x16.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5" />
+
+    <meta name="theme-color" content="#ff3399" />
+    <meta property="og:title" content="Plugin settings - Openplanet" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:image"
+      content="https://openplanet.dev/img/logo_icon.png" />
+    <meta
+      property="og:url"
+      content="https://openplanet.dev/docs/reference/settings" />
+    <meta
+      property="og:description"
+      content="Storing plugin settings inside of scripts." />
+
+    <link
+      rel="search"
+      type="application/opensearchdescription+xml"
+      href="/opensearch/plugins"
+      title="Openplanet Plugin Search" />
+    <link
+      rel="search"
+      type="application/opensearchdescription+xml"
+      href="/opensearch/api"
+      title="Openplanet Developer API Search" />
+
+    <link rel="stylesheet" href="/style.css?1776265006" />
+    <link rel="stylesheet" href="/css/fork-awesome.min.css" />
+    <link rel="stylesheet" href="/css/agate.min.css?1769265621" />
+  </head>
+
+  <body class="has-navbar-fixed-top">
+    <nav class="navbar is-fixed-top">
+      <div class="container">
+        <div class="navbar-brand">
+          <a href="/" class="navbar-item">
+            <span class="icon has-agenda pan"
+              ><i class="fa fa-heartbeat"></i
+            ></span>
+            <span>open<b>planet</b></span>
+          </a>
+
+          <a class="navbar-burger" data-target="navMenu"
+            ><span></span><span></span><span></span
+          ></a>
+        </div>
+
+        <div class="navbar-menu" id="navMenu">
+          <div class="navbar-start">
+            <a href="/plugins" class="navbar-item">
+              <span class="icon"><i class="fa fa-code-fork"></i></span>
+              <span>Plugins</span>
+            </a>
+            <a href="/files" class="navbar-item">
+              <span class="icon"><i class="fa fa-file-o"></i></span>
+              <span>Files</span>
+            </a>
+            <a href="/docs" class="navbar-item">
+              <span class="icon"><i class="fa fa-book"></i></span>
+              <span>Documentation</span>
+            </a>
+            <a href="/news" class="navbar-item">
+              <span class="icon"><i class="fa fa-newspaper-o"></i></span>
+              <span>News</span>
+            </a>
+            <div class="navbar-item">
+              <a
+                href="/download"
+                class="button is-secondary is-small is-outlined">
+                <span class="icon"><i class="fa fa-download"></i></span>
+                <span>Download Openplanet</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="navbar-end">
+            <div class="navbar-item">
+              <a href="/user/login" class="button is-small">
+                <span class="icon"><i class="fa fa-lock"></i></span>
+                <span>Login</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <section class="hero is-secondary is-bold">
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <h1 class="title">Documentation</h1>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="columns">
+          <div class="column is-narrow">
+            <aside class="menu">
+              <p class="menu-label">Documentation</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs">
+                    <span class="icon"><i class="fa fa-home"></i></span>
+                    <span>Home</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/help">
+                    <span class="icon"><i class="fa fa-bug"></i></span>
+                    <span>Troubleshooting</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/tutorials/installation">
+                    <span class="icon"
+                      ><i class="fa fa-cloud-download"></i
+                    ></span>
+                    <span>Installing Openplanet</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/tutorials/signature-modes">
+                    <span class="icon"><i class="fa fa-lock"></i></span>
+                    <span>Signature Modes</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/school-mode">
+                    <span class="icon"><i class="fa fa-university"></i></span>
+                    <span>School Mode</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">Plugin development</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/getting-started">
+                    <span class="icon"><i class="fa fa-info-circle"></i></span>
+                    <span>Getting started</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/info-toml">
+                    <span class="icon"><i class="fa fa-info"></i></span>
+                    <span>info.toml</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/plugin-callbacks">
+                    <span class="icon"><i class="fa fa-exchange"></i></span>
+                    <span>Callback functions</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/icons">
+                    <span class="icon"><i class="fa fa-flag"></i></span>
+                    <span>Icons</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/settings" class="is-active">
+                    <span class="icon"><i class="fa fa-cogs"></i></span>
+                    <span>Settings</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/imports">
+                    <span class="icon"
+                      ><i class="fa fa-arrow-circle-down"></i
+                    ></span>
+                    <span>Script imports</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/preprocessor">
+                    <span class="icon"><i class="fa fa-code"></i></span>
+                    <span>Preprocessor</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/auth">
+                    <span class="icon"><i class="fa fa-lock"></i></span>
+                    <span>Authentication</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">Dependencies</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/reference/nadeoservices">
+                    <span class="icon"><i class="fa fa-ticket"></i></span>
+                    <span>NadeoServices</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/vehiclestate">
+                    <span class="icon"><i class="fa fa-car"></i></span>
+                    <span>VehicleState</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/camera">
+                    <span class="icon"><i class="fa fa-camera"></i></span>
+                    <span>Camera</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="/docs/reference/controls">
+                    <span class="icon"><i class="fa fa-check-square"></i></span>
+                    <span>Controls</span>
+                  </a>
+                </li>
+              </ul>
+              <p class="menu-label">API Reference</p>
+              <ul class="menu-list">
+                <li>
+                  <a href="/docs/api">
+                    <span class="icon"><i class="fa fa-heartbeat"></i></span>
+                    <span>Openplanet API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://next.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Trackmania API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://mp4.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Maniaplanet API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://turbo.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-gamepad"></i></span>
+                    <span>Turbo API</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="https://webservices.openplanet.dev/" target="_blank">
+                    <span class="icon"><i class="fa fa-ticket"></i></span>
+                    <span>Web Services API</span>
+                  </a>
+                </li>
+              </ul>
+            </aside>
+          </div>
+
+          <div class="column">
+            <div class="content">
+              <h1>Plugin settings</h1>
+              <p>
+                Plugins can save settings in the Openplanet settings file, which
+                can then be edited from within Openplanet's settings window. To
+                define a setting, all you have to do is create a global variable
+                and add a <code>Setting</code> metadata line to it.
+              </p>
+              <pre><code>[Setting name="Something"]
+bool Setting_Something;</code></pre>
+              <h2>Supported types</h2>
+              <p>The following types are supported:</p>
+              <ul>
+                <li><code>bool</code></li>
+                <li>
+                  <code>int</code> (including <code>int8</code>,
+                  <code>int16</code>, <code>int32</code>)
+                </li>
+                <li>
+                  <code>uint</code> (including <code>uint8</code>,
+                  <code>uint16</code>, <code>uint32</code>)
+                </li>
+                <li><code>float</code></li>
+                <li><code>double</code></li>
+                <li><code>string</code></li>
+                <li><code>vec2</code>, <code>vec3</code>, <code>vec4</code></li>
+                <li><code>int2</code>, <code>int3</code></li>
+                <li><code>nat2</code>, <code>nat3</code></li>
+                <li><code>quat</code></li>
+                <li>Any enum</li>
+              </ul>
+              <h2>Default values</h2>
+              <p>
+                Settings can have default values. When they are not
+                user-defined, the setting will be the default value, which is
+                specified by the initial global variable value. The user can
+                also choose to reset every setting back to its default value
+                within Openplanet's settings dialog.
+              </p>
+              <pre><code>[Setting name="Amount"]
+int Setting_Amount = 10;</code></pre>
+              <p>
+                Note that settings that are set to their default value
+                <strong>will not be saved in the settings</strong>. That means
+                that if you change your default value, people who were
+                previously on that default value will now also have your changed
+                value.
+              </p>
+              <h2>Attributes</h2>
+              <p>
+                The <code>Setting</code> metadata supports a number of
+                attributes depending on which type your setting variable is. All
+                attributes are optional, however. The following attributes are
+                supported for every type:
+              </p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>name</code></td>
+                    <td>The name displayed in the settings dialog.</td>
+                  </tr>
+                  <tr>
+                    <td><code>description</code></td>
+                    <td>
+                      The description displayed in the settings dialog, as a
+                      little question mark icon next to the setting with a
+                      tooltip.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>category</code></td>
+                    <td>
+                      The category for the setting. This will automatically
+                      create multiple tabs, where each category is its own tab.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>hidden</code></td>
+                    <td>
+                      Takes no value. Marks the setting so it will not be
+                      displayed in the Openplanet settings dialog.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>if</code></td>
+                    <td>
+                      Conditional expression (evaluated at runtime) whether to
+                      display this setting in the settings window. Defaults to
+                      true. Should be the name of a function, or a global
+                      variable that is either a boolean or an enum value. For
+                      booleans you can use expressions like
+                      <code>if="Setting_Display"</code>,
+                      <code>if="!Setting_Display"</code>, and for enums you can
+                      use expressions like
+                      <code>if="Setting_DisplayType SomeValueName"</code>,
+                      <code>if="!Setting_DisplayType SomeValueName"</code>. Note
+                      that they don't necessarily have to be settings
+                      themselves. For functions, this may be an expression like
+                      <code>if="IsValid"</code>, <code>if="!IsValid"</code>.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>enableif</code></td>
+                    <td>
+                      Conditional expression (evaluated at runtime) whether to
+                      enable this setting in the settings window. Defaults to
+                      true. See also <code>if</code>.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>onchange</code></td>
+                    <td>
+                      Function to call when the setting changes its value
+                      through the Openplanet settings UI. Must point to a global
+                      function with signature <code>void SomeCallback()</code>.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>beforerender</code></td>
+                    <td>
+                      Function to call before this setting is rendered in the
+                      settings window. Must point to a global function with
+                      signature <code>void SomeCallback()</code>.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>afterrender</code></td>
+                    <td>
+                      Function to call after this setting is rendered in the
+                      settings window. Must point to a global function with
+                      signature <code>void SomeCallback()</code>.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <p>A few types allow a couple more attributes:</p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Types</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <code>int</code>, <code>uint</code>, <code>float</code>,
+                      <code>double</code>
+                    </td>
+                    <td><code>min</code></td>
+                    <td>
+                      The minimum possible value. When combined with
+                      <code>max</code>, turns it into a slider.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>int</code>, <code>uint</code>, <code>float</code>,
+                      <code>double</code>
+                    </td>
+                    <td><code>max</code></td>
+                    <td>
+                      The maximum possible value. When combined with
+                      <code>min</code>, turns it into a slider.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>int</code>, <code>uint</code>, <code>float</code>,
+                      <code>double</code>, <code>vec2</code>, <code>vec3</code>,
+                      <code>vec4</code>
+                    </td>
+                    <td><code>drag</code></td>
+                    <td>
+                      Whether to make this a draggable setting rather than where
+                      the user must type the value.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>vec3</code>, <code>vec4</code></td>
+                    <td><code>color</code></td>
+                    <td>
+                      Whether this is a color setting. Includes a color picker.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>string</code></td>
+                    <td><code>max</code></td>
+                    <td>The maximum possible length of the string.</td>
+                  </tr>
+                  <tr>
+                    <td><code>string</code></td>
+                    <td><code>multiline</code></td>
+                    <td>
+                      Takes no value. Marks this string as being a multiline
+                      input field.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>string</code></td>
+                    <td><code>password</code></td>
+                    <td>
+                      Takes no value. Marks this string as being a password,
+                      masking the characters with asterisks in the settings
+                      dialog.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>int</code>, <code>uint</code>, <code>float</code>,
+                      <code>double</code>
+                    </td>
+                    <td><code>step</code></td>
+                    <td>
+                      The step size for drag and input fields. (Requires 1.26.26
+                      or newer)
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <h2>Hidden settings</h2>
+              <p>
+                Settings can be made hidden by using the
+                <code>hidden</code> attribute. This will make them not appear on
+                the Openplanet settings dialog, which is useful if you want to
+                programatically store some settings manually. Don't put too much
+                content into these, however!
+              </p>
+              <pre><code>[Setting hidden]
+bool Setting_MyHiddenSetting;</code></pre>
+              <h2>Settings tabs</h2>
+              <p>
+                You can create your own scripted settings tabs in the Openplanet
+                settings dialog. To do this, mark a global function with
+                <code>[SettingsTab]</code>, like this:
+              </p>
+              <pre><code>[SettingsTab]
+void RenderSettings()
+{
+  if (UI::Button("Click me!")) {
+    print("You clicked the button");
+  }
+}</code></pre>
+              <p>
+                By default, the tab will be named <code>Script</code>. You can
+                change this by passing the <code>name</code> attribute, for
+                example <code>[SettingsTab name="Widgets"]</code>. You can also
+                use a different icon for this using the
+                <code>icon</code> attribute, for example
+                <code>[SettingsTab name="Tags" icon="Tag"]</code>. As of
+                1.27.15, you can also remove the icon altogether using
+                <code>icon=""</code>.
+              </p>
+              <p>
+                You may also pass <code>order="n"</code> where <code>n</code> is
+                a number to specify a specific order of tabs.
+              </p>
+            </div>
+
+            <div class="block">
+              <br />
+              <p>
+                <small
+                  >Page updated
+                  <span title="Sun, 19 Apr 2026 17:57:38 +0200"
+                    >2 months ago</span
+                  >
+                  by <span class="has-text-team">Miss</span
+                  ><span class="verified" title="Trusted developer"
+                    ><img
+                      src="/img/verified.svg"
+                      alt="(Trusted developer)" /></span
+                ></small>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          Openplanet -
+          <a href="/link/discord" target="_blank" rel="me noopener noreferrer"
+            ><i class="fa fa-discord"></i> Discord</a
+          >
+          -
+          <a href="/link/github" target="_blank" rel="me noopener noreferrer"
+            ><i class="fa fa-github"></i> GitHub</a
+          >
+          -
+          <a
+            href="https://mastodon.gamedev.place/@openplanet"
+            rel="me noopener noreferrer"
+            ><i class="fa fa-mastodon"></i> Mastodon</a
+          >
+          - <a href="/docs/plugin-tos">Plugin terms of service</a> -
+          <a href="/privacy">Privacy Policy</a> - <a href="/credits">Credits</a>
+          <br />
+          Transparency -
+          <a href="/users/trusted"
+            ><i class="fa fa-user"></i> Trusted Developer List</a
+          >
+          -
+          <a href="/plugins/signs"
+            ><i class="fa fa-gavel"></i> Plugin Signature Feed</a
+          >
+        </p>
+        <p>
+          &copy;
+          <a
+            href="https://codecat.nl/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Melissa 'Miss' Geels</a
+          >
+          &amp; contributors 2016 - 2026 /
+          <a
+            href="https://meow.social/@codecat"
+            target="_blank"
+            rel="me noopener noreferrer"
+            >@codecat@meow.social</a
+          >
+        </p>
+        <a href="/cf/tr/blog" rel="nofollow" class="cftr">Blog</a
+        ><!-- pls ignore.. -->
+      </div>
+    </footer>
+
+    <div class="image-modal modal" id="modal">
+      <div class="modal-background" id="modal-background"></div>
+      <div class="modal-content has-text-centered">
+        <div class="notification">
+          <div class="op-modal-img">
+            <img id="modal-image" />
+            <div class="op-modal-button op-modal-prev" id="modal-prev">
+              <i class="fa fa-arrow-left"></i>
+            </div>
+            <div class="op-modal-button op-modal-next" id="modal-next">
+              <i class="fa fa-arrow-right"></i>
+            </div>
+            <div class="op-modal-info" id="modal-info"><span></span></div>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close is-large" id="modal-close"></button>
+    </div>
+
+    <script src="/js/highlight.min.js"></script>
+    <script src="/js/script.js"></script>
+    <script
+      data-goatcounter="https://openplanet.goatcounter.com/count"
+      async
+      src="//gc.zgo.at/count.js"></script>
+  </body>
+</html>
