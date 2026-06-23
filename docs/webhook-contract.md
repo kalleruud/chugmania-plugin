@@ -113,10 +113,10 @@ Trackmania Next sources the map from `app.RootMap`; Trackmania Turbo sources it 
 
 ### Mode
 
-| Field  | Type   | Description                  | Rules                                     |
-| ------ | ------ | ---------------------------- | ----------------------------------------- |
-| `name` | enum   | Normalized local game mode   | Optional; omitted when unavailable        |
-| `type` | string | Specific mode or rule family | Turbo secret variant, or Next rule family |
+| Field  | Type   | Description                  | Rules                                 |
+| ------ | ------ | ---------------------------- | ------------------------------------- |
+| `name` | enum   | Normalized local game mode   | Required                              |
+| `type` | string | Specific mode or rule family | Optional; Not all types are supported |
 
 Turbo emits `campaign`, `arcade`, `hot-seat`, `split-screen`, `secret`, or
 `unknown` as `mode.name`. Next emits `campaign`, `solo`, or `split-screen`.
