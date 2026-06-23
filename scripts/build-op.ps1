@@ -31,7 +31,7 @@ if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
     throw "Could not find $manifestPath"
 }
 
-$artifactPath = Join-Path $outputDirectoryPath "chugmania-webhooks.op"
+$artifactPath = Join-Path $outputDirectoryPath "tm-webhooks.op"
 $temporaryZip = Join-Path $outputDirectoryPath "$([guid]::NewGuid()).zip"
 try {
     Push-Location $repositoryRoot

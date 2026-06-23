@@ -96,7 +96,7 @@ jobs:
 
           bash scripts/build-op.sh all dist
 
-          echo "artifact=dist/chugmania-webhooks.op" >> "$GITHUB_OUTPUT"
+          echo "artifact=dist/tm-webhooks.op" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub release
         env:

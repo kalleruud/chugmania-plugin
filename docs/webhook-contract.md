@@ -55,11 +55,11 @@ models instead of repeating their fields at the event root.
 
 ### Source
 
-| Field           | Type   | Description                         | Rules                          |
-| --------------- | ------ | ----------------------------------- | ------------------------------ |
-| `pluginName`    | string | Name of the producing plugin        | Required; `Chugmania Webhooks` |
-| `pluginVersion` | string | Version of the producing plugin     | Required plugin SemVer         |
-| `game`          | enum   | Trackmania game producing the event | `turbo` or `next`              |
+| Field           | Type   | Description                         | Rules                   |
+| --------------- | ------ | ----------------------------------- | ----------------------- |
+| `pluginName`    | string | Name of the producing plugin        | Required; `TM Webhooks` |
+| `pluginVersion` | string | Version of the producing plugin     | Required plugin SemVer  |
+| `game`          | enum   | Trackmania game producing the event | `turbo` or `next`       |
 
 ### Game
 
@@ -210,7 +210,7 @@ Emitted exactly once when a fully captured round begins.
     "totalPlayers": 1
   },
   "source": {
-    "pluginName": "Chugmania Webhooks",
+    "pluginName": "TM Webhooks",
     "pluginVersion": "x.y.z",
     "game": "turbo"
   },
@@ -265,7 +265,7 @@ at most once per player per game and never re-armed.
     "totalPlayers": 1
   },
   "source": {
-    "pluginName": "Chugmania Webhooks",
+    "pluginName": "TM Webhooks",
     "pluginVersion": "x.y.z",
     "game": "turbo"
   },
@@ -308,7 +308,7 @@ These event types share one contract:
     "totalPlayers": 1
   },
   "source": {
-    "pluginName": "Chugmania Webhooks",
+    "pluginName": "TM Webhooks",
     "pluginVersion": "x.y.z",
     "game": "turbo"
   },
@@ -354,7 +354,7 @@ the playground, fall back to `aborted`.
     "totalPlayers": 1
   },
   "source": {
-    "pluginName": "Chugmania Webhooks",
+    "pluginName": "TM Webhooks",
     "pluginVersion": "x.y.z",
     "game": "turbo"
   },

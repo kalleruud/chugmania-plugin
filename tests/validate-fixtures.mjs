@@ -57,7 +57,7 @@ function validateFixture(events, expectedEventTypes) {
     assert.equal(event.schemaVersion, '1.0.0')
     assert.match(event.eventId, uuid)
     assert.match(event.game.gameId, uuid)
-    assert.equal(event.source.pluginName, 'Chugmania Webhooks')
+    assert.equal(event.source.pluginName, 'TM Webhooks')
     assert.ok(['turbo', 'next'].includes(event.source.game))
     assert.ok(Number.isInteger(event.sequence) && event.sequence >= 0)
     assert.ok(Number.isInteger(event.durationMs) && event.durationMs >= 0)

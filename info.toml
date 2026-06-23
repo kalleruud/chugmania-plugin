@@ -1,8 +1,9 @@
 [meta]
-name = "Chugmania Webhooks"
-author = "DJ Balle"
+name = "TM Webhooks"
+author = "MrKallerud"
 category = "Utilities"
 version = "1.0.1"
+siteid = 888
 
 [game]
 supported_games = ["Trackmania", "Turbo"]

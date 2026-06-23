@@ -1,4 +1,4 @@
-# Chugmania Webhooks
+# TM Webhooks
 
 An Openplanet plugin that emits ordered race events from supported local modes
 in Trackmania Next (2020) and Trackmania Turbo.
@@ -41,7 +41,7 @@ time. Its precision depends on how the game exposes each event:
 
 ## Configuration
 
-Open **Openplanet > Settings > Chugmania Webhooks > Webhook** and set:
+Open **Openplanet > Settings > TM Webhooks > Webhook** and set:
 
 - **Endpoint URL**: destination for HTTP POST requests
 - **Authentication token**: optional secret sent as `Authorization: Bearer <token>`
@@ -79,7 +79,7 @@ Or on a Unix-like shell:
 ./scripts/build-op.sh all
 ```
 
-The output file is `dist/chugmania-webhooks.op`. The archive contains the root
+The output file is `dist/tm-webhooks.op`. The archive contains the root
 `info.toml` and the shared `src` tree.
 
 Unsigned builds require Openplanet Developer signature mode. Public

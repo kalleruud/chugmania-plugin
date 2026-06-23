@@ -36,7 +36,7 @@ const execFileAsync = promisify(execFile)
 async function fetchPage(url: string) {
   const response = await fetch(url, {
     headers: {
-      'user-agent': 'chugmania-plugin openplanet skill sync',
+      'user-agent': 'tm-webhooks-plugin openplanet skill sync',
     },
   })
   if (!response.ok) {
