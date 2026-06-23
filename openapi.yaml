@@ -306,6 +306,11 @@ components:
       type: object
       additionalProperties: true
       required:
+        - name
+        - uid
+        - author
+        - environment
+        - type
         - medalTimesMs
         - isLaps
         - totalLaps
@@ -395,7 +400,7 @@ components:
         - $ref: '#/components/schemas/BaseEvent'
         - type: object
           additionalProperties: true
-          required: [type, players, map, mode]
+          required: [type, players, mode]
           properties:
             type:
               type: string
@@ -410,6 +415,10 @@ components:
               description: Ordered so players[i].playerIndex equals i.
             map:
               $ref: '#/components/schemas/Map'
+              description: >-
+                Map played during the round. Emitted as null only if start is
+                emitted before the game exposes a map object. When non-null, all
+                Map properties are required.
             mode:
               $ref: '#/components/schemas/Mode'
     FirstThrottleEvent:

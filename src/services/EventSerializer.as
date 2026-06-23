@@ -16,12 +16,14 @@ Json::Value@ SerializePlayer(PlayerSnapshot@ player)
 
 Json::Value@ SerializeMap(MapSnapshot@ map)
 {
+    if (map is null) return Json::Value();
+
     Json::Value@ json = Json::Object();
-    PutNonEmptyString(json, "name", map.name);
-    PutNonEmptyString(json, "uid", map.uid);
-    PutNonEmptyString(json, "author", map.author);
-    PutNonEmptyString(json, "environment", map.environment);
-    PutNonEmptyString(json, "type", map.mapType);
+    json["name"] = map.name;
+    json["uid"] = map.uid;
+    json["author"] = map.author;
+    json["environment"] = map.environment;
+    json["type"] = map.mapType;
     json["isLaps"] = map.isLaps;
     json["totalLaps"] = map.totalLaps;
     json["checkpointsPerLap"] = map.checkpointsPerLap;

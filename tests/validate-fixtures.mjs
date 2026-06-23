@@ -80,24 +80,23 @@ for (const event of events) {
   if (event.type === 'start') {
     assert.equal(event.players.length, event.game.totalPlayers)
     event.players.forEach((player, index) => assertPlayer(player, index))
-    assert.ok(event.map && event.mode)
-    if ('name' in event.map) assert.equal(typeof event.map.name, 'string')
-    if ('uid' in event.map) assert.equal(typeof event.map.uid, 'string')
-    if ('author' in event.map) assert.equal(typeof event.map.author, 'string')
-    if ('environment' in event.map) {
-      assert.equal(typeof event.map.environment, 'string')
+    assert.ok('map' in event)
+    assert.ok(event.mode)
+    if (event.map !== null) {
+      for (const field of ['name', 'uid', 'author', 'environment', 'type']) {
+        assert.equal(typeof event.map[field], 'string')
+      }
+      assert.ok(event.map.medalTimesMs)
+      for (const medal of ['author', 'gold', 'silver', 'bronze']) {
+        assert.ok(Number.isInteger(event.map.medalTimesMs[medal]))
+        assert.ok(event.map.medalTimesMs[medal] >= 0)
+      }
+      assert.equal(typeof event.map.isLaps, 'boolean')
+      assert.ok(Number.isInteger(event.map.totalLaps))
+      assert.ok(event.map.totalLaps >= 0)
+      assert.ok(Number.isInteger(event.map.checkpointsPerLap))
+      assert.ok(event.map.checkpointsPerLap >= 0)
     }
-    if ('type' in event.map) assert.equal(typeof event.map.type, 'string')
-    assert.ok(event.map.medalTimesMs)
-    for (const medal of ['author', 'gold', 'silver', 'bronze']) {
-      assert.ok(Number.isInteger(event.map.medalTimesMs[medal]))
-      assert.ok(event.map.medalTimesMs[medal] >= 0)
-    }
-    assert.equal(typeof event.map.isLaps, 'boolean')
-    assert.ok(Number.isInteger(event.map.totalLaps))
-    assert.ok(event.map.totalLaps >= 0)
-    assert.ok(Number.isInteger(event.map.checkpointsPerLap))
-    assert.ok(event.map.checkpointsPerLap >= 0)
     assert.ok(
       [
         'campaign',

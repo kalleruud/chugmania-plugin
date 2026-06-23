@@ -90,21 +90,17 @@ when non-empty.
 
 | Field               | Type                 | Description                                | Rules                                          |
 | ------------------- | -------------------- | ------------------------------------------ | ---------------------------------------------- |
-| `name`              | string               | Display name of the map                    | Optional; omitted when unavailable             |
-| `uid`               | string               | Unique identifier of the map               | Optional; omitted when unavailable             |
-| `author`            | string               | Creator of the map                         | Optional; omitted when unavailable             |
-| `environment`       | string               | Environment or setting used by the map     | Optional; omitted when unavailable             |
-| `type`              | string               | Map type reported by the game              | Optional; omitted when unavailable             |
+| `name`              | string               | Display name of the map                    | Required                                       |
+| `uid`               | string               | Unique identifier of the map               | Required                                       |
+| `author`            | string               | Creator of the map                         | Required                                       |
+| `environment`       | string               | Environment or setting used by the map     | Required                                       |
+| `type`              | string               | Map type reported by the game              | Required                                       |
 | `medalTimesMs`      | MedalTimes           | Target medal times in milliseconds         | Required; zero values mean unknown/not exposed |
 | `isLaps`            | boolean              | Whether the map uses multiple laps         | Required                                       |
 | `totalLaps`         | non-negative integer | Number of laps required to finish          | Required; `0` when unknown or not lap-based    |
 | `checkpointsPerLap` | non-negative integer | Number of intermediate checkpoints per lap | Required; excludes start and finish            |
 
-Trackmania Next sources the map from `app.RootMap`; Trackmania Turbo sources it
-from `app.Challenge`. Capture starts only after the game exposes that map
-object, so `start.map` is required and never `null`. Map string fields are
-emitted only when non-empty.
-`environment` is sourced from the map's `CollectionName` in both games.
+Trackmania Next sources the map from `app.RootMap`; Trackmania Turbo sources it from `app.Challenge`. `start.map` is always emitted. It is `null` only if a start event is emitted before the game exposes a map object; Map string fields are serialized from scalar game API values and are never emitted as empty strings. `environment` is sourced from the map's `CollectionName` in both games.
 
 ### MedalTimes
 
@@ -198,7 +194,7 @@ Emitted exactly once when a fully captured round begins.
 | Additional field | Type     | Description                        | Rules                                                   |
 | ---------------- | -------- | ---------------------------------- | ------------------------------------------------------- |
 | `players`        | Player[] | Players participating in the round | Required; ordered and length equals `game.totalPlayers` |
-| `map`            | Map      | Map played during the round        | Required                                                |
+| `map`            | Map      | Map played during the round        | Optional; map details might not be available from game. |
 | `mode`           | Mode     | Game mode used during the round    | Required                                                |
 
 ```json
