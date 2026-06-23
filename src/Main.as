@@ -1,12 +1,3 @@
-[Setting name="Endpoint URL" description="Webhook destination. Capture is disabled while empty." category="Webhook"]
-string Setting_EndpointUrl = "";
-
-[Setting name="Authentication token" description="Optional bearer token. The value is never logged." category="Webhook" password]
-string Setting_AuthenticationToken = "";
-
-[Setting name="Maximum retry count" description="Retries after the initial request." category="Webhook" min=0 max=10]
-uint Setting_MaximumRetryCount = 3;
-
 RoundTracker@ g_tracker;
 GameAdapter@ g_adapter;
 WebhookDelivery@ g_delivery;
@@ -14,12 +5,25 @@ int g_configurationState = -1;
 
 void Main()
 {
+#if TMNEXT
+    EnsureTrackmaniaNextDependencies();
+#endif
     @g_delivery = WebhookDelivery();
     @g_tracker = RoundTracker(g_delivery);
     @g_adapter = CreateGameAdapter();
     print("[init] " + AdapterGameName());
     startnew(CoroutineFunc(DeliveryLoop));
 }
+
+#if TMNEXT
+void EnsureTrackmaniaNextDependencies()
+{
+    // Probe required helper APIs during startup so TMNEXT fails fast if the
+    // shared package was installed without its required helper plugins.
+    MLFeed::GetRaceData_V4();
+    VehicleState::ViewingPlayerState();
+}
+#endif
 
 void DeliveryLoop() { g_delivery.Run(); }
 

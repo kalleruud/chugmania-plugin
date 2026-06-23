@@ -22,7 +22,10 @@ player-scoped events include a full snapshot of the active player.
 ## Supported Games and Modes
 
 Every feature must work in both Trackmania Turbo and Trackmania Next (2020).
-Trackmania Next uses the `MLHook` and `MLFeedRaceData` dependencies.
+Trackmania Next requires the `MLHook`, `MLFeedRaceData`, and `VehicleState`
+helper plugins. The shared package declares them as optional dependencies so
+Turbo can still load, then explicitly fails during startup in TMNEXT if they
+are missing.
 
 Only local play is supported:
 
@@ -166,15 +169,15 @@ Schema version and plugin version are independent.
 
 ## Build and Release
 
-- `scripts/build-op.sh` and `scripts/build-op.ps1` build both artifacts.
-- Artifact names are `chugmania-webhooks-next.op` and
-  `chugmania-webhooks-turbo.op`.
-- One repository version source is injected into both manifests and reported as
-  `source.pluginVersion`.
-- `.github/workflows/publish.yml` uses the build scripts and publishes both
-  plugin artifacts on merge into `main`.
+- The repository has one root `info.toml` for both supported games.
+- `scripts/build-op.sh` and `scripts/build-op.ps1` build one shared artifact.
+- The artifact name is `chugmania-webhooks.op`.
+- One repository version source is reported as `source.pluginVersion`.
+- `.github/workflows/publish.yml` uses the build scripts and publishes the
+  shared plugin artifact on merge into `main`.
 
-Package the contents of each plugin build directory, not the directory itself.
+Package the root `info.toml` and `src` contents, not the repository directory
+itself.
 Unsigned development builds require Openplanet Developer signature mode;
 distributed builds require the normal Openplanet review/signing process.
 
@@ -184,5 +187,5 @@ CI must:
 
 - Validate `openapi.yaml`.
 - Verify representative JSON fixtures against every event schema.
-- Build both Turbo and Next plugin artifacts.
+- Build the shared plugin artifact.
 - Run shared service tests against both game adapters where practical.

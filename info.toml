@@ -5,7 +5,8 @@ category = "Utilities"
 version = "1.0.1"
 
 [game]
-supported_games = ["Turbo"]
+supported_games = ["Trackmania", "Turbo"]
 
 [script]
 timeout = 0
+optional_dependencies = ["MLHook", "MLFeedRaceData", "VehicleState"]

@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - info.toml
+      - src/**
 
 permissions:
   contents: write
@@ -36,7 +39,7 @@ jobs:
                 print $2
                 exit
               }
-            ' info.next.toml
+            ' info.toml
           )"
 
           NAME="$(
@@ -49,34 +52,16 @@ jobs:
                 print $2
                 exit
               }
-            ' info.next.toml
-          )"
-
-          TURBO_VERSION="$(
-            awk -F '=' '
-              /^\[meta\]/ { in_meta = 1; next }
-              /^\[/ { in_meta = 0 }
-              in_meta && $1 ~ /^[[:space:]]*version[[:space:]]*$/ {
-                gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2)
-                gsub(/^"|"$/, "", $2)
-                print $2
-                exit
-              }
-            ' info.turbo.toml
+            ' info.toml
           )"
 
           if [[ -z "$VERSION" ]]; then
-            echo "::error::Could not read [meta].version from info.next.toml"
+            echo "::error::Could not read [meta].version from info.toml"
             exit 1
           fi
 
           if [[ -z "$NAME" ]]; then
-            echo "::error::Could not read [meta].name from info.next.toml"
-            exit 1
-          fi
-
-          if [[ "$TURBO_VERSION" != "$VERSION" ]]; then
-            echo "::error::Plugin manifest versions differ: Trackmania=$VERSION Turbo=$TURBO_VERSION"
+            echo "::error::Could not read [meta].name from info.toml"
             exit 1
           fi
 
@@ -109,12 +94,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          TRACKMANIA_ARTIFACT="chugmania-webhooks-next.op"
-          TURBO_ARTIFACT="chugmania-webhooks-turbo.op"
           bash scripts/build-op.sh all dist
 
-          echo "trackmania_artifact=dist/$TRACKMANIA_ARTIFACT" >> "$GITHUB_OUTPUT"
-          echo "turbo_artifact=dist/$TURBO_ARTIFACT" >> "$GITHUB_OUTPUT"
+          echo "artifact=dist/chugmania-webhooks.op" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub release
         env:
@@ -125,11 +107,10 @@ jobs:
 
           TAG="${{ steps.plugin.outputs.tag }}"
           TITLE="${{ steps.plugin.outputs.name }} $TAG"
-          TRACKMANIA_ARTIFACT="${{ steps.package.outputs.trackmania_artifact }}"
-          TURBO_ARTIFACT="${{ steps.package.outputs.turbo_artifact }}"
+          ARTIFACT="${{ steps.package.outputs.artifact }}"
 
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "$TRACKMANIA_ARTIFACT" "$TURBO_ARTIFACT" --clobber
+            gh release upload "$TAG" "$ARTIFACT" --clobber
           else
-            gh release create "$TAG" "$TRACKMANIA_ARTIFACT" "$TURBO_ARTIFACT" --title "$TITLE" --generate-notes
+            gh release create "$TAG" "$ARTIFACT" --title "$TITLE" --generate-notes
           fi
