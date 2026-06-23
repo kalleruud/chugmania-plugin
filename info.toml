@@ -2,12 +2,8 @@
 name = "TM Webhooks"
 author = "MrKallerud"
 category = "Utilities"
-version = "1.0.1"
+version = "1.0.0"
 siteid = 888
 
-[game]
-supported_games = ["Trackmania", "Turbo"]
-
 [script]
-timeout = 0
 optional_dependencies = ["MLHook", "MLFeedRaceData", "VehicleState"]
