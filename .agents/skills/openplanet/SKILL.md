@@ -26,19 +26,20 @@ description: Build, edit, review, and package Openplanet plugins written in Ange
 - Trackmania Turbo API: `https://turbo.openplanet.dev/search?q=%s`
 - ManiaPlanet API: `https://mp4.openplanet.dev/search?q=%s`
 - Use the API that matches the game/runtime you are editing. For in-game web requests, also consult the Web Services reference below.
+- Refresh the cached Openplanet HTML references with `bun scripts/update_op_skill.ts`.
 
 ## Reference Files
 
-- `references/plugin-dependencies.md`: dependency loading, `exports`, `shared_exports`, and cross-plugin APIs.
-- `references/info-toml.md`: plugin metadata, game targeting, script config, defines, imports, and dependency keys.
-- `references/callbacks.md`: lifecycle, render, menu, input, and settings callbacks.
-- `references/icons.md`: built-in icon constants and practical usage notes.
-- `references/settings.md`: `[Setting]`, supported types, defaults, attributes, and `[SettingsTab]`.
-- `references/imports.md`: Openplanet script imports, deprecated imports, and removal notes.
-- `references/preprocessor.md`: `#if` flow, game/platform/signature defines, and cross-game guards.
-- `references/authentication.md`: Openplanet Auth setup, token flow, backend validation, and persistence guidance.
-- `references/nadeoservices.md`: NadeoServices dependency setup, audiences, auth readiness, and request helpers.
-- `references/vehiclestate.md`: viewed-player state access and vehicle helpers across supported games.
-- `references/camera.md`: camera projection/query helpers for world-to-screen work.
-- `references/controls.md`: reusable UI controls such as tags and frames.
-- `references/trackmania-webservices.md`: Trackmania Web Services domains, auth paths, OAuth separation, and safe usage guidance.
+- `references/plugin-dependencies.html`: cached Openplanet docs for dependency loading, `exports`, and `shared_exports`.
+- `references/info-toml.html`: cached Openplanet docs for plugin metadata, game targeting, and script config.
+- `references/callbacks.html`: cached Openplanet docs for lifecycle, render, menu, input, and settings callbacks.
+- `references/icons.html`: cached Openplanet docs for built-in icon constants.
+- `references/settings.html`: cached Openplanet docs for `[Setting]`, supported types, defaults, and `[SettingsTab]`.
+- `references/imports.html`: cached Openplanet docs for script imports and deprecations.
+- `references/preprocessor.html`: cached Openplanet docs for `#if` flow, defines, and cross-game guards.
+- `references/authentication.html`: cached Openplanet docs for Openplanet Auth setup and token validation.
+- `references/nadeoservices.html`: cached Openplanet docs for NadeoServices setup and request helpers.
+- `references/vehiclestate.html`: cached Openplanet docs for viewed-player state and vehicle helpers.
+- `references/camera.html`: cached Openplanet docs for camera projection/query helpers.
+- `references/controls.html`: cached Openplanet docs for reusable UI helpers.
+- `references/trackmania-webservices.md`: hand-written Trackmania Web Services guide for domains, auth, and OAuth separation.

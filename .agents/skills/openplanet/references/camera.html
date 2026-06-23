@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#" lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<title>Camera plugin dependency - Openplanet</title>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+		<link rel="manifest" href="/manifest.json">
+		<link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5">
+
+		
+		<meta name="theme-color" content="#ff3399">
+		<meta property="og:title" content="Camera plugin dependency - Openplanet">
+		<meta property="og:type" content="website">
+		<meta property="og:image" content="https://openplanet.dev/img/logo_icon.png">
+		<meta property="og:url" content="https://openplanet.dev/docs/reference/camera">
+		<meta property="og:description" content="Camera plugin dependency documentation.">
+
+		<link rel="search" type="application/opensearchdescription+xml" href="/opensearch/plugins" title="Openplanet Plugin Search"/>
+		<link rel="search" type="application/opensearchdescription+xml" href="/opensearch/api" title="Openplanet Developer API Search"/>
+
+		<link rel="stylesheet" href="/style.css?1776265006">
+		<link rel="stylesheet" href="/css/fork-awesome.min.css">
+		<link rel="stylesheet" href="/css/agate.min.css?1769265621">
+
+			</head>
+
+	<body class="has-navbar-fixed-top">
+		<nav class="navbar is-fixed-top">
+			<div class="container">
+				<div class="navbar-brand">
+					<a href="/" class="navbar-item">
+												<span class="icon has-agenda gay"><i class="fa fa-heartbeat"></i></span>
+						<span>open<b>planet</b></span>
+					</a>
+
+					<a class="navbar-burger" data-target="navMenu"><span></span><span></span><span></span></a>
+				</div>
+
+				<div class="navbar-menu" id="navMenu">
+					<div class="navbar-start">
+															<a href="/plugins" class="navbar-item">
+																					<span class="icon"><i class="fa fa-code-fork"></i></span>
+																				<span>Plugins</span>
+									</a>
+																		<a href="/files" class="navbar-item">
+																					<span class="icon"><i class="fa fa-file-o"></i></span>
+																				<span>Files</span>
+									</a>
+																		<a href="/docs" class="navbar-item">
+																					<span class="icon"><i class="fa fa-book"></i></span>
+																				<span>Documentation</span>
+									</a>
+																		<a href="/news" class="navbar-item">
+																					<span class="icon"><i class="fa fa-newspaper-o"></i></span>
+																				<span>News</span>
+									</a>
+																		<div class="navbar-item">
+										<a href="/download" class="button is-secondary is-small is-outlined">
+																							<span class="icon"><i class="fa fa-download"></i></span>
+																						<span>Download Openplanet</span>
+										</a>
+									</div>
+														</div>
+
+					<div class="navbar-end">
+													<div class="navbar-item">
+								<a href="/user/login" class="button is-small">
+									<span class="icon"><i class="fa fa-lock"></i></span>
+									<span>Login</span>
+								</a>
+							</div>
+											</div>
+				</div>
+			</div>
+		</nav>
+
+		
+		
+<section class="hero is-secondary is-bold">
+	<div class="hero-body">
+		<div class="container has-text-centered">
+			<h1 class="title">Documentation</h1>
+		</div>
+	</div>
+</section>
+
+<section class="section">
+	<div class="container">
+		<div class="columns">
+			<div class="column is-narrow">
+				<aside class="menu">
+					<p class="menu-label">Documentation</p><ul class="menu-list">	<li>
+		<a href="/docs">
+			<span class="icon"><i class="fa fa-home"></i></span>
+			<span>Home</span>
+		</a>
+	</li>
+		<li>
+		<a href="/docs/help">
+			<span class="icon"><i class="fa fa-bug"></i></span>
+			<span>Troubleshooting</span>
+		</a>
+	</li>
+		<li>
+		<a href="/docs/tutorials/installation">
+			<span class="icon"><i class="fa fa-cloud-download"></i></span>
+			<span>Installing Openplanet</span>
+		</a>
+	</li>
+		<li>
+		<a href="/docs/tutorials/signature-modes">
+			<span class="icon"><i class="fa fa-lock"></i></span>
+			<span>Signature Modes</span>
+		</a>
+	</li>
+		<li>
+		<a href="/docs/school-mode">
+			<span class="icon"><i class="fa fa-university"></i></span>
+			<span>School Mode</span>
+		</a>
+	</li>
+	</ul><p class="menu-label">Plugin development</p><ul class="menu-list">	<li>
+		<a href="/docs/getting-started">
+			<span class="icon"><i class="fa fa-info-circle"></i></span>
+			<span>Getting started</span>
+		</a>
+	</li>
+		<li>
+		<a href="/docs/reference/info-toml">
+			<span class="icon"><i class="fa fa-info"></i></span>
+			<span>info.toml</span>
+		</a>
+	</li>
+		<li>
+		<a href="/docs/reference/plugin-callbacks">
+			<span class="icon"><i class="fa fa-exchange"></i></span>
+			<span>Callback functions</span>
+		</a>
+	</li>
+		<li>
+		<a href="/docs/reference/icons">
+			<span class="icon"><i class="fa fa-flag"></i></span>
+			<span>Icons</span>
+		</a>
+	</li>
+		<li>
+		<a href="/docs/reference/settings">
+			<span class="icon"><i class="fa fa-cogs"></i></span>
+			<span>Settings</span>
+		</a>
+	</li>
+		<li>
+		<a href="/docs/reference/imports">
+			<span class="icon"><i class="fa fa-arrow-circle-down"></i></span>
+			<span>Script imports</span>
+		</a>
+	</li>
+		<li>
+		<a href="/docs/reference/preprocessor">
+			<span class="icon"><i class="fa fa-code"></i></span>
+			<span>Preprocessor</span>
+		</a>
+	</li>
+		<li>
+		<a href="/docs/reference/auth">
+			<span class="icon"><i class="fa fa-lock"></i></span>
+			<span>Authentication</span>
+		</a>
+	</li>
+	</ul><p class="menu-label">Dependencies</p><ul class="menu-list">	<li>
+		<a href="/docs/reference/nadeoservices">
+			<span class="icon"><i class="fa fa-ticket"></i></span>
+			<span>NadeoServices</span>
+		</a>
+	</li>
+		<li>
+		<a href="/docs/reference/vehiclestate">
+			<span class="icon"><i class="fa fa-car"></i></span>
+			<span>VehicleState</span>
+		</a>
+	</li>
+		<li>
+		<a href="/docs/reference/camera" class="is-active">
+			<span class="icon"><i class="fa fa-camera"></i></span>
+			<span>Camera</span>
+		</a>
+	</li>
+		<li>
+		<a href="/docs/reference/controls">
+			<span class="icon"><i class="fa fa-check-square"></i></span>
+			<span>Controls</span>
+		</a>
+	</li>
+	</ul><p class="menu-label">API Reference</p><ul class="menu-list">	<li>
+		<a href="/docs/api">
+			<span class="icon"><i class="fa fa-heartbeat"></i></span>
+			<span>Openplanet API</span>
+		</a>
+	</li>
+		<li>
+		<a href="https://next.openplanet.dev/" target="_blank">
+			<span class="icon"><i class="fa fa-gamepad"></i></span>
+			<span>Trackmania API</span>
+		</a>
+	</li>
+		<li>
+		<a href="https://mp4.openplanet.dev/" target="_blank">
+			<span class="icon"><i class="fa fa-gamepad"></i></span>
+			<span>Maniaplanet API</span>
+		</a>
+	</li>
+		<li>
+		<a href="https://turbo.openplanet.dev/" target="_blank">
+			<span class="icon"><i class="fa fa-gamepad"></i></span>
+			<span>Turbo API</span>
+		</a>
+	</li>
+		<li>
+		<a href="https://webservices.openplanet.dev/" target="_blank">
+			<span class="icon"><i class="fa fa-ticket"></i></span>
+			<span>Web Services API</span>
+		</a>
+	</li>
+	</ul>				</aside>
+			</div>
+
+			<div class="column">
+				<div class="content">
+	<h1>Camera plugin dependency</h1>
+<p>The <code>Camera</code> plugin dependency allows you to perform camera-related calculations, such as projecting 3D worldspace coordinates to 2D screenspace coordinates. This dependency plugin was added to Openplanet for Trackmania in 1.24.4.</p>
+<h2>Getting started</h2>
+<p>To get started with the <code>Camera</code> plugin, add a dependency to it in your <code>info.toml</code>:</p>
+<pre><code class="language-toml">[script]
+dependencies = [ "Camera" ]</code></pre>
+<h2>API</h2>
+<p>The API consists of the following functions:</p>
+<h3><code>Camera::ToScreenSpace</code></h3>
+<p>Projects a 3D point to screen space in 2D from the current camera.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>const vec3 &amp;in pos</code> The 3D point to project.</li>
+</ul>
+<p>Returns: <a href="/docs/api/global/vec2" target="_self" rel="">vec2</a></p>
+<h3><code>Camera::IsBehind</code></h3>
+<p>Returns true if the 3D point is behind the camera.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>const vec3 &amp;in pos</code> The 3D point to project.</li>
+</ul>
+<p>Returns: <code>bool</code></p>
+<h3><code>Camera::GetCurrent</code></h3>
+<p>Gets the current camera used for rendering.</p>
+<p>Returns: <a href="https://next.openplanet.dev/Hms/CHmsCamera" target="_self" rel="">CHmsCamera@</a></p>
+<h3><code>Camera::GetProjectionMatrix</code></h3>
+<p>Gets the projection matrix of the current camera, if there is one.</p>
+<p>Returns: <a href="/docs/api/global/mat4" target="_self" rel="">mat4</a></p></div>
+
+<div class="block">
+	<br>
+		<p><small>Page updated <span title="Thu, 02 Jan 2025 00:02:49 +0100">1 year ago</span> by <span class="has-text-team">tooInfinite</span><span class="verified" title="Trusted developer"><img src="/img/verified.svg" alt="(Trusted developer)" /></span></small></p>
+
+</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+		<footer class="footer">
+			<div class="content has-text-centered">
+				<p>
+					Openplanet
+					- <a href="/link/discord" target="_blank" rel="me noopener noreferrer"><i class="fa fa-discord"></i> Discord</a>
+					- <a href="/link/github" target="_blank" rel="me noopener noreferrer"><i class="fa fa-github"></i> GitHub</a>
+					- <a href="https://mastodon.gamedev.place/@openplanet" rel="me noopener noreferrer"><i class="fa fa-mastodon"></i> Mastodon</a>
+					- <a href="/docs/plugin-tos">Plugin terms of service</a>
+					- <a href="/privacy">Privacy Policy</a>
+					- <a href="/credits">Credits</a>
+					<br>
+					Transparency
+					- <a href="/users/trusted"><i class="fa fa-user"></i> Trusted Developer List</a>
+					- <a href="/plugins/signs"><i class="fa fa-gavel"></i> Plugin Signature Feed</a>
+				</p>
+				<p>
+					&copy; <a href="https://codecat.nl/" target="_blank" rel="noopener noreferrer">Melissa 'Miss' Geels</a> &amp; contributors 2016 - 2026 / <a href="https://meow.social/@codecat" target="_blank" rel="me noopener noreferrer">@codecat@meow.social</a>
+				</p>
+								<a href="/cf/tr/blog" rel="nofollow" class="cftr">Blog</a><!-- pls ignore.. -->
+			</div>
+		</footer>
+
+		<div class="image-modal modal" id="modal">
+			<div class="modal-background" id="modal-background"></div>
+			<div class="modal-content has-text-centered">
+				<div class="notification">
+					<div class="op-modal-img">
+						<img id="modal-image">
+						<div class="op-modal-button op-modal-prev" id="modal-prev"><i class="fa fa-arrow-left"></i></div>
+						<div class="op-modal-button op-modal-next" id="modal-next"><i class="fa fa-arrow-right"></i></div>
+						<div class="op-modal-info" id="modal-info"><span></span></div>
+					</div>
+				</div>
+			</div>
+			<button class="modal-close is-large" id="modal-close"></button>
+		</div>
+
+		<script src="/js/highlight.min.js"></script>
+		<script src="/js/script.js"></script>
+		<script data-goatcounter="https://openplanet.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+	</body>
+</html>
