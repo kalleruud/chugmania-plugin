@@ -1,6 +1,8 @@
 #!/usr/bin/env bun
 
 import { mkdir, writeFile } from 'node:fs/promises'
+import { execFile } from 'node:child_process'
+import { promisify } from 'node:util'
 import path from 'node:path'
 
 const references = [
@@ -29,6 +31,7 @@ const referencesDir = path.join(
   'openplanet',
   'references'
 )
+const execFileAsync = promisify(execFile)
 
 async function fetchPage(url: string) {
   const response = await fetch(url, {
@@ -58,3 +61,8 @@ for (const [fileName, url] of references) {
   await writeFile(outputPath, html, 'utf8')
   console.log(`Updated ${path.relative(repoRoot, outputPath)} <- ${url}`)
 }
+
+await execFileAsync('npx', ['prettier', '-w', '.'], {
+  cwd: repoRoot,
+  env: process.env,
+})
