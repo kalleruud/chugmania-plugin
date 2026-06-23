@@ -7,10 +7,10 @@ Json::Value@ SerializePlayer(PlayerSnapshot@ player)
 {
     Json::Value@ json = Json::Object();
     json["playerIndex"] = player.playerIndex;
-    json["name"], player.name;
-    json["login"], player.login;
-    json["localId"], player.localId;
-    json["accountId"], player.accountId;
+    json["name"] = player.name;
+    json["login"] = player.login;
+    json["localId"] = player.localId;
+    json["accountId"] = player.accountId;
     return json;
 }
 
