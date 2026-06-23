@@ -30,26 +30,41 @@ assert.equal(
   start.map.checkpointsPerLap + 1
 )
 
+function assertNoEmptyStrings(value, path = '$') {
+  if (typeof value === 'string') {
+    assert.notEqual(value, '', `${path} must not be an empty string`)
+    return
+  }
+  if (Array.isArray(value)) {
+    value.forEach((item, index) =>
+      assertNoEmptyStrings(item, `${path}[${index}]`)
+    )
+    return
+  }
+  if (value && typeof value === 'object') {
+    for (const [key, child] of Object.entries(value)) {
+      assertNoEmptyStrings(child, `${path}.${key}`)
+    }
+  }
+}
+
 function assertPlayer(player, index) {
   assert.ok(player)
   assert.equal(player.playerIndex, index)
-  assert.equal(typeof player.name, 'string')
-  assert.ok(player.name.length > 0)
+  if ('name' in player) assert.equal(typeof player.name, 'string')
   if ('login' in player) {
     assert.equal(typeof player.login, 'string')
-    assert.ok(player.login.length > 0)
   }
   if ('localId' in player) {
     assert.equal(typeof player.localId, 'string')
-    assert.ok(player.localId.length > 0)
   }
   if ('accountId' in player) {
     assert.equal(typeof player.accountId, 'string')
-    assert.ok(player.accountId.length > 0)
   }
 }
 
 for (const event of events) {
+  assertNoEmptyStrings(event)
   assert.equal(event.schemaVersion, '1.0.0')
   assert.match(event.eventId, uuid)
   assert.match(event.game.gameId, uuid)
@@ -66,16 +81,13 @@ for (const event of events) {
     assert.equal(event.players.length, event.game.totalPlayers)
     event.players.forEach((player, index) => assertPlayer(player, index))
     assert.ok(event.map && event.mode)
-    assert.equal(typeof event.map.name, 'string')
-    assert.ok(event.map.name.length > 0)
-    assert.equal(typeof event.map.uid, 'string')
-    assert.ok(event.map.uid.length > 0)
-    assert.equal(typeof event.map.author, 'string')
-    assert.ok(event.map.author.length > 0)
-    assert.equal(typeof event.map.environment, 'string')
-    assert.ok(event.map.environment.length > 0)
-    assert.equal(typeof event.map.type, 'string')
-    assert.ok(event.map.type.length > 0)
+    if ('name' in event.map) assert.equal(typeof event.map.name, 'string')
+    if ('uid' in event.map) assert.equal(typeof event.map.uid, 'string')
+    if ('author' in event.map) assert.equal(typeof event.map.author, 'string')
+    if ('environment' in event.map) {
+      assert.equal(typeof event.map.environment, 'string')
+    }
+    if ('type' in event.map) assert.equal(typeof event.map.type, 'string')
     assert.ok(event.map.medalTimesMs)
     for (const medal of ['author', 'gold', 'silver', 'bronze']) {
       assert.ok(Number.isInteger(event.map.medalTimesMs[medal]))

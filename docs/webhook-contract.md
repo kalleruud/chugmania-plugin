@@ -26,8 +26,8 @@ configured. An empty token sends an unauthenticated request.
 
 There is no outer payload wrapper. The `type` property discriminates the event
 shape. Object schemas permit undeclared properties for forward compatibility.
-Unavailable optional values are omitted, never represented by `null` or empty
-string sentinels. When a string field is emitted, it is non-empty.
+Unavailable string values are omitted, never represented by empty string
+sentinels. When a string field is emitted, it is non-empty.
 
 ### Responses
 
@@ -73,7 +73,7 @@ models instead of repeating their fields at the event root.
 | Field         | Type                 | Description                          | Rules                                        |
 | ------------- | -------------------- | ------------------------------------ | -------------------------------------------- |
 | `playerIndex` | non-negative integer | Position of the player in the roster | Required, zero-based, stable within the game |
-| `name`        | string               | Display name of the player           | Required                                     |
+| `name`        | string               | Display name of the player           | Optional; omitted when unavailable           |
 | `login`       | string               | Game login of the player             | Optional; omitted when not exposed           |
 | `localId`     | string               | Decimal engine-local login ID        | Optional; Next-only                          |
 | `accountId`   | string               | Ubisoft/Nadeo WebServices account ID | Optional; Next-only                          |
@@ -83,19 +83,18 @@ models instead of repeating their fields at the event root.
 Trackmania Next sources `login`, `localId`, and `accountId` from MLFeed V4's
 login, login MwId, and WebServices user ID. Turbo sources `name` and `login`
 from `CTrackManiaPlayer`, and omits `localId` and `accountId` because its
-runtime does not expose equivalent values. Required player fields are emitted as
-a complete snapshot and are never `null`; optional player identifiers are
-omitted when unavailable.
+runtime does not expose equivalent values. Player string fields are emitted only
+when non-empty.
 
 ### Map
 
 | Field               | Type                 | Description                                | Rules                                          |
 | ------------------- | -------------------- | ------------------------------------------ | ---------------------------------------------- |
-| `name`              | string               | Display name of the map                    | Required                                       |
-| `uid`               | string               | Unique identifier of the map               | Required                                       |
-| `author`            | string               | Creator of the map                         | Required; non-empty                            |
-| `environment`       | string               | Environment or setting used by the map     | Required; non-empty                            |
-| `type`              | string               | Map type reported by the game              | Required; non-empty                            |
+| `name`              | string               | Display name of the map                    | Optional; omitted when unavailable             |
+| `uid`               | string               | Unique identifier of the map               | Optional; omitted when unavailable             |
+| `author`            | string               | Creator of the map                         | Optional; omitted when unavailable             |
+| `environment`       | string               | Environment or setting used by the map     | Optional; omitted when unavailable             |
+| `type`              | string               | Map type reported by the game              | Optional; omitted when unavailable             |
 | `medalTimesMs`      | MedalTimes           | Target medal times in milliseconds         | Required; zero values mean unknown/not exposed |
 | `isLaps`            | boolean              | Whether the map uses multiple laps         | Required                                       |
 | `totalLaps`         | non-negative integer | Number of laps required to finish          | Required; `0` when unknown or not lap-based    |
@@ -103,8 +102,8 @@ omitted when unavailable.
 
 Trackmania Next sources the map from `app.RootMap`; Trackmania Turbo sources it
 from `app.Challenge`. Capture starts only after the game exposes that map
-object, so `start.map` is required and never `null`. Map fields are emitted as a
-non-null snapshot, and string fields are non-empty.
+object, so `start.map` is required and never `null`. Map string fields are
+emitted only when non-empty.
 `environment` is sourced from the map's `CollectionName` in both games.
 
 ### MedalTimes
@@ -120,7 +119,7 @@ non-null snapshot, and string fields are non-empty.
 
 | Field  | Type   | Description                  | Rules                                     |
 | ------ | ------ | ---------------------------- | ----------------------------------------- |
-| `name` | enum   | Normalized local game mode   | Required; see mode values below           |
+| `name` | enum   | Normalized local game mode   | Optional; omitted when unavailable        |
 | `type` | string | Specific mode or rule family | Turbo secret variant, or Next rule family |
 
 Turbo emits `campaign`, `arcade`, `hot-seat`, `split-screen`, `secret`, or

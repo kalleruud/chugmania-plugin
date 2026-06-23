@@ -148,6 +148,7 @@ components:
           examples: ['1.0.0']
         type:
           type: string
+          minLength: 1
         eventId:
           type: string
           format: uuid
@@ -180,13 +181,16 @@ components:
       properties:
         pluginName:
           type: string
+          minLength: 1
           enum: [Chugmania Webhooks]
           description: Identifies Chugmania Webhooks as the plugin that produced the event.
         pluginVersion:
           type: string
+          minLength: 1
           pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
         game:
           type: string
+          minLength: 1
           enum: [turbo, next]
           description: >-
             Possible values are `turbo` for Trackmania Turbo and `next` for
@@ -209,7 +213,7 @@ components:
     Player:
       type: object
       additionalProperties: true
-      required: [playerIndex, name]
+      required: [playerIndex]
       properties:
         playerIndex:
           type: integer
@@ -302,11 +306,6 @@ components:
       type: object
       additionalProperties: true
       required:
-        - name
-        - uid
-        - author
-        - environment
-        - type
         - medalTimesMs
         - isLaps
         - totalLaps
@@ -347,10 +346,10 @@ components:
     Mode:
       type: object
       additionalProperties: true
-      required: [name]
       properties:
         name:
           type: string
+          minLength: 1
           enum:
             [campaign, arcade, hot-seat, split-screen, secret, solo, unknown]
           description: >-
@@ -360,6 +359,7 @@ components:
             information to identify the local mode positively.
         type:
           type: string
+          minLength: 1
           enum:
             - time-attack
             - rounds
@@ -399,6 +399,7 @@ components:
           properties:
             type:
               type: string
+              minLength: 1
               enum: [start]
               description: The start event is emitted when a fully captured round begins.
             players:
@@ -420,6 +421,7 @@ components:
           properties:
             type:
               type: string
+              minLength: 1
               enum: [first_throttle]
               description: The first_throttle event is emitted on the player's first throttle input of the round.
     PlayerCheckpointEvent:
@@ -431,6 +433,7 @@ components:
           properties:
             type:
               type: string
+              minLength: 1
               enum: [checkpoint, lap, respawn, finish]
               description: >-
                 Possible values are `checkpoint` when the player validates an
@@ -448,10 +451,12 @@ components:
           properties:
             type:
               type: string
+              minLength: 1
               enum: [end]
               description: The end event is emitted when capture of the round ends.
             endReason:
               type: string
+              minLength: 1
               enum: [completed, restarted, aborted, unknown]
               description: >-
                 Possible values are `completed` when the round finished normally,
@@ -467,5 +472,7 @@ components:
       properties:
         code:
           type: string
+          minLength: 1
         message:
           type: string
+          minLength: 1
