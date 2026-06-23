@@ -1,12 +1,9 @@
 [meta]
-name = "Chugmania Webhooks"
-author = "DJ Balle"
+name = "TM Webhooks"
+author = "MrKallerud"
 category = "Utilities"
-version = "1.0.1"
-
-[game]
-supported_games = ["Trackmania", "Turbo"]
+version = "1.0.0"
+siteid = 888
 
 [script]
-timeout = 0
 optional_dependencies = ["MLHook", "MLFeedRaceData", "VehicleState"]

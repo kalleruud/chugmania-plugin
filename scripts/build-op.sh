@@ -28,7 +28,7 @@ if [[ ! -f "$manifest" ]]; then
   exit 1
 fi
 
-artifact="$output_directory/chugmania-webhooks.op"
+artifact="$output_directory/tm-webhooks.op"
 rm -f -- "$artifact"
 (
   cd -- "$repository_root"

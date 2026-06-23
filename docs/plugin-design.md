@@ -171,7 +171,7 @@ Schema version and plugin version are independent.
 
 - The repository has one root `info.toml` for both supported games.
 - `scripts/build-op.sh` and `scripts/build-op.ps1` build one shared artifact.
-- The artifact name is `chugmania-webhooks.op`.
+- The artifact name is `tm-webhooks.op`.
 - One repository version source is reported as `source.pluginVersion`.
 - `.github/workflows/publish.yml` uses the build scripts and publishes the
   shared plugin artifact on merge into `main`.

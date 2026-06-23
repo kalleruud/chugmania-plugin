@@ -1,11 +1,11 @@
 openapi: 3.1.0
 info:
-  title: Chugmania Webhooks
+  title: TM Webhooks
   version: 1.0.0
   description: Webhook contract emitted by the Trackmania Turbo and Trackmania Next plugins.
 servers:
-  - url: https://chugmania.no/api
-    description: Official chugmania webhook consumer.
+  - url: https://webhook-receiver.example.org/api
+    description: Example webhook consumer endpoint.
 paths:
   /webhook:
     post:
@@ -182,8 +182,8 @@ components:
         pluginName:
           type: string
           minLength: 1
-          enum: [Chugmania Webhooks]
-          description: Identifies Chugmania Webhooks as the plugin that produced the event.
+          enum: [TM Webhooks]
+          description: Identifies TM Webhooks as the plugin that produced the event.
         pluginVersion:
           type: string
           minLength: 1
