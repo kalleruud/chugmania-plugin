@@ -12,20 +12,28 @@
     },
     "source": {
       "pluginName": "Chugmania Webhooks",
-      "pluginVersion": "1.0.0",
+      "pluginVersion": "x.y.z",
       "game": "turbo"
     },
     "players": [
       {
         "playerIndex": 0,
         "name": "Player One",
-        "login": "player-one",
-        "localId": "123456789",
-        "accountId": "8f3c8a6e-5ed4-4d50-9d0d-82ea735cba47"
+        "login": "player-one"
       }
     ],
     "map": {
       "name": "Example Map",
+      "uid": "ExampleMapUid",
+      "author": "Mapper",
+      "environment": "Stadium",
+      "type": "TrackMania\\TM_Race",
+      "medalTimesMs": {
+        "author": 25000,
+        "gold": 28000,
+        "silver": 32000,
+        "bronze": 40000
+      },
       "isLaps": true,
       "totalLaps": 2,
       "checkpointsPerLap": 3
@@ -45,10 +53,14 @@
     },
     "source": {
       "pluginName": "Chugmania Webhooks",
-      "pluginVersion": "1.0.0",
+      "pluginVersion": "x.y.z",
       "game": "turbo"
     },
-    "player": { "playerIndex": 0, "name": "Player One" }
+    "player": {
+      "playerIndex": 0,
+      "name": "Player One",
+      "login": "player-one"
+    }
   },
   {
     "schemaVersion": "1.0.0",
@@ -63,10 +75,14 @@
     },
     "source": {
       "pluginName": "Chugmania Webhooks",
-      "pluginVersion": "1.0.0",
+      "pluginVersion": "x.y.z",
       "game": "turbo"
     },
-    "player": { "playerIndex": 0 },
+    "player": {
+      "playerIndex": 0,
+      "name": "Player One",
+      "login": "player-one"
+    },
     "checkpoint": {
       "checkpointIndex": 1,
       "checkpointLapIndex": 1,
@@ -86,10 +102,14 @@
     },
     "source": {
       "pluginName": "Chugmania Webhooks",
-      "pluginVersion": "1.0.0",
+      "pluginVersion": "x.y.z",
       "game": "turbo"
     },
-    "player": { "playerIndex": 0 },
+    "player": {
+      "playerIndex": 0,
+      "name": "Player One",
+      "login": "player-one"
+    },
     "checkpoint": {
       "checkpointIndex": 4,
       "checkpointLapIndex": 0,
@@ -109,10 +129,14 @@
     },
     "source": {
       "pluginName": "Chugmania Webhooks",
-      "pluginVersion": "1.0.0",
+      "pluginVersion": "x.y.z",
       "game": "turbo"
     },
-    "player": { "playerIndex": 0 },
+    "player": {
+      "playerIndex": 0,
+      "name": "Player One",
+      "login": "player-one"
+    },
     "checkpoint": {
       "checkpointIndex": 4,
       "checkpointLapIndex": 0,
@@ -132,10 +156,14 @@
     },
     "source": {
       "pluginName": "Chugmania Webhooks",
-      "pluginVersion": "1.0.0",
+      "pluginVersion": "x.y.z",
       "game": "turbo"
     },
-    "player": { "playerIndex": 0 },
+    "player": {
+      "playerIndex": 0,
+      "name": "Player One",
+      "login": "player-one"
+    },
     "checkpoint": {
       "checkpointIndex": 8,
       "checkpointLapIndex": 4,
@@ -155,7 +183,7 @@
     },
     "source": {
       "pluginName": "Chugmania Webhooks",
-      "pluginVersion": "1.0.0",
+      "pluginVersion": "x.y.z",
       "game": "turbo"
     },
     "endReason": "completed"

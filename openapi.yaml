@@ -148,6 +148,7 @@ components:
           examples: ['1.0.0']
         type:
           type: string
+          minLength: 1
         eventId:
           type: string
           format: uuid
@@ -180,13 +181,16 @@ components:
       properties:
         pluginName:
           type: string
+          minLength: 1
           enum: [Chugmania Webhooks]
           description: Identifies Chugmania Webhooks as the plugin that produced the event.
         pluginVersion:
           type: string
+          minLength: 1
           pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
         game:
           type: string
+          minLength: 1
           enum: [turbo, next]
           description: >-
             Possible values are `turbo` for Trackmania Turbo and `next` for
@@ -216,9 +220,10 @@ components:
           minimum: 0
         name:
           type: string
+          description: Display name from the game API.
         login:
           type: string
-          description: Game login. Available in both games when exposed by the runtime.
+          description: Game login; omitted when not exposed by the runtime.
         localId:
           type: string
           description: >-
@@ -275,6 +280,7 @@ components:
     MedalTimes:
       type: object
       additionalProperties: true
+      required: [author, gold, silver, bronze]
       properties:
         author:
           type: integer
@@ -295,25 +301,39 @@ components:
     Map:
       type: object
       additionalProperties: true
-      required: [name, isLaps]
+      required:
+        - name
+        - uid
+        - author
+        - environment
+        - type
+        - medalTimesMs
+        - isLaps
+        - checkpointsPerLap
       properties:
         name:
           type: string
         uid:
           type: string
+          description: Unique map identifier from the game API.
         author:
           type: string
+          description: Creator nickname from the game API.
         environment:
           type: string
+          description: Environment or setting used by the map.
         type:
           type: string
+          description: Map type reported by the game API.
         medalTimesMs:
           $ref: '#/components/schemas/MedalTimes'
+          description: Target medal times; zero means unknown or not exposed.
         isLaps:
           type: boolean
         totalLaps:
           type: integer
           minimum: 1
+          description: Emitted only for lap maps when the lap count is known and greater than zero.
         checkpointsPerLap:
           type: integer
           minimum: 0
@@ -321,10 +341,12 @@ components:
     Mode:
       type: object
       additionalProperties: true
-      required: [name]
+      required:
+        - name
       properties:
         name:
           type: string
+          minLength: 1
           enum:
             [campaign, arcade, hot-seat, split-screen, secret, solo, unknown]
           description: >-
@@ -334,6 +356,7 @@ components:
             information to identify the local mode positively.
         type:
           type: string
+          minLength: 1
           enum:
             - time-attack
             - rounds
@@ -373,6 +396,7 @@ components:
           properties:
             type:
               type: string
+              minLength: 1
               enum: [start]
               description: The start event is emitted when a fully captured round begins.
             players:
@@ -382,9 +406,20 @@ components:
                 $ref: '#/components/schemas/Player'
               description: Ordered so players[i].playerIndex equals i.
             map:
-              $ref: '#/components/schemas/Map'
+              oneOf:
+                - $ref: '#/components/schemas/Map'
+                - type: 'null'
+              description: >-
+                Map played during the round. Emitted as null only if start is
+                emitted before the game exposes a map object. When non-null, all
+                Map properties are required.
             mode:
-              $ref: '#/components/schemas/Mode'
+              oneOf:
+                - $ref: '#/components/schemas/Mode'
+                - type: 'null'
+              description: >-
+                Game mode used during the round. Emitted as null if mode details
+                are unavailable.
     FirstThrottleEvent:
       allOf:
         - $ref: '#/components/schemas/PlayerEvent'
@@ -394,6 +429,7 @@ components:
           properties:
             type:
               type: string
+              minLength: 1
               enum: [first_throttle]
               description: The first_throttle event is emitted on the player's first throttle input of the round.
     PlayerCheckpointEvent:
@@ -405,6 +441,7 @@ components:
           properties:
             type:
               type: string
+              minLength: 1
               enum: [checkpoint, lap, respawn, finish]
               description: >-
                 Possible values are `checkpoint` when the player validates an
@@ -422,10 +459,12 @@ components:
           properties:
             type:
               type: string
+              minLength: 1
               enum: [end]
               description: The end event is emitted when capture of the round ends.
             endReason:
               type: string
+              minLength: 1
               enum: [completed, restarted, aborted, unknown]
               description: >-
                 Possible values are `completed` when the round finished normally,

@@ -2,10 +2,10 @@
 name = "Chugmania Webhooks"
 author = "DJ Balle"
 category = "Utilities"
-version = "1.0.0"
+version = "1.0.1"
 
 [game]
-supported_games = [ "Turbo" ]
+supported_games = ["Turbo"]
 
 [script]
 timeout = 0

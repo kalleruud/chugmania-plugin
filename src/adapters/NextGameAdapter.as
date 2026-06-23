@@ -159,6 +159,7 @@ MapSnapshot@ ReadNextMap(CTrackMania@ app)
     map.name = app.RootMap.MapName;
     map.uid = app.RootMap.IdName;
     map.author = app.RootMap.AuthorNickName;
+    map.environment = app.RootMap.CollectionName;
     map.mapType = app.RootMap.MapType;
     map.isLaps = app.RootMap.TMObjective_IsLapRace;
     map.authorTime = app.RootMap.TMObjective_AuthorTime;

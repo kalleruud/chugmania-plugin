@@ -26,8 +26,8 @@ configured. An empty token sends an unauthenticated request.
 
 There is no outer payload wrapper. The `type` property discriminates the event
 shape. Object schemas permit undeclared properties for forward compatibility.
-Unavailable optional values are omitted, never represented by `null`, empty
-strings, sentinels, or fabricated values.
+Unavailable string values are omitted, never represented by empty string
+sentinels. When a string field is emitted, it is non-empty.
 
 ### Responses
 
@@ -70,49 +70,53 @@ models instead of repeating their fields at the event root.
 
 ### Player
 
-| Field         | Type                 | Description                          | Rules                                         |
-| ------------- | -------------------- | ------------------------------------ | --------------------------------------------- |
-| `playerIndex` | non-negative integer | Position of the player in the roster | Required, zero-based, stable within the game  |
-| `name`        | string               | Display name of the player           | Optional                                      |
-| `login`       | string               | Game login of the player             | Optional; emitted when exposed by the runtime |
-| `localId`     | string               | Decimal engine-local login ID        | Optional; available in Next                   |
-| `accountId`   | string               | Ubisoft/Nadeo WebServices account ID | Optional; available in Next                   |
+| Field         | Type                 | Description                          | Rules                                        |
+| ------------- | -------------------- | ------------------------------------ | -------------------------------------------- |
+| `playerIndex` | non-negative integer | Position of the player in the roster | Required, zero-based, stable within the game |
+| `name`        | string               | Display name of the player           | Optional; omitted when unavailable           |
+| `login`       | string               | Game login of the player             | Optional; omitted when not exposed           |
+| `localId`     | string               | Decimal engine-local login ID        | Optional; Next-only                          |
+| `accountId`   | string               | Ubisoft/Nadeo WebServices account ID | Optional; Next-only                          |
 
 `start.players` is ordered by contiguous index, so
 `players[i].playerIndex == i`. Its length equals `game.totalPlayers`.
 Trackmania Next sources `login`, `localId`, and `accountId` from MLFeed V4's
-login, login MwId, and WebServices user ID. Turbo emits `login`, but omits the
-other identifiers because its runtime does not expose equivalent values.
+login, login MwId, and WebServices user ID. Turbo sources `name` and `login`
+from `CTrackManiaPlayer`, and omits `localId` and `accountId` because its
+runtime does not expose equivalent values. Player string fields are emitted only
+when non-empty.
 
 ### Map
 
-| Field               | Type                 | Description                                | Rules                                           |
-| ------------------- | -------------------- | ------------------------------------------ | ----------------------------------------------- |
-| `name`              | string               | Display name of the map                    | Required                                        |
-| `uid`               | string               | Unique identifier of the map               | Optional                                        |
-| `author`            | string               | Creator of the map                         | Optional                                        |
-| `environment`       | string               | Environment or setting used by the map     | Optional                                        |
-| `type`              | string               | Map type reported by the game              | Optional                                        |
-| `medalTimesMs`      | MedalTimes           | Target medal times in milliseconds         | Optional                                        |
-| `isLaps`            | boolean              | Whether the map uses multiple laps         | Required                                        |
-| `totalLaps`         | positive integer     | Number of laps required to finish          | Optional; omitted when unknown or not lap-based |
-| `checkpointsPerLap` | non-negative integer | Number of intermediate checkpoints per lap | Optional; excludes start and finish             |
+| Field               | Type                 | Description                                | Rules                                          |
+| ------------------- | -------------------- | ------------------------------------------ | ---------------------------------------------- |
+| `name`              | string               | Display name of the map                    | Required                                       |
+| `uid`               | string               | Unique identifier of the map               | Required                                       |
+| `author`            | string               | Creator of the map                         | Required                                       |
+| `environment`       | string               | Environment or setting used by the map     | Required                                       |
+| `type`              | string               | Map type reported by the game              | Required                                       |
+| `medalTimesMs`      | MedalTimes           | Target medal times in milliseconds         | Required; zero values mean unknown/not exposed |
+| `isLaps`            | boolean              | Whether the map uses multiple laps         | Required                                       |
+| `totalLaps`         | positive integer     | Number of laps required to finish          | Optional; emitted only for lap maps when `> 0` |
+| `checkpointsPerLap` | non-negative integer | Number of intermediate checkpoints per lap | Required; excludes start and finish            |
+
+Trackmania Next sources the map from `app.RootMap`; Trackmania Turbo sources it from `app.Challenge`. `start.map` is always emitted. It is `null` only if a start event is emitted before the game exposes a map object; Map string fields are serialized from scalar game API values and are never emitted as empty strings. `environment` is sourced from the map's `CollectionName` in both games.
 
 ### MedalTimes
 
 | Field    | Type                 | Description             | Rules    |
 | -------- | -------------------- | ----------------------- | -------- |
-| `author` | non-negative integer | Author medal time in ms | Optional |
-| `gold`   | non-negative integer | Gold medal time in ms   | Optional |
-| `silver` | non-negative integer | Silver medal time in ms | Optional |
-| `bronze` | non-negative integer | Bronze medal time in ms | Optional |
+| `author` | non-negative integer | Author medal time in ms | Required |
+| `gold`   | non-negative integer | Gold medal time in ms   | Required |
+| `silver` | non-negative integer | Silver medal time in ms | Required |
+| `bronze` | non-negative integer | Bronze medal time in ms | Required |
 
 ### Mode
 
-| Field  | Type   | Description                  | Rules                                     |
-| ------ | ------ | ---------------------------- | ----------------------------------------- |
-| `name` | enum   | Normalized local game mode   | Required; see mode values below           |
-| `type` | string | Specific mode or rule family | Turbo secret variant, or Next rule family |
+| Field  | Type   | Description                  | Rules                                 |
+| ------ | ------ | ---------------------------- | ------------------------------------- |
+| `name` | enum   | Normalized local game mode   | Required                              |
+| `type` | string | Specific mode or rule family | Optional; Not all types are supported |
 
 Turbo emits `campaign`, `arcade`, `hot-seat`, `split-screen`, `secret`, or
 `unknown` as `mode.name`. Next emits `campaign`, `solo`, or `split-screen`.
@@ -190,8 +194,8 @@ Emitted exactly once when a fully captured round begins.
 | Additional field | Type     | Description                        | Rules                                                   |
 | ---------------- | -------- | ---------------------------------- | ------------------------------------------------------- |
 | `players`        | Player[] | Players participating in the round | Required; ordered and length equals `game.totalPlayers` |
-| `map`            | Map      | Map played during the round        | Required                                                |
-| `mode`           | Mode     | Game mode used during the round    | Required                                                |
+| `map`            | Map      | Map played during the round        | Nullable;                                               |
+| `mode`           | Mode     | Game mode used during the round    | Nullable;                                               |
 
 ```json
 {
@@ -207,17 +211,28 @@ Emitted exactly once when a fully captured round begins.
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "1.0.0",
+    "pluginVersion": "x.y.z",
     "game": "turbo"
   },
   "players": [
     {
       "playerIndex": 0,
-      "name": "Player One"
+      "name": "Player One",
+      "login": "player-one"
     }
   ],
   "map": {
     "name": "Example Map",
+    "uid": "ExampleMapUid",
+    "author": "Mapper",
+    "environment": "Stadium",
+    "type": "TrackMania\\TM_Race",
+    "medalTimesMs": {
+      "author": 25000,
+      "gold": 28000,
+      "silver": 32000,
+      "bronze": 40000
+    },
     "isLaps": true,
     "totalLaps": 2,
     "checkpointsPerLap": 5
@@ -251,12 +266,13 @@ at most once per player per game and never re-armed.
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "1.0.0",
+    "pluginVersion": "x.y.z",
     "game": "turbo"
   },
   "player": {
     "playerIndex": 0,
-    "name": "Player One"
+    "name": "Player One",
+    "login": "player-one"
   }
 }
 ```
@@ -293,12 +309,13 @@ These event types share one contract:
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "1.0.0",
+    "pluginVersion": "x.y.z",
     "game": "turbo"
   },
   "player": {
     "playerIndex": 0,
-    "name": "Player One"
+    "name": "Player One",
+    "login": "player-one"
   },
   "checkpoint": {
     "checkpointIndex": 1,
@@ -338,7 +355,7 @@ the playground, fall back to `aborted`.
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "1.0.0",
+    "pluginVersion": "x.y.z",
     "game": "turbo"
   },
   "endReason": "completed"
