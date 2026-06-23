@@ -304,6 +304,9 @@ components:
       required:
         - name
         - uid
+        - author
+        - environment
+        - type
         - medalTimesMs
         - isLaps
         - totalLaps
@@ -319,15 +322,15 @@ components:
         author:
           type: string
           minLength: 1
-          description: Creator nickname from the game API; omitted when not exposed.
+          description: Creator nickname from the game API.
         environment:
           type: string
           minLength: 1
-          description: Environment or setting used by the map; omitted when not sourced.
+          description: Environment or setting used by the map.
         type:
           type: string
           minLength: 1
-          description: Map type reported by the game API; omitted when not exposed.
+          description: Map type reported by the game API.
         medalTimesMs:
           $ref: '#/components/schemas/MedalTimes'
           description: Target medal times; zero means unknown or not exposed.

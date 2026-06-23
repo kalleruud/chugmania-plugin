@@ -93,9 +93,9 @@ omitted when unavailable.
 | ------------------- | -------------------- | ------------------------------------------ | ---------------------------------------------- |
 | `name`              | string               | Display name of the map                    | Required                                       |
 | `uid`               | string               | Unique identifier of the map               | Required                                       |
-| `author`            | string               | Creator of the map                         | Optional; omitted when not exposed             |
-| `environment`       | string               | Environment or setting used by the map     | Optional; omitted when not sourced             |
-| `type`              | string               | Map type reported by the game              | Optional; omitted when not exposed             |
+| `author`            | string               | Creator of the map                         | Required; non-empty                            |
+| `environment`       | string               | Environment or setting used by the map     | Required; non-empty                            |
+| `type`              | string               | Map type reported by the game              | Required; non-empty                            |
 | `medalTimesMs`      | MedalTimes           | Target medal times in milliseconds         | Required; zero values mean unknown/not exposed |
 | `isLaps`            | boolean              | Whether the map uses multiple laps         | Required                                       |
 | `totalLaps`         | non-negative integer | Number of laps required to finish          | Required; `0` when unknown or not lap-based    |
@@ -104,7 +104,7 @@ omitted when unavailable.
 Trackmania Next sources the map from `app.RootMap`; Trackmania Turbo sources it
 from `app.Challenge`. Capture starts only after the game exposes that map
 object, so `start.map` is required and never `null`. Map fields are emitted as a
-non-null snapshot; optional map fields are omitted when unavailable.
+non-null snapshot, and string fields are non-empty.
 `environment` is sourced from the map's `CollectionName` in both games.
 
 ### MedalTimes
@@ -216,7 +216,7 @@ Emitted exactly once when a fully captured round begins.
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "1.0.0",
+    "pluginVersion": "1.0.1",
     "game": "turbo"
   },
   "players": [
@@ -271,7 +271,7 @@ at most once per player per game and never re-armed.
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "1.0.0",
+    "pluginVersion": "1.0.1",
     "game": "turbo"
   },
   "player": {
@@ -314,7 +314,7 @@ These event types share one contract:
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "1.0.0",
+    "pluginVersion": "1.0.1",
     "game": "turbo"
   },
   "player": {
@@ -360,7 +360,7 @@ the playground, fall back to `aborted`.
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "1.0.0",
+    "pluginVersion": "1.0.1",
     "game": "turbo"
   },
   "endReason": "completed"

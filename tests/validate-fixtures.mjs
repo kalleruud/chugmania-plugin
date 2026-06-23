@@ -70,18 +70,12 @@ for (const event of events) {
     assert.ok(event.map.name.length > 0)
     assert.equal(typeof event.map.uid, 'string')
     assert.ok(event.map.uid.length > 0)
-    if ('author' in event.map) {
-      assert.equal(typeof event.map.author, 'string')
-      assert.ok(event.map.author.length > 0)
-    }
-    if ('environment' in event.map) {
-      assert.equal(typeof event.map.environment, 'string')
-      assert.ok(event.map.environment.length > 0)
-    }
-    if ('type' in event.map) {
-      assert.equal(typeof event.map.type, 'string')
-      assert.ok(event.map.type.length > 0)
-    }
+    assert.equal(typeof event.map.author, 'string')
+    assert.ok(event.map.author.length > 0)
+    assert.equal(typeof event.map.environment, 'string')
+    assert.ok(event.map.environment.length > 0)
+    assert.equal(typeof event.map.type, 'string')
+    assert.ok(event.map.type.length > 0)
     assert.ok(event.map.medalTimesMs)
     for (const medal of ['author', 'gold', 'silver', 'bronze']) {
       assert.ok(Number.isInteger(event.map.medalTimesMs[medal]))
