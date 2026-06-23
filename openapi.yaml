@@ -350,6 +350,8 @@ components:
     Mode:
       type: object
       additionalProperties: true
+      required:
+        - name
       properties:
         name:
           type: string
