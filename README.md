@@ -53,9 +53,21 @@ and `event-sequence` headers matching the corresponding payload fields. When
 the token is empty, the request is sent without authentication. The token is
 masked and never logged.
 
+## Dependencies
+
+The plugin now ships as one package with one root `info.toml`.
+
+For Trackmania Next, `MLHook`, `MLFeedRaceData`, and `VehicleState` must be
+installed. They are declared as optional plugin dependencies so the same
+package can still load in Trackmania Turbo, but the plugin intentionally probes
+them during startup in Trackmania Next and fails during load if any of them are
+missing.
+
+Trackmania Turbo does not require those helper plugins.
+
 ## Build
 
-Build both packages on Windows:
+Build the shared package on Windows:
 
 ```powershell
 .\scripts\build-op.ps1 all
@@ -67,9 +79,8 @@ Or on a Unix-like shell:
 ./scripts/build-op.sh all
 ```
 
-The output files are `dist/chugmania-webhooks-next.op` and
-`dist/chugmania-webhooks-turbo.op`. Each archive contains the matching manifest
-as `info.toml` and the shared `src` tree.
+The output file is `dist/chugmania-webhooks.op`. The archive contains the root
+`info.toml` and the shared `src` tree.
 
 Unsigned builds require Openplanet Developer signature mode. Public
 distribution requires the normal Openplanet review and signing process.

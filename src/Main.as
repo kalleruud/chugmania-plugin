@@ -14,12 +14,25 @@ int g_configurationState = -1;
 
 void Main()
 {
+#if TMNEXT
+    EnsureTrackmaniaNextDependencies();
+#endif
     @g_delivery = WebhookDelivery();
     @g_tracker = RoundTracker(g_delivery);
     @g_adapter = CreateGameAdapter();
     print("[init] " + AdapterGameName());
     startnew(CoroutineFunc(DeliveryLoop));
 }
+
+#if TMNEXT
+void EnsureTrackmaniaNextDependencies()
+{
+    // Probe required helper APIs during startup so TMNEXT fails fast if the
+    // shared package was installed without its required helper plugins.
+    MLFeed::GetRaceData_V4();
+    VehicleState::ViewingPlayerState();
+}
+#endif
 
 void DeliveryLoop() { g_delivery.Run(); }
 
