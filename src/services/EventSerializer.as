@@ -25,7 +25,7 @@ Json::Value@ SerializeMap(MapSnapshot@ map)
     json["environment"] = map.environment;
     json["type"] = map.mapType;
     json["isLaps"] = map.isLaps;
-    json["totalLaps"] = map.totalLaps;
+    if (map.isLaps && map.totalLaps > 0) json["totalLaps"] = map.totalLaps;
     json["checkpointsPerLap"] = map.checkpointsPerLap;
     Json::Value@ medals = Json::Object();
     medals["author"] = map.authorTime;

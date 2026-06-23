@@ -92,8 +92,11 @@ for (const event of events) {
         assert.ok(event.map.medalTimesMs[medal] >= 0)
       }
       assert.equal(typeof event.map.isLaps, 'boolean')
-      assert.ok(Number.isInteger(event.map.totalLaps))
-      assert.ok(event.map.totalLaps >= 0)
+      if (!event.map.isLaps) assert.ok(!('totalLaps' in event.map))
+      if ('totalLaps' in event.map) {
+        assert.ok(Number.isInteger(event.map.totalLaps))
+        assert.ok(event.map.totalLaps > 0)
+      }
       assert.ok(Number.isInteger(event.map.checkpointsPerLap))
       assert.ok(event.map.checkpointsPerLap >= 0)
     }

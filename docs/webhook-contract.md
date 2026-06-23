@@ -97,7 +97,7 @@ when non-empty.
 | `type`              | string               | Map type reported by the game              | Required                                       |
 | `medalTimesMs`      | MedalTimes           | Target medal times in milliseconds         | Required; zero values mean unknown/not exposed |
 | `isLaps`            | boolean              | Whether the map uses multiple laps         | Required                                       |
-| `totalLaps`         | non-negative integer | Number of laps required to finish          | Required; `0` when unknown or not lap-based    |
+| `totalLaps`         | positive integer     | Number of laps required to finish          | Optional; emitted only for lap maps when `> 0` |
 | `checkpointsPerLap` | non-negative integer | Number of intermediate checkpoints per lap | Required; excludes start and finish            |
 
 Trackmania Next sources the map from `app.RootMap`; Trackmania Turbo sources it from `app.Challenge`. `start.map` is always emitted. It is `null` only if a start event is emitted before the game exposes a map object; Map string fields are serialized from scalar game API values and are never emitted as empty strings. `environment` is sourced from the map's `CollectionName` in both games.

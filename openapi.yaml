@@ -313,7 +313,6 @@ components:
         - type
         - medalTimesMs
         - isLaps
-        - totalLaps
         - checkpointsPerLap
       properties:
         name:
@@ -342,8 +341,8 @@ components:
           type: boolean
         totalLaps:
           type: integer
-          minimum: 0
-          description: Zero when the map is not lap-based or the lap count is unknown.
+          minimum: 1
+          description: Emitted only for lap maps when the lap count is known and greater than zero.
         checkpointsPerLap:
           type: integer
           minimum: 0
