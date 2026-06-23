@@ -209,23 +209,28 @@ components:
     Player:
       type: object
       additionalProperties: true
-      required: [playerIndex]
+      required: [playerIndex, name]
       properties:
         playerIndex:
           type: integer
           minimum: 0
         name:
           type: string
+          minLength: 1
+          description: Display name from the game API.
         login:
           type: string
-          description: Game login. Available in both games when exposed by the runtime.
+          minLength: 1
+          description: Game login; omitted when not exposed by the runtime.
         localId:
           type: string
+          minLength: 1
           description: >-
             Decimal engine-local ID for the player's login. Available in
             Trackmania Next; omitted when the runtime does not expose it.
         accountId:
           type: string
+          minLength: 1
           description: >-
             Ubisoft/Nadeo WebServices account ID. Available in Trackmania Next;
             omitted when the runtime does not expose it.
@@ -299,9 +304,6 @@ components:
       required:
         - name
         - uid
-        - author
-        - environment
-        - type
         - medalTimesMs
         - isLaps
         - totalLaps
@@ -309,19 +311,23 @@ components:
       properties:
         name:
           type: string
+          minLength: 1
         uid:
           type: string
           minLength: 1
           description: Unique map identifier from the game API.
         author:
           type: string
-          description: Creator nickname from the game API; empty when not exposed.
+          minLength: 1
+          description: Creator nickname from the game API; omitted when not exposed.
         environment:
           type: string
-          description: Environment or setting used by the map; empty when not sourced.
+          minLength: 1
+          description: Environment or setting used by the map; omitted when not sourced.
         type:
           type: string
-          description: Map type reported by the game API; empty when not exposed.
+          minLength: 1
+          description: Map type reported by the game API; omitted when not exposed.
         medalTimesMs:
           $ref: '#/components/schemas/MedalTimes'
           description: Target medal times; zero means unknown or not exposed.

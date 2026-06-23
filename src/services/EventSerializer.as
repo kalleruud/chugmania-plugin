@@ -12,11 +12,11 @@ Json::Value@ SerializePlayer(PlayerSnapshot@ player)
 Json::Value@ SerializeMap(MapSnapshot@ map)
 {
     Json::Value@ json = Json::Object();
-    json["name"] = map.name;
-    json["uid"] = map.uid;
-    json["author"] = map.author;
-    json["environment"] = map.environment;
-    json["type"] = map.mapType;
+    if (map.name.Length > 0) json["name"] = map.name;
+    if (map.uid.Length > 0) json["uid"] = map.uid;
+    if (map.author.Length > 0) json["author"] = map.author;
+    if (map.environment.Length > 0) json["environment"] = map.environment;
+    if (map.mapType.Length > 0) json["type"] = map.mapType;
     json["isLaps"] = map.isLaps;
     json["totalLaps"] = map.totalLaps;
     json["checkpointsPerLap"] = map.checkpointsPerLap;

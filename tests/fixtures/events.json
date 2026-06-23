@@ -19,9 +19,7 @@
       {
         "playerIndex": 0,
         "name": "Player One",
-        "login": "player-one",
-        "localId": "123456789",
-        "accountId": "8f3c8a6e-5ed4-4d50-9d0d-82ea735cba47"
+        "login": "player-one"
       }
     ],
     "map": {
@@ -58,7 +56,11 @@
       "pluginVersion": "1.0.0",
       "game": "turbo"
     },
-    "player": { "playerIndex": 0, "name": "Player One" }
+    "player": {
+      "playerIndex": 0,
+      "name": "Player One",
+      "login": "player-one"
+    }
   },
   {
     "schemaVersion": "1.0.0",
@@ -76,7 +78,11 @@
       "pluginVersion": "1.0.0",
       "game": "turbo"
     },
-    "player": { "playerIndex": 0 },
+    "player": {
+      "playerIndex": 0,
+      "name": "Player One",
+      "login": "player-one"
+    },
     "checkpoint": {
       "checkpointIndex": 1,
       "checkpointLapIndex": 1,
@@ -99,7 +105,11 @@
       "pluginVersion": "1.0.0",
       "game": "turbo"
     },
-    "player": { "playerIndex": 0 },
+    "player": {
+      "playerIndex": 0,
+      "name": "Player One",
+      "login": "player-one"
+    },
     "checkpoint": {
       "checkpointIndex": 4,
       "checkpointLapIndex": 0,
@@ -122,7 +132,11 @@
       "pluginVersion": "1.0.0",
       "game": "turbo"
     },
-    "player": { "playerIndex": 0 },
+    "player": {
+      "playerIndex": 0,
+      "name": "Player One",
+      "login": "player-one"
+    },
     "checkpoint": {
       "checkpointIndex": 4,
       "checkpointLapIndex": 0,
@@ -145,7 +159,11 @@
       "pluginVersion": "1.0.0",
       "game": "turbo"
     },
-    "player": { "playerIndex": 0 },
+    "player": {
+      "playerIndex": 0,
+      "name": "Player One",
+      "login": "player-one"
+    },
     "checkpoint": {
       "checkpointIndex": 8,
       "checkpointLapIndex": 4,

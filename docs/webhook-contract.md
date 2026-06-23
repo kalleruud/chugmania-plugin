@@ -26,8 +26,8 @@ configured. An empty token sends an unauthenticated request.
 
 There is no outer payload wrapper. The `type` property discriminates the event
 shape. Object schemas permit undeclared properties for forward compatibility.
-Unavailable optional values are omitted, never represented by empty strings,
-sentinels, fabricated values, or `null`.
+Unavailable optional values are omitted, never represented by `null` or empty
+string sentinels. When a string field is emitted, it is non-empty.
 
 ### Responses
 
@@ -70,19 +70,22 @@ models instead of repeating their fields at the event root.
 
 ### Player
 
-| Field         | Type                 | Description                          | Rules                                         |
-| ------------- | -------------------- | ------------------------------------ | --------------------------------------------- |
-| `playerIndex` | non-negative integer | Position of the player in the roster | Required, zero-based, stable within the game  |
-| `name`        | string               | Display name of the player           | Optional                                      |
-| `login`       | string               | Game login of the player             | Optional; emitted when exposed by the runtime |
-| `localId`     | string               | Decimal engine-local login ID        | Optional; available in Next                   |
-| `accountId`   | string               | Ubisoft/Nadeo WebServices account ID | Optional; available in Next                   |
+| Field         | Type                 | Description                          | Rules                                        |
+| ------------- | -------------------- | ------------------------------------ | -------------------------------------------- |
+| `playerIndex` | non-negative integer | Position of the player in the roster | Required, zero-based, stable within the game |
+| `name`        | string               | Display name of the player           | Required                                     |
+| `login`       | string               | Game login of the player             | Optional; omitted when not exposed           |
+| `localId`     | string               | Decimal engine-local login ID        | Optional; Next-only                          |
+| `accountId`   | string               | Ubisoft/Nadeo WebServices account ID | Optional; Next-only                          |
 
 `start.players` is ordered by contiguous index, so
 `players[i].playerIndex == i`. Its length equals `game.totalPlayers`.
 Trackmania Next sources `login`, `localId`, and `accountId` from MLFeed V4's
-login, login MwId, and WebServices user ID. Turbo emits `login`, but omits the
-other identifiers because its runtime does not expose equivalent values.
+login, login MwId, and WebServices user ID. Turbo sources `name` and `login`
+from `CTrackManiaPlayer`, and omits `localId` and `accountId` because its
+runtime does not expose equivalent values. Required player fields are emitted as
+a complete snapshot and are never `null`; optional player identifiers are
+omitted when unavailable.
 
 ### Map
 
@@ -90,9 +93,9 @@ other identifiers because its runtime does not expose equivalent values.
 | ------------------- | -------------------- | ------------------------------------------ | ---------------------------------------------- |
 | `name`              | string               | Display name of the map                    | Required                                       |
 | `uid`               | string               | Unique identifier of the map               | Required                                       |
-| `author`            | string               | Creator of the map                         | Required; empty when not exposed               |
-| `environment`       | string               | Environment or setting used by the map     | Required; empty when not sourced               |
-| `type`              | string               | Map type reported by the game              | Required; empty when not exposed               |
+| `author`            | string               | Creator of the map                         | Optional; omitted when not exposed             |
+| `environment`       | string               | Environment or setting used by the map     | Optional; omitted when not sourced             |
+| `type`              | string               | Map type reported by the game              | Optional; omitted when not exposed             |
 | `medalTimesMs`      | MedalTimes           | Target medal times in milliseconds         | Required; zero values mean unknown/not exposed |
 | `isLaps`            | boolean              | Whether the map uses multiple laps         | Required                                       |
 | `totalLaps`         | non-negative integer | Number of laps required to finish          | Required; `0` when unknown or not lap-based    |
@@ -101,8 +104,7 @@ other identifiers because its runtime does not expose equivalent values.
 Trackmania Next sources the map from `app.RootMap`; Trackmania Turbo sources it
 from `app.Challenge`. Capture starts only after the game exposes that map
 object, so `start.map` is required and never `null`. Map fields are emitted as a
-complete snapshot and are never `null`; when a game value is not exposed, the
-plugin emits the value type's empty or zero value.
+non-null snapshot; optional map fields are omitted when unavailable.
 `environment` is sourced from the map's `CollectionName` in both games.
 
 ### MedalTimes
@@ -220,7 +222,8 @@ Emitted exactly once when a fully captured round begins.
   "players": [
     {
       "playerIndex": 0,
-      "name": "Player One"
+      "name": "Player One",
+      "login": "player-one"
     }
   ],
   "map": {
@@ -273,7 +276,8 @@ at most once per player per game and never re-armed.
   },
   "player": {
     "playerIndex": 0,
-    "name": "Player One"
+    "name": "Player One",
+    "login": "player-one"
   }
 }
 ```
@@ -315,7 +319,8 @@ These event types share one contract:
   },
   "player": {
     "playerIndex": 0,
-    "name": "Player One"
+    "name": "Player One",
+    "login": "player-one"
   },
   "checkpoint": {
     "checkpointIndex": 1,
