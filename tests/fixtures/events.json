@@ -26,6 +26,16 @@
     ],
     "map": {
       "name": "Example Map",
+      "uid": "ExampleMapUid",
+      "author": "Mapper",
+      "environment": "Stadium",
+      "type": "TrackMania\\TM_Race",
+      "medalTimesMs": {
+        "author": 25000,
+        "gold": 28000,
+        "silver": 32000,
+        "bronze": 40000
+      },
       "isLaps": true,
       "totalLaps": 2,
       "checkpointsPerLap": 3

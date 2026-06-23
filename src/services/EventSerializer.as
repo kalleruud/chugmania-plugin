@@ -13,19 +13,19 @@ Json::Value@ SerializeMap(MapSnapshot@ map)
 {
     Json::Value@ json = Json::Object();
     json["name"] = map.name;
+    json["uid"] = map.uid;
+    json["author"] = map.author;
+    json["environment"] = map.environment;
+    json["type"] = map.mapType;
     json["isLaps"] = map.isLaps;
-    if (map.uid.Length > 0) json["uid"] = map.uid;
-    if (map.author.Length > 0) json["author"] = map.author;
-    if (map.environment.Length > 0) json["environment"] = map.environment;
-    if (map.mapType.Length > 0) json["type"] = map.mapType;
-    if (map.isLaps && map.totalLaps > 0) json["totalLaps"] = map.totalLaps;
+    json["totalLaps"] = map.totalLaps;
     json["checkpointsPerLap"] = map.checkpointsPerLap;
     Json::Value@ medals = Json::Object();
-    if (map.authorTime > 0) medals["author"] = map.authorTime;
-    if (map.goldTime > 0) medals["gold"] = map.goldTime;
-    if (map.silverTime > 0) medals["silver"] = map.silverTime;
-    if (map.bronzeTime > 0) medals["bronze"] = map.bronzeTime;
-    if (medals.GetKeys().Length > 0) json["medalTimesMs"] = medals;
+    medals["author"] = map.authorTime;
+    medals["gold"] = map.goldTime;
+    medals["silver"] = map.silverTime;
+    medals["bronze"] = map.bronzeTime;
+    json["medalTimesMs"] = medals;
     return json;
 }
 

@@ -26,8 +26,8 @@ configured. An empty token sends an unauthenticated request.
 
 There is no outer payload wrapper. The `type` property discriminates the event
 shape. Object schemas permit undeclared properties for forward compatibility.
-Unavailable optional values are omitted, never represented by `null`, empty
-strings, sentinels, or fabricated values.
+Unavailable optional values are omitted, never represented by empty strings,
+sentinels, fabricated values, or `null`.
 
 ### Responses
 
@@ -86,26 +86,33 @@ other identifiers because its runtime does not expose equivalent values.
 
 ### Map
 
-| Field               | Type                 | Description                                | Rules                                           |
-| ------------------- | -------------------- | ------------------------------------------ | ----------------------------------------------- |
-| `name`              | string               | Display name of the map                    | Required                                        |
-| `uid`               | string               | Unique identifier of the map               | Optional                                        |
-| `author`            | string               | Creator of the map                         | Optional                                        |
-| `environment`       | string               | Environment or setting used by the map     | Optional                                        |
-| `type`              | string               | Map type reported by the game              | Optional                                        |
-| `medalTimesMs`      | MedalTimes           | Target medal times in milliseconds         | Optional                                        |
-| `isLaps`            | boolean              | Whether the map uses multiple laps         | Required                                        |
-| `totalLaps`         | positive integer     | Number of laps required to finish          | Optional; omitted when unknown or not lap-based |
-| `checkpointsPerLap` | non-negative integer | Number of intermediate checkpoints per lap | Optional; excludes start and finish             |
+| Field               | Type                 | Description                                | Rules                                          |
+| ------------------- | -------------------- | ------------------------------------------ | ---------------------------------------------- |
+| `name`              | string               | Display name of the map                    | Required                                       |
+| `uid`               | string               | Unique identifier of the map               | Required                                       |
+| `author`            | string               | Creator of the map                         | Required; empty when not exposed               |
+| `environment`       | string               | Environment or setting used by the map     | Required; empty when not sourced               |
+| `type`              | string               | Map type reported by the game              | Required; empty when not exposed               |
+| `medalTimesMs`      | MedalTimes           | Target medal times in milliseconds         | Required; zero values mean unknown/not exposed |
+| `isLaps`            | boolean              | Whether the map uses multiple laps         | Required                                       |
+| `totalLaps`         | non-negative integer | Number of laps required to finish          | Required; `0` when unknown or not lap-based    |
+| `checkpointsPerLap` | non-negative integer | Number of intermediate checkpoints per lap | Required; excludes start and finish            |
+
+Trackmania Next sources the map from `app.RootMap`; Trackmania Turbo sources it
+from `app.Challenge`. Capture starts only after the game exposes that map
+object, so `start.map` is required and never `null`. Map fields are emitted as a
+complete snapshot and are never `null`; when a game value is not exposed, the
+plugin emits the value type's empty or zero value.
+`environment` is sourced from the map's `CollectionName` in both games.
 
 ### MedalTimes
 
 | Field    | Type                 | Description             | Rules    |
 | -------- | -------------------- | ----------------------- | -------- |
-| `author` | non-negative integer | Author medal time in ms | Optional |
-| `gold`   | non-negative integer | Gold medal time in ms   | Optional |
-| `silver` | non-negative integer | Silver medal time in ms | Optional |
-| `bronze` | non-negative integer | Bronze medal time in ms | Optional |
+| `author` | non-negative integer | Author medal time in ms | Required |
+| `gold`   | non-negative integer | Gold medal time in ms   | Required |
+| `silver` | non-negative integer | Silver medal time in ms | Required |
+| `bronze` | non-negative integer | Bronze medal time in ms | Required |
 
 ### Mode
 
@@ -218,6 +225,16 @@ Emitted exactly once when a fully captured round begins.
   ],
   "map": {
     "name": "Example Map",
+    "uid": "ExampleMapUid",
+    "author": "Mapper",
+    "environment": "Stadium",
+    "type": "TrackMania\\TM_Race",
+    "medalTimesMs": {
+      "author": 25000,
+      "gold": 28000,
+      "silver": 32000,
+      "bronze": 40000
+    },
     "isLaps": true,
     "totalLaps": 2,
     "checkpointsPerLap": 5

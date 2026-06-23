@@ -275,6 +275,7 @@ components:
     MedalTimes:
       type: object
       additionalProperties: true
+      required: [author, gold, silver, bronze]
       properties:
         author:
           type: integer
@@ -295,29 +296,45 @@ components:
     Map:
       type: object
       additionalProperties: true
-      required: [name, isLaps]
+      required:
+        - name
+        - uid
+        - author
+        - environment
+        - type
+        - medalTimesMs
+        - isLaps
+        - totalLaps
+        - checkpointsPerLap
       properties:
         name:
           type: string
         uid:
           type: string
+          minLength: 1
+          description: Unique map identifier from the game API.
         author:
           type: string
+          description: Creator nickname from the game API; empty when not exposed.
         environment:
           type: string
+          description: Environment or setting used by the map; empty when not sourced.
         type:
           type: string
+          description: Map type reported by the game API; empty when not exposed.
         medalTimesMs:
           $ref: '#/components/schemas/MedalTimes'
+          description: Target medal times; zero means unknown or not exposed.
         isLaps:
           type: boolean
         totalLaps:
           type: integer
-          minimum: 1
+          minimum: 0
+          description: Zero when the map is not lap-based or the lap count is unknown.
         checkpointsPerLap:
           type: integer
           minimum: 0
-          description: Intermediate checkpoints only; excludes start and finish.
+          description: Intermediate checkpoints only; excludes start and finish. Always emitted for a non-null map.
     Mode:
       type: object
       additionalProperties: true
