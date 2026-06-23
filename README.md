@@ -1,5 +1,3 @@
-# TM Webhooks
-
 <div align="center">
   <img src="assets/tm-wh.png" alt="TM Webhooks logo" width="480px">
 </div>
