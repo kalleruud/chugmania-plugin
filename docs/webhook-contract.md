@@ -211,7 +211,7 @@ Emitted exactly once when a fully captured round begins.
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "1.0.1",
+    "pluginVersion": "x.y.z",
     "game": "turbo"
   },
   "players": [
@@ -266,7 +266,7 @@ at most once per player per game and never re-armed.
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "1.0.1",
+    "pluginVersion": "x.y.z",
     "game": "turbo"
   },
   "player": {
@@ -309,7 +309,7 @@ These event types share one contract:
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "1.0.1",
+    "pluginVersion": "x.y.z",
     "game": "turbo"
   },
   "player": {
@@ -355,7 +355,7 @@ the playground, fall back to `aborted`.
   },
   "source": {
     "pluginName": "Chugmania Webhooks",
-    "pluginVersion": "1.0.1",
+    "pluginVersion": "x.y.z",
     "game": "turbo"
   },
   "endReason": "completed"
