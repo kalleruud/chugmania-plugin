@@ -191,11 +191,11 @@ games. For Trackmania Next, `source.game` is `next`.
 
 Emitted exactly once when a fully captured round begins.
 
-| Additional field | Type     | Description                        | Rules                                                   |
-| ---------------- | -------- | ---------------------------------- | ------------------------------------------------------- |
-| `players`        | Player[] | Players participating in the round | Required; ordered and length equals `game.totalPlayers` |
-| `map`            | Map      | Map played during the round        | Optional; map details might not be available from game. |
-| `mode`           | Mode     | Game mode used during the round    | Required                                                |
+| Additional field | Type      | Description                        | Rules                                                   |
+| ---------------- | --------- | ---------------------------------- | ------------------------------------------------------- |
+| `players`        | Player[]  | Players participating in the round | Required; ordered and length equals `game.totalPlayers` |
+| `map`            | Map/null  | Map played during the round        | Nullable;                                               |
+| `mode`           | Mode/null | Game mode used during the round    | Nullable;                                               |
 
 ```json
 {

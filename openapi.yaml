@@ -399,7 +399,7 @@ components:
         - $ref: '#/components/schemas/BaseEvent'
         - type: object
           additionalProperties: true
-          required: [type, players, mode]
+          required: [type, players, map, mode]
           properties:
             type:
               type: string
@@ -413,13 +413,20 @@ components:
                 $ref: '#/components/schemas/Player'
               description: Ordered so players[i].playerIndex equals i.
             map:
-              $ref: '#/components/schemas/Map'
+              oneOf:
+                - $ref: '#/components/schemas/Map'
+                - type: 'null'
               description: >-
                 Map played during the round. Emitted as null only if start is
                 emitted before the game exposes a map object. When non-null, all
                 Map properties are required.
             mode:
-              $ref: '#/components/schemas/Mode'
+              oneOf:
+                - $ref: '#/components/schemas/Mode'
+                - type: 'null'
+              description: >-
+                Game mode used during the round. Emitted as null if mode details
+                are unavailable.
     FirstThrottleEvent:
       allOf:
         - $ref: '#/components/schemas/PlayerEvent'

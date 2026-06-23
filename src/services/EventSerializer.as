@@ -7,10 +7,10 @@ Json::Value@ SerializePlayer(PlayerSnapshot@ player)
 {
     Json::Value@ json = Json::Object();
     json["playerIndex"] = player.playerIndex;
-    PutNonEmptyString(json, "name", player.name);
-    PutNonEmptyString(json, "login", player.login);
-    PutNonEmptyString(json, "localId", player.localId);
-    PutNonEmptyString(json, "accountId", player.accountId);
+    json["name"], player.name;
+    json["login"], player.login;
+    json["localId"], player.localId;
+    json["accountId"], player.accountId;
     return json;
 }
 
@@ -38,6 +38,8 @@ Json::Value@ SerializeMap(MapSnapshot@ map)
 
 Json::Value@ SerializeMode(ModeSnapshot@ mode)
 {
+    if (mode is null) return Json::Value();
+
     Json::Value@ json = Json::Object();
     PutNonEmptyString(json, "name", mode.name);
     PutNonEmptyString(json, "type", mode.modeType);
