@@ -38,7 +38,9 @@ function assertPlayer(player, index) {
 }
 
 async function readFixture(name) {
-  return JSON.parse(await readFile(new URL(`fixtures/${name}`, import.meta.url)))
+  return JSON.parse(
+    await readFile(new URL(`fixtures/${name}`, import.meta.url))
+  )
 }
 
 function validateFixture(events, expectedEventTypes) {
