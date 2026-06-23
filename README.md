@@ -1,7 +1,14 @@
 # TM Webhooks
 
-An Openplanet plugin that emits ordered race events from supported local modes
-in Trackmania Next (2020) and Trackmania Turbo.
+<div align="center">
+  <img src="assets/tm-wh.png" alt="TM Webhooks logo" width="480px">
+</div>
+
+<p align="center">
+  An Openplanet plugin that emits ordered race events from supported local modes in Trackmania Next (2020) and Trackmania Turbo.
+</p>
+
+---
 
 The plugin sends a separate webhook for `start`, `first_throttle`,
 `checkpoint`, `lap`, `respawn`, `finish`, and `end`. Every event carries a UUID,
