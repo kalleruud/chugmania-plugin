@@ -41,7 +41,7 @@ Json::Value@ SerializeMode(ModeSnapshot@ mode)
     if (mode is null) return Json::Value();
 
     Json::Value@ json = Json::Object();
-    PutNonEmptyString(json, "name", mode.name);
+    json["name"] = mode.name;
     PutNonEmptyString(json, "type", mode.modeType);
     return json;
 }
