@@ -5,7 +5,7 @@ category = "Utilities"
 version = "1.0.1"
 
 [game]
-supported_games = [ "Turbo" ]
+supported_games = ["Turbo"]
 
 [script]
 timeout = 0
