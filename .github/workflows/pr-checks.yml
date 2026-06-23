@@ -11,6 +11,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect changed inputs
+    runs-on: ubuntu-latest
+    outputs:
+      openapi_contract: ${{ steps.filter.outputs.openapi_contract }}
+      webhook_fixtures: ${{ steps.filter.outputs.webhook_fixtures }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Detect relevant file changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            openapi_contract:
+              - 'openapi.yaml'
+            webhook_fixtures:
+              - 'openapi.yaml'
+              - 'tests/fixtures/**'
+              - 'tests/validate-fixtures.mjs'
+
   prettier:
     name: Check formatting
     runs-on: ubuntu-latest
@@ -29,6 +52,8 @@ jobs:
 
   openapi-contract:
     name: Validate OpenAPI contract
+    needs: changes
+    if: needs.changes.outputs.openapi_contract == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -45,6 +70,8 @@ jobs:
 
   webhook-fixtures:
     name: Validate webhook fixtures
+    needs: changes
+    if: needs.changes.outputs.webhook_fixtures == 'true'
     runs-on: ubuntu-latest
 
     steps:
