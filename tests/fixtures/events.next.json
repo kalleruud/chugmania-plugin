@@ -1,0 +1,152 @@
+[
+  {
+    "schemaVersion": "1.0.0",
+    "type": "start",
+    "eventId": "95042f27-95e1-4772-bc05-c740b756dc95",
+    "sequence": 0,
+    "occurredAt": "2026-06-21T13:00:00.000Z",
+    "durationMs": 0,
+    "game": {
+      "gameId": "4039f5d4-80b1-41d1-a703-2037b3039fe7",
+      "totalPlayers": 2
+    },
+    "source": {
+      "pluginName": "Chugmania Webhooks",
+      "pluginVersion": "x.y.z",
+      "game": "next"
+    },
+    "players": [
+      {
+        "playerIndex": 0,
+        "name": "Driver One",
+        "login": "driver-one",
+        "localId": "123456789",
+        "accountId": "8f3c8a6e-5ed4-4d50-9d0d-82ea735cba47"
+      },
+      {
+        "playerIndex": 1,
+        "name": "Driver Two"
+      }
+    ],
+    "map": {
+      "name": "Next Example",
+      "uid": "NextExampleUid",
+      "author": "Builder",
+      "environment": "Stadium",
+      "type": "TrackMania\\TM_TimeAttack_Online",
+      "medalTimesMs": {
+        "author": 41000,
+        "gold": 45000,
+        "silver": 52000,
+        "bronze": 65000
+      },
+      "isLaps": false,
+      "checkpointsPerLap": 3
+    },
+    "mode": {
+      "name": "solo",
+      "type": "time-attack"
+    }
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "type": "first_throttle",
+    "eventId": "07c680bc-a0ff-4ae4-837b-b9ea10096502",
+    "sequence": 1,
+    "occurredAt": "2026-06-21T13:00:00.150Z",
+    "durationMs": 150,
+    "game": {
+      "gameId": "4039f5d4-80b1-41d1-a703-2037b3039fe7",
+      "totalPlayers": 2
+    },
+    "source": {
+      "pluginName": "Chugmania Webhooks",
+      "pluginVersion": "x.y.z",
+      "game": "next"
+    },
+    "player": {
+      "playerIndex": 0,
+      "name": "Driver One",
+      "login": "driver-one",
+      "localId": "123456789",
+      "accountId": "8f3c8a6e-5ed4-4d50-9d0d-82ea735cba47"
+    }
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "type": "checkpoint",
+    "eventId": "df4b435d-e3e2-4703-8417-ef508afd25a8",
+    "sequence": 2,
+    "occurredAt": "2026-06-21T13:00:12.000Z",
+    "durationMs": 12000,
+    "game": {
+      "gameId": "4039f5d4-80b1-41d1-a703-2037b3039fe7",
+      "totalPlayers": 2
+    },
+    "source": {
+      "pluginName": "Chugmania Webhooks",
+      "pluginVersion": "x.y.z",
+      "game": "next"
+    },
+    "player": {
+      "playerIndex": 1,
+      "name": "Driver Two"
+    },
+    "checkpoint": {
+      "checkpointIndex": 1,
+      "checkpointLapIndex": 1,
+      "lapNumber": 1,
+      "theoreticalDurationMs": 11800,
+      "lostMs": 0
+    }
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "type": "finish",
+    "eventId": "0a365d96-f1aa-40c1-85df-f4703b1c373c",
+    "sequence": 3,
+    "occurredAt": "2026-06-21T13:00:41.000Z",
+    "durationMs": 41000,
+    "game": {
+      "gameId": "4039f5d4-80b1-41d1-a703-2037b3039fe7",
+      "totalPlayers": 2
+    },
+    "source": {
+      "pluginName": "Chugmania Webhooks",
+      "pluginVersion": "x.y.z",
+      "game": "next"
+    },
+    "player": {
+      "playerIndex": 0,
+      "name": "Driver One",
+      "login": "driver-one",
+      "localId": "123456789",
+      "accountId": "8f3c8a6e-5ed4-4d50-9d0d-82ea735cba47"
+    },
+    "checkpoint": {
+      "checkpointIndex": 4,
+      "checkpointLapIndex": 4,
+      "lapNumber": 1,
+      "theoreticalDurationMs": 39500,
+      "lostMs": 1500
+    }
+  },
+  {
+    "schemaVersion": "1.0.0",
+    "type": "end",
+    "eventId": "bdc6d667-d2bb-45c3-9665-e42da24fd8ca",
+    "sequence": 4,
+    "occurredAt": "2026-06-21T13:00:41.001Z",
+    "durationMs": 41000,
+    "game": {
+      "gameId": "4039f5d4-80b1-41d1-a703-2037b3039fe7",
+      "totalPlayers": 2
+    },
+    "source": {
+      "pluginName": "Chugmania Webhooks",
+      "pluginVersion": "x.y.z",
+      "game": "next"
+    },
+    "endReason": "completed"
+  }
+]
